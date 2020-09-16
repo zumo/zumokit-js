@@ -1,0 +1,33 @@
+{
+  "name": "zumokit-js",
+  "version": "2.1.0",
+  "description": "ZumoKit is a Wallet as a Service SDK",
+  "main": "index.ts",
+  "scripts": {
+    "build": "gulp"
+  },
+  "author": "Ivan Romanovski",
+  "license": "MIT",
+  "peerDependencies": {
+    "decimal.js": "^10.2.0"
+  },
+  "devDependencies": {
+    "decimal.js": "^10.2.0",
+    "browserify": "^16.5.2",
+    "browserify-shim": "^3.8.14",
+    "gulp": "^4.0.0",
+    "gulp-typescript": "^6.0.0-alpha.1",
+    "tsify": "^5.0.2",
+    "typedoc": "^0.19.1",
+    "typescript": "^4.0.2",
+    "vinyl-source-stream": "^2.0.0"
+  },
+  "browserify": {
+    "transform": [
+      "browserify-shim"
+    ]
+  },
+  "browserify-shim": {
+    "decimal.js": "global:Decimal"
+  }
+}
