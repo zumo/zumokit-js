@@ -5,7 +5,7 @@ declare global {
 /** @internal */
 const injectScript = () => {
   const script = document.createElement('script');
-  script.src = "zumocore.js";
+  script.src = "https://js.zumo.money/2.2.0-alpha.4/zumocore.js";
 
   const headOrBody = document.head || document.body;
 
