@@ -1,7 +1,7 @@
 {
   "name": "example",
   "version": "1.0.0",
-  "description": "",
+  "description": "ZumoKit webpack example",
   "main": "index.js",
   "scripts": {
     "dev": "webpack --mode development",
@@ -13,7 +13,7 @@
   "license": "ISC",
   "dependencies": {
     "@babel/runtime": "^7.11.2",
-    "zumokit": "file:../",
+    "zumokit": "^${CIRCLE_TAG}",
     "decimal.js": "^10.2.0"
   },
   "devDependencies": {
