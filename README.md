@@ -1,5 +1,7 @@
 # ZumoKit Web SDK
 
+![npm](https://img.shields.io/npm/v/zumokit)
+
 ZumoKit is a state of the art wallet architecture underpinning our flagship product [Zumo](https://www.zumo.money/) that provides secure transfer and exchange of fiat and cryptocurrency funds.
 
 ## Docs
@@ -15,8 +17,8 @@ Include the ZumoKit script on each page of your site — it should always be loa
 Additionaly, ZumoKit is dependent on [decimal.js](https://github.com/MikeMcl/decimal.js/), which has to be added separately.
 
 ```html
-<script src="https://js.zumo.money/${CIRCLE_TAG}/decimal.js"></script>
-<script src="https://js.zumo.money/${CIRCLE_TAG}/zumokit.js"></script>
+<script src="https://js.zumo.money/2.3.0-alpha.2/decimal.js"></script>
+<script src="https://js.zumo.money/2.3.0-alpha.2/zumokit.js"></script>
 ```
 
 ### ES6 Module
@@ -54,8 +56,8 @@ Replace API_KEY, API_ROOT and TX_SERVICE_URL in the examples below with credenti
 
 <body>
   <p>Check console output!</p>
-  <script src="https://js.zumokit.com/${CIRCLE_TAG}/decimal.js"></script>
-  <script src="https://js.zumokit.com/${CIRCLE_TAG}/zumokit.js"></script>
+  <script src="https://js.zumokit.com/2.3.0-alpha.2/decimal.js"></script>
+  <script src="https://js.zumokit.com/2.3.0-alpha.2/zumokit.js"></script>
 </body>
 
 </html>
