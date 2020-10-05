@@ -185,6 +185,7 @@ export interface TransactionJSON {
   nonce: string;
   cryptoProperties: TransactionCryptoPropertiesJSON | null;
   fiatProperties: TransactionFiatPropertiesJSON | null;
+  exchange: ExchangeJSON | null;
   submittedAt: number | null;
   confirmedAt: number | null;
   timestamp: number;
@@ -221,16 +222,9 @@ export interface UserJSON {
 }
 
 /** @internal */
-export interface StateJSON {
-  accounts: Array<AccountJSON>;
+export interface AccountDataSnapshotJSON {
+  account: AccountJSON;
   transactions: Array<TransactionJSON>;
-  exchanges: Array<ExchangeJSON>;
-  token: string;
-  activeUserId: string | null;
-  feeRates: Record<string, FeeRatesJSON>;
-  exchangeRates: Record<string, Record<string, ExchangeRateJSON>>;
-  exchangeSettings: Record<string, Record<string, ExchangeSettingsJSON>>;
-  modulrCustomerOnNetworks: Array<string>;
 }
 
 /** @internal */

@@ -1,9 +1,23 @@
 import { Decimal } from 'decimal.js';
 import ExchangeRate from './ExchangeRate';
 import ExchangeSettings from './ExchangeSettings';
-// eslint-disable-next-line import/no-cycle
-import Parser from '../util/Parser';
-import { Dictionary, ExchangeStatus, CurrencyCode, ExchangeJSON } from '../types';
+import { Dictionary, ExchangeStatus, CurrencyCode, ExchangeJSON, ExchangeRateJSON } from '../types';
+
+/** @internal */
+const parseExchangeRates = (exchangeRateMapJSON: Record<string, Record<string, ExchangeRateJSON>>) => {
+  const exchangeRatesMap: Dictionary<CurrencyCode, Dictionary<CurrencyCode, ExchangeRate>> = {};
+  Object.keys(exchangeRateMapJSON).forEach((depositCurrency) => {
+    const innerMap: Dictionary<CurrencyCode, ExchangeRate> = {};
+    Object.keys(exchangeRateMapJSON[depositCurrency]).forEach((withdrawCurrency) => {
+      innerMap[withdrawCurrency as CurrencyCode] = new ExchangeRate(
+        exchangeRateMapJSON[depositCurrency][withdrawCurrency]
+      );
+    });
+    exchangeRatesMap[depositCurrency as CurrencyCode] = innerMap;
+  });
+  return exchangeRatesMap;
+}
+
 
 /** Record containing exchange details. */
 export default class Exchange {
@@ -99,7 +113,7 @@ export default class Exchange {
     this.exchangeFee = new Decimal(json.exchangeFee);
     this.exchangeRate = new ExchangeRate(json.exchangeRate);
     this.exchangeSettings = new ExchangeSettings(json.exchangeSettings);
-    this.exchangeRates = Parser.parseExchangeRates(json.exchangeRates);
+    this.exchangeRates = parseExchangeRates(json.exchangeRates);
     this.nonce = json.nonce;
     this.submittedAt = json.submittedAt;
     this.confirmedAt = json.confirmedAt;

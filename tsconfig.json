@@ -7,7 +7,7 @@
       "es6",
       "dom"
     ],
-    "outDir": "./built",
+    "outDir": "./dist/module/",
     "allowJs": false,
     "target": "es5",
     "noEmitOnError": true,

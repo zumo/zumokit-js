@@ -9,6 +9,7 @@ import {
   Network,
   TransactionJSON,
 } from '../types';
+import Exchange from './Exchange';
 
 // TODO: Add transaction subscription
 /** Record containing transaction details. */
@@ -52,11 +53,27 @@ export default class Transaction {
   /** Transaction nonce or null. Used to prevent double spend. */
   nonce: string | null;
 
-  /** Crypto properties if it is crypto transaction, null otherwise. */
+  /**
+   * Crypto properties if it is a crypto transaction, null otherwise.
+   * <p>
+   * See {@link TransactionType}.
+   */
   cryptoProperties: TransactionCryptoProperties | null;
 
+  /**
+   * Fiat properties if it is a fiat transaction, null otherwise.
+   * <p>
+   * See {@link TransactionType}.
+   */
   /** Fiat properties if it is crypto transaction, null otherwise. */
   fiatProperties: TransactionFiatProperties | null;
+
+  /**
+   * Exchange properties if it is a transaction associated with an exchange, null otherwise.
+   * <p>
+   * See {@link TransactionType}.
+   */
+  exchange: Exchange | null;
 
   /** Epoch timestamp when transaction was submitted or null for incoming transactions from outside of Zumo ecosystem. */
   submittedAt: number | null;
@@ -87,6 +104,9 @@ export default class Transaction {
       : null;
     this.fiatProperties = json.fiatProperties
       ? new TransactionFiatProperties(json.fiatProperties)
+      : null;
+    this.exchange = json.exchange
+      ? new Exchange(json.exchange)
       : null;
     this.submittedAt = json.submittedAt;
     this.confirmedAt = json.confirmedAt;

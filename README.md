@@ -8,32 +8,34 @@ Refer to ZumoKit SDK developer [documentation](https://developers.zumo.money/doc
 
 ## Installation
 
-Include the ZumoKit.js script on each page of your site — it should always be loaded directly from https://js.stripe.com, rather than included in a bundle or hosted yourself.
+### Standalone
 
-Additionaly, ZumoKit.js is dependent on [decimal.js](https://github.com/MikeMcl/decimal.js/), which has to be added separately.
+Include the ZumoKit script on each page of your site — it should always be loaded directly from https://js.zumo.money, rather than included in a bundle or hosted yourself.
+
+Additionaly, ZumoKit is dependent on [decimal.js](https://github.com/MikeMcl/decimal.js/), which has to be added separately.
 
 ```html
-<script src="https://js.zumokit.com/2.1.0/decimal.js"></script>
-<script src="https://js.zumokit.com/2.1.0/zumokit.js"></script>
+<script src="https://js.zumo.money/${CIRCLE_TAG}/decimal.js"></script>
+<script src="https://js.zumo.money/${CIRCLE_TAG}/zumokit.js"></script>
 ```
 
-### Installing ZumoKit.js as a module
+### ES6 Module
 
-ZumoKit is available as a node module:
-
-```
-npm install zumo/zumokit-js
-```
-
-Additionaly, ZumoKit.js is dependent on [decimal.js](https://github.com/MikeMcl/decimal.js/), which has to be added separately.
+ZumoKit is distributed through NPM repository and it has a peer dependency on [decimal.js](https://github.com/MikeMcl/decimal.js/), which also has to be installed:
 
 ```
-npm install decimal.js@^10.2.0
+npm install decimal.js@^10.2.0 zumokit
 ```
 
 ## Usage
 
-Replace API_KEY, API_ROOT and TX_SERVICE_URL below with credentials provided to you by your [account manager](mailto:support@zumo.money).
+Entry point to ZumoKit SDK is `loadZumoKit` function. This function returns a Promise that resolves with a newly created ZumoKit object once ZumoKit SDK has loaded. Behind the scenes, it will load ZumoKit WebAssebly module for you by inserting the zumocore.js script tag. ZumoKit requires browser environment to work as expected and it will not work in in a server environment.
+
+Refer to ZumoKit SDK developer [documentation](https://developers.zumo.money/docs/intro/) and [reference](https://zumo.github.io/zumokit-js/) for usage details.
+
+Replace API_KEY, API_ROOT and TX_SERVICE_URL in the examples below with credentials provided to you by your [account manager](mailto:support@zumo.money).
+
+### HTML + JS
 
 ```html
 <!DOCTYPE html>
@@ -44,10 +46,6 @@ Replace API_KEY, API_ROOT and TX_SERVICE_URL below with credentials provided to 
   <title>ZumoKit Example</title>
   <script>
     window.addEventListener('load', async (event) => {
-      const API_KEY = 'c1bd328ae4476b36d006f4ee1f546a5cd29037378cd7dc9529fe565db91e1532';
-      const API_ROOT = 'https://kit.sandbox.zumo.money';
-      const TX_SERVICE_URL = 'https://tx.sandbox.zumo.money';
-
       const zumoKit = await loadZumoKit(API_KEY, API_ROOT, TX_SERVICE_URL);
       console.log(zumoKit.version)
     });
@@ -56,23 +54,17 @@ Replace API_KEY, API_ROOT and TX_SERVICE_URL below with credentials provided to 
 
 <body>
   <p>Check console output!</p>
-  <script src="https://js.zumokit.com/2.1.0/decimal.js"></script>
-  <script src="https://js.zumokit.com/2.1.0/zumokit.js"></script>
+  <script src="https://js.zumokit.com/${CIRCLE_TAG}/decimal.js"></script>
+  <script src="https://js.zumokit.com/${CIRCLE_TAG}/zumokit.js"></script>
 </body>
 
 </html>
 ```
 
-### Using ZumoKit.js as a module
-
-This function returns a Promise that resolves with a newly created ZumoKit object once ZumoKit.js has loaded.
+### ES6 Module
 
 ```js
-import {loadZumoKit} from 'zumokit-js';
-
-const API_KEY = 'c1bd328ae4476b36d006f4ee1f546a5cd29037378cd7dc9529fe565db91e1532';
-const API_ROOT = 'https://kit.sandbox.zumo.money';
-const TX_SERVICE_URL = 'https://tx.sandbox.zumo.money';
+import { loadZumoKit } from 'zumokit';
 
 const zumokit = await loadZumoKit(API_KEY, API_ROOT, TX_SERVICE_URL);
 console.log(zumoKit.version)
@@ -80,8 +72,8 @@ console.log(zumoKit.version)
 
 ## TypeScript support
 
-This package includes TypeScript declarations for ZumoKit.js.
+This package includes TypeScript declarations for ZumoKit.
 
 ## Example
 
-The [example project](https://github.com/zumo/zumokit-js/tree/master/example) demonstrates the expected user flow, including authentication process, wallet creation and transaciton submission.
+The webpack [example project](https://github.com/zumo/zumokit-js/tree/master/example) demonstrates the expected user flow, including authentication process, wallet creation and transaciton submission.

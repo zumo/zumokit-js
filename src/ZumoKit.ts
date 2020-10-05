@@ -1,36 +1,58 @@
-import Parser from './util/Parser';
 import { errorProxy } from './errorProxy';
 import {
   Dictionary,
   CurrencyCode,
-  ZumoKitConfig,
   TokenSet,
-  StateJSON,
+  ExchangeRateJSON,
   TimeInterval,
   HistoricalExchangeRatesJSON,
 } from './types';
 import User from './User';
 import Utils from './Utils';
-import State from './models/State';
 import ExchangeRate from './models/ExchangeRate';
 import ZumoKitError from './ZumoKitError';
+import ExchangeSettings from './models/ExchangeSettings';
+import FeeRates from './models/FeeRates';
 
-/** Record representing historical exchange rates. */
 type HistoricalExchangeRates = Dictionary<
   TimeInterval,
   Dictionary<CurrencyCode, Dictionary<CurrencyCode, Array<ExchangeRate>>>
 >;
 
+/** @internal */
+const parseHistoricalExchangeRates = (
+  exchangeRateMapJSON: Record<string, Record<string, Record<string, Array<ExchangeRateJSON>>>>
+) => {
+  const exchangeRateMap: Dictionary<
+    TimeInterval,
+    Dictionary<CurrencyCode, Dictionary<CurrencyCode, Array<ExchangeRate>>>
+  > = {};
+  Object.keys(exchangeRateMapJSON).forEach((timeInterval) => {
+    const outerMap: Dictionary<CurrencyCode, Dictionary<CurrencyCode, Array<ExchangeRate>>> = exchangeRateMapJSON[timeInterval];
+    Object.keys(outerMap).forEach((depositCurrency) => {
+      const innerMap: Dictionary<CurrencyCode, Array<ExchangeRate>> =
+        (outerMap[depositCurrency as CurrencyCode] as Dictionary<CurrencyCode, Array<ExchangeRate>>);
+      Object.keys(innerMap).forEach(
+        (withdrawCurrency) => {
+          const array: Array<ExchangeRateJSON> = (exchangeRateMapJSON[timeInterval][depositCurrency][withdrawCurrency] as Array<ExchangeRateJSON>);
+          (exchangeRateMap as any)[timeInterval as TimeInterval][depositCurrency as CurrencyCode][
+            withdrawCurrency as CurrencyCode
+          ] = array.map((exchangeRateJSON) => new ExchangeRate(exchangeRateJSON));
+        }
+      );
+    });
+  });
+  return exchangeRateMap;
+}
+
+
 /**
- * Once ZumoKit is initialized, this class provides access to {@link getUser | user retrieval}, {@link state | ZumoKit state object} and {@link getHistoricalExchangeRates | historical exchange rates}.
- * State change listeners can be  {@link addStateListener added} and {@link removeStateListener removed}.
+ * ZumoKit instance.
  * <p>
  * See <a href="https://developers.zumo.money/docs/guides/getting-started">Getting Started</a> guide for usage details.
  * */
 export default class ZumoKit {
   private zumoCore: any;
-
-  private stateListeners: Array<(state: State) => void> = [];
 
   /** ZumoKit SDK semantic version tag if exists, commit hash otherwise. */
   version: string;
@@ -71,7 +93,7 @@ export default class ZumoKit {
     let socket: WebSocket | null = null;
     let wsListener: any = null;
     function connectWebSocket() {
-      socket = new WebSocket(txServiceUrl);
+      socket = new WebSocket(txServiceUrl.replace("https", "wss"));
 
       socket.addEventListener('open', function (event) {
         wsListener && wsListener.onOpen(txServiceUrl);
@@ -110,26 +132,17 @@ export default class ZumoKit {
     });
 
     this.zumoCore = new window.ZumoCoreModule.ZumoCore(httpImpl, wsImpl, apiKey, apiRoot, txServiceUrl);
-
-    let zumoKit = this;
-    var stateListenerImpl = new window.ZumoCoreModule.StateListenerWrapper({
-      update: function (state: string) {
-        zumoKit.notifyStateListeners(new State(JSON.parse(state)));
-      }
-    });
-
-    this.zumoCore.addStateListener(stateListenerImpl);
   }
 
   /**
-   * Get user corresponding to user token set.
+   * Authenticates user token set and returns corresponding user. On success user is set as active user.
    * Refer to <a href="https://developers.zumo.money/docs/setup/server#get-zumokit-user-token">Server</a> guide for details on how to get user token set.
    *
    * @param tokenSet   user token set
    */
-  getUser(userTokenSet: TokenSet) {
+  authUser(userTokenSet: TokenSet) {
     return errorProxy<User>((resolve: any, reject: any) => {
-      this.zumoCore.getUser(
+      this.zumoCore.authUser(
         JSON.stringify(userTokenSet),
         new window.ZumoCoreModule.UserCallbackWrapper({
         onError: function (error: string) {
@@ -142,33 +155,14 @@ export default class ZumoKit {
     })
   };
 
-  /**
-   * Fetch historical exchange rates for supported time intervals.
-   * On success callback returns historical exchange rates are contained in a mapping between
-   * time interval on a top level, from currency on second level, to currency on third level and
-   * {@link ExchangeRate ExchangeRate} objects.
-   */
-  getHistoricalExchangeRates() {
-    return errorProxy<HistoricalExchangeRates>((resolve: any, reject: any) => {
-      this.zumoCore.getHistoricalExchangeRates(
-        new window.ZumoCoreModule.HistoricalExchangeRatesCallbackWrapper({
-        onError: function (error: string) {
-          reject(new ZumoKitError((error)));
-        },
-        onSuccess: function (json: string) {
-          resolve(Parser.parseHistoricalExchangeRates(JSON.parse(json) as HistoricalExchangeRatesJSON));
-        }
-      }));
-    })
-  }
-
-  /**
-   * Returns current ZumoKit state. Refer to
-   * <a href="https://developers.zumo.money/docs/guides/zumokit-state">ZumoKit State</a>
-   * guide for details.
-   */
-  getState(): State {
-    return new State(JSON.parse(this.zumoCore.getState()));
+   /**
+    * Get active user if exists.
+    *
+    * @return active user or null
+    */
+  getActiveUser() {
+    const activeUser = this.zumoCore.getActiveUser();
+    return activeUser ? new User(activeUser) : null;
   }
 
   /**
@@ -179,34 +173,70 @@ export default class ZumoKit {
   }
 
   /**
-   * Listen to all state changes. Refer to <a href="https://developers.zumo.money/docs/guides/zumokit-state#listen-to-state-changes">ZumoKit State</a> guide for details.
+   * Get exchange rate for selected currency pair.
    *
-   * @param listener interface to listen to state changes
+   * @param fromCurrency   currency code
+   * @param toCurrency     currency code
+   *
+   * @return exchange rate or null
    */
-  addStateListener(listener: (state: State) => void) {
-    if (this.stateListeners.includes(listener))
-      return;
-
-    this.stateListeners.push(listener);
+  getExchangeRate(fromCurrency: CurrencyCode, toCurrency: CurrencyCode) {
+    const exchangeRate = this.zumoCore.getExchangeRate(fromCurrency, toCurrency);
+    if (exchangeRate.hasValue())
+      return new ExchangeRate(JSON.parse(exchangeRate.get()));
+    else
+      return null;
   }
 
   /**
-   * Remove listener to state changes. Refer to <a href="https://developers.zumo.money/docs/guides/zumokit-state#remove-state-listener">ZumoKit State</a> guide for details.
+   * Get exchange settings for selected currency pair.
    *
-   * @param listener interface to listen to state changes
+   * @param fromCurrency   currency code
+   * @param toCurrency     currency code
+   *
+   * @return exchange rate or null
    */
-  removeStateListener(listener: (state: State) => void) {
-    if (!this.stateListeners.includes(listener))
-      return;
-
-    const index = this.stateListeners.indexOf(listener);
-    this.stateListeners.splice(index, 1);
+  getExchangeSettings(fromCurrency: CurrencyCode, toCurrency: CurrencyCode) {
+    const exchangeSettings = this.zumoCore.getExchangeSettings(fromCurrency, toCurrency);
+    if (exchangeSettings.hasValue())
+      return new ExchangeSettings(JSON.parse(exchangeSettings.get()));
+    else
+      return null;
   }
 
-  /** @internal */
-  notifyStateListeners(state: State) {
-    this.stateListeners.forEach(
-      (listener: (state: State) => void) => listener(state)
-    );
+    /**
+   * Get exchange settings for selected currency pair.
+   *
+   * @param currency   currency code
+   *
+   * @return fee rates or null
+   */
+  getFeeRates(currency: CurrencyCode) {
+    const feeRates = this.zumoCore.getFeeRates(currency);
+    if (feeRates.hasValue())
+      return new FeeRates(JSON.parse(feeRates.get()));
+    else
+      return null;
+  }
+
+  /**
+   * Fetch historical exchange rates for supported time intervals.
+   * On success callback returns historical exchange rates are contained in a mapping between
+   * time interval on a top level, from currency on second level, to currency on third level and
+   * {@link ExchangeRate ExchangeRate} objects.
+   */
+  fetchHistoricalExchangeRates() {
+    return errorProxy<HistoricalExchangeRates>((resolve: any, reject: any) => {
+      this.zumoCore.fetchHistoricalExchangeRates(
+        new window.ZumoCoreModule.HistoricalExchangeRatesCallbackWrapper({
+        onError: function (error: string) {
+          reject(new ZumoKitError((error)));
+        },
+        onSuccess: function (json: string) {
+          const exchangeRateMapJSON = JSON.parse(json) as HistoricalExchangeRatesJSON;
+          resolve(parseHistoricalExchangeRates(exchangeRateMapJSON));
+        }
+      }));
+    })
   }
 }

@@ -3,16 +3,16 @@ import { errorProxy } from './errorProxy';
 import Wallet from './Wallet';
 import ZumoKitError from './ZumoKitError';
 import Account from './models/Account';
-import Transaction from './models/Transaction';
 import AccountFiatProperties from './models/AccountFiatProperties';
 import {
   CurrencyCode,
   Network,
   AccountType,
   AccountJSON,
-  TransactionJSON,
+  AccountDataSnapshotJSON,
   ModulrCustomerData,
 } from './types';
+import AccountDataSnapshot from './models/AccountDataSnapshot';
 
 /**
  * User class provides methods for managing user wallet and accounts.
@@ -27,6 +27,12 @@ import {
 export default class User {
   /** @internal */
   userImpl: any;
+
+  /** @internal */
+  private accountDataListeners: Array<(state: Array<AccountDataSnapshot>) => void> = [];
+
+  /** @internal */
+  private accountDataListenersImpl: Array<any> = [];
 
   /** @internal */
   constructor(userImpl: any) {
@@ -163,23 +169,6 @@ export default class User {
   }
 
   /**
-   * Get all user transactions.
-   */
-  getTransactions(): Array<Transaction> {
-    return JSON.parse(this.userImpl.getTransactions())
-      .map((json: TransactionJSON) => new Transaction(json));
-  }
-
-  /**
-   * Get account transactions for specified account.
-   * @param accountId {@link  Account Account} identifier
-   */
-  getAccountTransactions(accountId: string): Array<Transaction> {
-    return JSON.parse(this.userImpl.getAccountTransactions(accountId))
-      .map((json: TransactionJSON) => new Transaction(json));
-  }
-
-  /**
    * Check if user is a Modulr customer on 'MAINNET' or 'TESTNET' network.
    * @param  network 'MAINNET' or 'TESTNET'
    */
@@ -270,5 +259,40 @@ export default class User {
         })
       );
     });
+  }
+
+  /**
+   * Listen to all account data changes.
+   *
+   * @param listener interface to listen to user changes
+   */
+  addAccountDataListener(listener: (snapshot: Array<AccountDataSnapshot>) => void) {
+    let listenerImpl = new window.ZumoCoreModule.AccountDataListenerWrapper({
+      onDataChange: function (snapshot: string) {
+        listener(
+          JSON.parse(snapshot).map(
+            (json: AccountDataSnapshotJSON) => new AccountDataSnapshot(json)
+          )
+        );
+      }
+    });
+
+    this.userImpl.addAccountDataListener(listenerImpl);
+
+    this.accountDataListeners.push(listener);
+    this.accountDataListenersImpl.push(listenerImpl);
+  }
+
+  /**
+   * Remove listener to state changes.
+   *
+   * @param listener interface to listen to state changes
+   */
+  removeAccountDataListener(listener: (snapshot: Array<AccountDataSnapshot>) => void) {
+    let index;
+    while ((index = this.accountDataListeners.indexOf(listener)) != -1) {
+      this.accountDataListeners.splice(index, 1);
+      this.userImpl.removeAccountDataListener(this.accountDataListenersImpl.splice(index, 1)[0]);
+    }
   }
 }
