@@ -1,19 +1,18 @@
 {
   "name": "zumokit",
-  "version": "2.3.0-alpha.25",
+  "version": "v2.3.0-alpha.26",
   "description": "ZumoKit is a Wallet as a Service SDK",
   "keywords": [
-    "Zumo",
-    "ZumoKit",
+    "zumo",
+    "zumokit",
     "blockchain",
     "wallet",
     "payments",
     "cryptocurrency",
-    "Ethereum",
-    "Bitcoin",
-    "BSV",
-    "ERC20",
-    "tokens"
+    "ethereum",
+    "bitcoin",
+    "bsv",
+    "erc20 tokens"
   ],
   "browser": "dist/module/index.js",
   "types": "dist/module/index.d.ts",
