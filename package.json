@@ -1,0 +1,50 @@
+{
+  "name": "zumokit",
+  "version": "2.3.0-alpha.15",
+  "description": "ZumoKit is a Wallet as a Service SDK",
+  "browser": "dist/module/index.js",
+  "types": "dist/module/index.d.ts",
+  "files": [
+    "dist/module"
+  ],
+  "scripts": {
+    "standalone": "gulp && sed -E -i '' s/VERSION/$npm_package_version/ dist/standalone/zumokit.js",
+    "module": "tsc && sed -E -i '' s/VERSION/$npm_package_version/ dist/module/src/loadZumoCore.js",
+    "prepare": "npm run module",
+    "dev": "tsc && sed -E -i '' 's;https://js.zumo.money/VERSION;http://localhost:8081;' dist/module/src/loadZumoCore.js",
+    "serve": "http-server ./zumocore -p 8081 --cors",
+    "example": "cd example && npm install && npm run start",
+    "start": "npm run dev && (npm run serve & npm run example)",
+    "docs": "typedoc"
+  },
+  "author": "Zumo (https://www.zumo.money)",
+  "homepage": "https://www.zumo.money/developers",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zumo/zumokit-js"
+  },
+  "peerDependencies": {
+    "decimal.js": "^10.2.0"
+  },
+  "devDependencies": {
+    "decimal.js": "^10.2.0",
+    "browserify": "^16.5.2",
+    "browserify-shim": "^3.8.14",
+    "gulp": "^4.0.0",
+    "gulp-typescript": "^6.0.0-alpha.1",
+    "http-server": "^0.12.3",
+    "tsify": "^5.0.2",
+    "typedoc": "^0.19.1",
+    "typescript": "^4.0.2",
+    "vinyl-source-stream": "^2.0.0"
+  },
+  "browserify": {
+    "transform": [
+      "browserify-shim"
+    ]
+  },
+  "browserify-shim": {
+    "decimal.js": "global:Decimal"
+  }
+}
