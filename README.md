@@ -1,12 +1,12 @@
 # ZumoKit Web SDK
 
-![npm (tag)](https://img.shields.io/npm/v/zumokit/next)
+![npm (tag)](https://img.shields.io/npm/v/zumokit/latest?label=npm)
 
 ZumoKit is a state of the art wallet architecture underpinning our flagship product [Zumo](https://www.zumo.money/) that provides secure transfer and exchange of fiat and cryptocurrency funds.
 
 ## Docs
 
-Refer to ZumoKit SDK developer [documentation](https://developers.zumo.money/docs/intro/) and [reference](https://zumo.github.io/zumokit-js/) for usage details.
+Refer to ZumoKit SDK developer [documentation](https://developers.zumo.money/docs) and [reference](https://zumo.github.io/zumokit-js/) for usage details.
 
 ## Installation
 
@@ -17,8 +17,8 @@ Include the ZumoKit script on each page of your site — it should always be loa
 Additionaly, ZumoKit is dependent on [decimal.js](https://github.com/MikeMcl/decimal.js/), which has to be added separately.
 
 ```html
-<script src="https://js.zumo.money/v2.3.0-alpha.26/decimal.js"></script>
-<script src="https://js.zumo.money/v2.3.0-alpha.26/zumokit.js"></script>
+<script src="https://js.zumo.money/2.3.0-alpha.28/decimal.js"></script>
+<script src="https://js.zumo.money/2.3.0-alpha.28/zumokit.js"></script>
 ```
 
 ### ES6 Module
@@ -33,7 +33,7 @@ npm install decimal.js@^10.2.0 zumokit
 
 Entry point to ZumoKit SDK is `loadZumoKit` function. This function returns a Promise that resolves with a newly created ZumoKit object once ZumoKit SDK has loaded. Behind the scenes, it will load ZumoKit WebAssebly module for you by inserting the zumocore.js script tag. ZumoKit requires browser environment to work as expected and it will not work in in a server environment.
 
-Refer to ZumoKit SDK developer [documentation](https://developers.zumo.money/docs/intro/) and [reference](https://zumo.github.io/zumokit-js/) for usage details.
+Refer to ZumoKit SDK developer [documentation](https://developers.zumo.money/docs) and [reference](https://zumo.github.io/zumokit-js/) for usage details.
 
 Replace API_KEY, API_ROOT and TX_SERVICE_URL in the examples below with credentials provided to you by your [account manager](mailto:support@zumo.money).
 
@@ -56,8 +56,8 @@ Replace API_KEY, API_ROOT and TX_SERVICE_URL in the examples below with credenti
 
 <body>
   <p>Check console output!</p>
-  <script src="https://js.zumokit.com/v2.3.0-alpha.26/decimal.js"></script>
-  <script src="https://js.zumokit.com/v2.3.0-alpha.26/zumokit.js"></script>
+  <script src="https://js.zumo.money/2.3.0-alpha.28/decimal.js"></script>
+  <script src="https://js.zumo.money/2.3.0-alpha.28/zumokit.js"></script>
 </body>
 
 </html>
