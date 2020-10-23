@@ -89,7 +89,7 @@ export default class Wallet {
   }
 
   /**
-   * Compose Bitcoin transaction asynchronously.
+   * Compose BTC or BSV transaction asynchronously.
    * Refer to <a href="https://developers.zumo.money/docs/guides/send-transactions#bitcoin">Send Transactions</a>
    * guide for usage details.
    *
@@ -100,7 +100,7 @@ export default class Wallet {
    * @param feeRate             fee rate in satoshis/byte
    * @param sendMax             send maximum possible funds to destination
    */
-  composeBtcTransaction(
+  composeTransaction(
     fromAccountId: string,
     changeAccountId: string,
     destinationAddress: string,
@@ -113,7 +113,7 @@ export default class Wallet {
       if (amount)
         amountOptional.set(new window.ZumoCoreModule.Decimal(amount.toString()));
 
-      this.walletImpl.composeBtcTransaction(
+      this.walletImpl.composeTransaction(
         fromAccountId,
         changeAccountId,
         destinationAddress,

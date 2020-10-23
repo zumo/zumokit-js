@@ -1,5 +1,14 @@
 import { Decimal } from 'decimal.js';
-import { CurrencyCode, ExchangeSettingsJSON } from '../types';
+import { Dictionary, Network, CurrencyCode, ExchangeSettingsJSON } from '../types';
+
+/** @internal */
+const parseExchangeAddressMap = (exchangeAddressMapJSON: Record<string, string>) =>  {
+  const exchangeAddressMap: Dictionary<Network, string> = {};
+  Object.keys(exchangeAddressMapJSON).forEach((network) => {
+    exchangeAddressMap[network as Network] = exchangeAddressMapJSON[network];
+  });
+  return exchangeAddressMap;
+}
 
 /** Zumo exchange settings used in making exchanges. */
 export default class ExchangeSettings {
@@ -20,7 +29,7 @@ export default class ExchangeSettings {
    *
    * See {@link Network}.
    */
-  depositAddress: string;
+  exchangeAddress: Dictionary<Network, string>;
 
   /** Minimum amount that can be exchanged in outgoing transaction currency. */
   minExchangeAmount: Decimal;
@@ -32,7 +41,7 @@ export default class ExchangeSettings {
   exchangeFeeRate: Decimal;
 
   /** Fee that will charged for return transaction. */
-  incomingTransactionFee: Decimal;
+  returnTransactionFee: Decimal;
 
   /** Epoch timestamp when the exchange settings were last updated. */
   timestamp: number;
@@ -41,13 +50,13 @@ export default class ExchangeSettings {
   constructor(json: ExchangeSettingsJSON) {
     this.json = json;
     this.id = json.id;
-    this.fromCurrency = json.depositCurrency as CurrencyCode;
-    this.toCurrency = json.withdrawCurrency as CurrencyCode;
-    this.depositAddress = json.depositAddress;
+    this.fromCurrency = json.fromCurrency as CurrencyCode;
+    this.toCurrency = json.toCurrency as CurrencyCode;
+    this.exchangeAddress = parseExchangeAddressMap(json.exchangeAddress);
     this.minExchangeAmount = new Decimal(json.minExchangeAmount);
-    this.outgoingTransactionFeeRate = new Decimal(json.depositFeeRate);
-    this.exchangeFeeRate = new Decimal(json.feeRate);
-    this.incomingTransactionFee = new Decimal(json.withdrawFee);
+    this.outgoingTransactionFeeRate = new Decimal(json.outgoingTransactionFeeRate);
+    this.exchangeFeeRate = new Decimal(json.exchangeFeeRate);
+    this.returnTransactionFee = new Decimal(json.returnTransactionFee);
     this.timestamp = json.timestamp;
   }
 }

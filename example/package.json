@@ -13,7 +13,7 @@
   "license": "ISC",
   "dependencies": {
     "@babel/runtime": "^7.11.2",
-    "zumokit": "^${CIRCLE_TAG}",
+    "zumokit": "^2.3.0-alpha.39",
     "decimal.js": "^10.2.0"
   },
   "devDependencies": {

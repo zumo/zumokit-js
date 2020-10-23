@@ -29,14 +29,14 @@ const parseHistoricalExchangeRates = (
   > = {};
   Object.keys(exchangeRateMapJSON).forEach((timeInterval) => {
     const outerMap: Dictionary<CurrencyCode, Dictionary<CurrencyCode, Array<ExchangeRate>>> = exchangeRateMapJSON[timeInterval];
-    Object.keys(outerMap).forEach((depositCurrency) => {
+    Object.keys(outerMap).forEach((fromCurrency) => {
       const innerMap: Dictionary<CurrencyCode, Array<ExchangeRate>> =
-        (outerMap[depositCurrency as CurrencyCode] as Dictionary<CurrencyCode, Array<ExchangeRate>>);
+        (outerMap[fromCurrency as CurrencyCode] as Dictionary<CurrencyCode, Array<ExchangeRate>>);
       Object.keys(innerMap).forEach(
-        (withdrawCurrency) => {
-          const array: Array<ExchangeRateJSON> = (exchangeRateMapJSON[timeInterval][depositCurrency][withdrawCurrency] as Array<ExchangeRateJSON>);
-          (exchangeRateMap as any)[timeInterval as TimeInterval][depositCurrency as CurrencyCode][
-            withdrawCurrency as CurrencyCode
+        (toCurrency) => {
+          const array: Array<ExchangeRateJSON> = (exchangeRateMapJSON[timeInterval][fromCurrency][toCurrency] as Array<ExchangeRateJSON>);
+          (exchangeRateMap as any)[timeInterval as TimeInterval][fromCurrency as CurrencyCode][
+            toCurrency as CurrencyCode
           ] = array.map((exchangeRateJSON) => new ExchangeRate(exchangeRateJSON));
         }
       );
