@@ -43,7 +43,7 @@ export interface TokenSet {
   refreshToken: string;
 }
 
-export interface ModulrCustomerData {
+export interface FiatCustomerData {
   firstName: string;
   middleName: string | null;
   lastName: string;

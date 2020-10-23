@@ -10,7 +10,7 @@ import {
   AccountType,
   AccountJSON,
   AccountDataSnapshotJSON,
-  ModulrCustomerData,
+  FiatCustomerData,
 } from './types';
 import AccountDataSnapshot from './models/AccountDataSnapshot';
 
@@ -169,19 +169,19 @@ export default class User {
   }
 
   /**
-   * Check if user is a Modulr customer on 'MAINNET' or 'TESTNET' network.
+   * Check if user is a fiat customer on 'MAINNET' or 'TESTNET' network.
    * @param  network 'MAINNET' or 'TESTNET'
    */
-  isModulrCustomer(network: string): boolean {
-    return this.userImpl.isModulrCustomer(network);
+  isFiatCustomer(network: string): boolean {
+    return this.userImpl.isFiatCustomer(network);
   }
 
   /**
-   * Make user Modulr customer on specified network by providing user's personal details.
+   * Make user fiat customer on specified network by providing user's personal details.
    * @param  network        'MAINNET' or 'TESTNET'
    * @param  customerData    user's personal details.
    */
-  makeModulrCustomer(network: Network, customerData: ModulrCustomerData) {
+  makeFiatCustomer(network: Network, customerData: FiatCustomerData) {
     return errorProxy<void>((resolve: any, reject: any) => {
       let middleName = new window.ZumoCoreModule.OptionalString();
       if (customerData.middleName)
@@ -191,7 +191,7 @@ export default class User {
       if (customerData.addressLine2)
         middleName.set(customerData.addressLine2);
 
-      this.userImpl.makeModulrCustomer(
+      this.userImpl.makeFiatCustomer(
         network,
         customerData.firstName,
         middleName,
@@ -217,7 +217,7 @@ export default class User {
   }
 
   /**
-   * Create fiat account on specified network and currency code. User must already be Modulr customer on specified network.
+   * Create fiat account on specified network and currency code. User must already be fiat customer on specified network.
    * @param  network        'MAINNET' or 'TESTNET'
    * @param  currencyCode  country code in ISO 4217 format, e.g. 'GBP'
    */
