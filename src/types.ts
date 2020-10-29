@@ -31,12 +31,6 @@ export type ExchangeStatus =
 
 export type TimeInterval = 'hour' | 'day' | 'week' | 'month' | 'quarter' | 'year';
 
-export interface ZumoKitConfig {
-  apiKey: string;
-  apiRoot: string;
-  txServiceUrl: string;
-}
-
 export interface TokenSet {
   accessToken: string;
   expiresIn: number;
@@ -99,7 +93,7 @@ export interface ExchangeRateJSON {
 }
 
 /** @internal */
-export interface ExchangeSettingsJSON {
+export interface ExchangeSettingJSON {
   id: string;
   fromCurrency: string;
   toCurrency: string;
@@ -129,7 +123,7 @@ export interface ComposedExchangeJSON {
   fromAccount: AccountJSON;
   toAccount: AccountJSON;
   exchangeRate: ExchangeRateJSON;
-  exchangeSettings: ExchangeSettingsJSON;
+  exchangeSetting: ExchangeSettingJSON;
   exchangeAddress: string | null;
   amount: string;
   outgoingTransactionFee: string;
@@ -140,7 +134,7 @@ export interface ComposedExchangeJSON {
 }
 
 /** @internal */
-export interface FeeRatesJSON {
+export interface TransactionFeeRateJSON {
   slow: string;
   average: string;
   fast: string;
@@ -207,7 +201,7 @@ export interface ExchangeJSON {
   returnAmount: string;
   exchangeFee: string;
   exchangeRate: ExchangeRateJSON;
-  exchangeSettings: ExchangeSettingsJSON;
+  exchangeSetting: ExchangeSettingJSON;
   exchangeRates: Record<string, Record<string, ExchangeRateJSON>>;
   nonce: string | null;
   submittedAt: number;

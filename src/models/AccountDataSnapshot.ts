@@ -2,7 +2,7 @@ import { AccountDataSnapshotJSON } from '../types';
 import Account from './Account';
 import Transaction from './Transaction';
 
-/** Record containing ZumoKit state. */
+/** Record containing account data. */
 export default class AccountDataSnapshot {
   /** Account. */
   account: Account;

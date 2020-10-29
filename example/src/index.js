@@ -3,8 +3,14 @@ import { loadZumoKit } from 'zumokit';
 import { Decimal } from 'decimal.js';
 
 (async () => {
-  const zumoKit = await loadZumoKit(process.env.API_KEY, process.env.API_URL, process.env.TX_SERVICE_URL);
-  console.log(zumoKit.version);
+  const zumokit = await loadZumoKit(
+      process.env.API_KEY,
+      process.env.API_URL,
+      process.env.TX_SERVICE_URL
+    );
+
+  // log version
+  console.log(zumokit.version);
 
   // get user token set from client API
   const clientUrl = process.env.CLIENT_ZUMOKIT_AUTH_ENDPOINT;
@@ -26,14 +32,14 @@ import { Decimal } from 'decimal.js';
 
   try {
     // use userTokenSet to retrieve ZumoKit user
-    const user = await zumoKit.authUser(userTokenSet);
+    const user = await zumokit.authUser(userTokenSet);
+
+    console.log(user.id);
+    console.log(user.hasWallet);
+    console.log(user.accounts);
 
     // use account data listener to retrieve accounts with corresponding transactions
     user.addAccountDataListener(console.log);
-
-    console.log(user.getId());
-    console.log(user.hasWallet());
-    console.log(user.getAccounts());
 
     const wallet = await user.unlockWallet("givemeeth");
 
@@ -41,7 +47,7 @@ import { Decimal } from 'decimal.js';
     const ethAccount = user.getAccount("ETH", "RINKEBY", "STANDARD");
     console.log(ethAccount);
 
-    const gasPrice = zumoKit.getFeeRates("BTC").average;
+    const gasPrice = zumokit.transactionFeeRates.BTC.average;
     const gasLimit = new Decimal("21000");
     const destinationAddress = "0xDa57228C976ba133b46B26066bBac337e62D8357";
     const amount = new Decimal("0.01");
@@ -62,8 +68,8 @@ import { Decimal } from 'decimal.js';
 
     // compose new exchange
     const btcAccount = user.getAccount("BTC", "TESTNET", "COMPATIBILITY");
-    const exchangeRate = zumoKit.getExchangeRate("ETH", "BTC");
-    const exchangeSettings = zumoKit.getExchangeSettings("ETH", "BTC");
+    const exchangeRate = zumokit.exchangeRates.ETH.BTC;
+    const exchangeSettings = zumokit.exchangeSettings.ETH.BTC;
     const ethAmount = new Decimal("0.1");
 
     const composedExchange = await wallet.composeExchange(

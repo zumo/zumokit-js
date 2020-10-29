@@ -1,6 +1,6 @@
 import { Decimal } from 'decimal.js';
 import ExchangeRate from './ExchangeRate';
-import ExchangeSettings from './ExchangeSettings';
+import ExchangeSetting from './ExchangeSetting';
 import { Dictionary, ExchangeStatus, CurrencyCode, ExchangeJSON, ExchangeRateJSON } from '../types';
 
 /** @internal */
@@ -75,7 +75,7 @@ export default class Exchange {
   exchangeRate: ExchangeRate;
 
   /** Exchange settings used. */
-  exchangeSettings: ExchangeSettings;
+  exchangeSetting: ExchangeSetting;
 
   /**
    * Exchange rates at the time exchange was made.
@@ -112,7 +112,7 @@ export default class Exchange {
     this.returnAmount = new Decimal(json.returnAmount);
     this.exchangeFee = new Decimal(json.exchangeFee);
     this.exchangeRate = new ExchangeRate(json.exchangeRate);
-    this.exchangeSettings = new ExchangeSettings(json.exchangeSettings);
+    this.exchangeSetting = new ExchangeSetting(json.exchangeSetting);
     this.exchangeRates = parseExchangeRates(json.exchangeRates);
     this.nonce = json.nonce;
     this.submittedAt = json.submittedAt;

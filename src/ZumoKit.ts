@@ -4,6 +4,8 @@ import {
   CurrencyCode,
   TokenSet,
   ExchangeRateJSON,
+  ExchangeSettingJSON,
+  TransactionFeeRateJSON,
   TimeInterval,
   HistoricalExchangeRatesJSON,
 } from './types';
@@ -11,8 +13,53 @@ import User from './User';
 import Utils from './Utils';
 import ExchangeRate from './models/ExchangeRate';
 import ZumoKitError from './ZumoKitError';
-import ExchangeSettings from './models/ExchangeSettings';
-import FeeRates from './models/FeeRates';
+import ExchangeSetting from './models/ExchangeSetting';
+import TransactionFeeRate from './models/TransactionFeeRate';
+
+/** @internal */
+const parseExchangeRates = (exchangeRateMapJSON: Record<string, Record<string, ExchangeRateJSON>>) => {
+  const exchangeRates: Dictionary<CurrencyCode, Dictionary<CurrencyCode, ExchangeRate>> = {};
+  Object.keys(exchangeRateMapJSON).forEach((depositCurrency) => {
+    const innerMap: Dictionary<CurrencyCode, ExchangeRate> = {};
+    Object.keys(exchangeRateMapJSON[depositCurrency]).forEach((toCurrency) => {
+      innerMap[toCurrency as CurrencyCode] = new ExchangeRate(
+        exchangeRateMapJSON[depositCurrency][toCurrency]
+      );
+    });
+    exchangeRates[depositCurrency as CurrencyCode] = innerMap;
+  });
+  return exchangeRates;
+}
+
+/** @internal */
+const parseExchangeSettings = (
+  exchangeSettingsMapJSON: Record<string, Record<string, ExchangeSettingJSON>>
+) => {
+  const exchangeSettings: Dictionary<
+    CurrencyCode,
+    Dictionary<CurrencyCode, ExchangeSetting>
+  > = {};
+  Object.keys(exchangeSettingsMapJSON).forEach((depositCurrency) => {
+    const innerMap: Dictionary<CurrencyCode, ExchangeSetting> = {};
+    Object.keys(exchangeSettingsMapJSON[depositCurrency]).forEach((withdrawCurrency) => {
+      innerMap[withdrawCurrency as CurrencyCode] = new ExchangeSetting(
+        exchangeSettingsMapJSON[depositCurrency][withdrawCurrency]
+      );
+    });
+    exchangeSettings[depositCurrency as CurrencyCode] = innerMap;
+  });
+  return exchangeSettings;
+}
+
+/** @internal */
+const parseTransactionFeeRates = (transactionFeeRatesJSON: Record<string, TransactionFeeRateJSON>) => {
+  const feeRates: Dictionary<CurrencyCode, TransactionFeeRate> = {};
+  Object.keys(transactionFeeRatesJSON).forEach((currencyCode) => {
+    feeRates[currencyCode as CurrencyCode] = new TransactionFeeRate(transactionFeeRatesJSON[currencyCode]);
+  });
+  return feeRates;
+}
+
 
 type HistoricalExchangeRates = Dictionary<
   TimeInterval,
@@ -32,6 +79,13 @@ const parseHistoricalExchangeRates = (
     Object.keys(outerMap).forEach((fromCurrency) => {
       const innerMap: Dictionary<CurrencyCode, Array<ExchangeRate>> =
         (outerMap[fromCurrency as CurrencyCode] as Dictionary<CurrencyCode, Array<ExchangeRate>>);
+
+      if (!exchangeRateMap[timeInterval as TimeInterval])
+        exchangeRateMap[timeInterval as TimeInterval] = {};
+
+      if (!exchangeRateMap[timeInterval as TimeInterval][fromCurrency as CurrencyCode])
+        exchangeRateMap[timeInterval as TimeInterval][fromCurrency as CurrencyCode] = {};
+
       Object.keys(innerMap).forEach(
         (toCurrency) => {
           const array: Array<ExchangeRateJSON> = (exchangeRateMapJSON[timeInterval][fromCurrency][toCurrency] as Array<ExchangeRateJSON>);
@@ -54,11 +108,30 @@ const parseHistoricalExchangeRates = (
 export default class ZumoKit {
   private zumoCore: any;
 
+  private changeListeners: Array<() => void> = [];
+
+  private changeListenersImpl: Array<any> = [];
+
   /** ZumoKit SDK semantic version tag if exists, commit hash otherwise. */
   version: string;
 
+  /** Currently authenticated user. */
+  currentUser: User = null;
+
+  /** Crypto utilities. */
+  utils: Utils;
+
+  /** Mapping between currency pairs and available exchange rates. */
+  exchangeRates: Dictionary<CurrencyCode, Dictionary<CurrencyCode, ExchangeRate>> = {};
+
+  /** Mapping between currency pairs and available exchange settings. */
+  exchangeSettings: Dictionary<CurrencyCode, Dictionary<CurrencyCode, ExchangeSetting>> = {};
+
+  /** Mapping between cryptocurrencies and available transaction fee rates. */
+  transactionFeeRates: Dictionary<CurrencyCode, TransactionFeeRate> = {};
+
   /** @internal */
-  constructor(apiKey: string, apiRoot: string, txServiceUrl: string) {
+  constructor(apiKey: string, apiUrl: string, txServiceUrl: string) {
     this.version = window.ZumoCoreModule.ZumoCore.getVersion();
 
     const httpImpl = new window.ZumoCoreModule.HttpImplWrapper({
@@ -131,7 +204,18 @@ export default class ZumoKit {
       }
     });
 
-    this.zumoCore = new window.ZumoCoreModule.ZumoCore(httpImpl, wsImpl, apiKey, apiRoot, txServiceUrl);
+    this.zumoCore = new window.ZumoCoreModule.ZumoCore(httpImpl, wsImpl, apiKey, apiUrl, txServiceUrl);
+
+    this.utils = new Utils(this.zumoCore.getUtils());
+
+    this.addChangeListener(() => {
+      this.exchangeRates =
+        parseExchangeRates(JSON.parse(this.zumoCore.getExchangeRates()));
+      this.exchangeSettings =
+        parseExchangeSettings(JSON.parse(this.zumoCore.getExchangeSettings()));
+      this.transactionFeeRates =
+        parseTransactionFeeRates(JSON.parse(this.zumoCore.getTransactionFeeRates()));
+    })
   }
 
   /**
@@ -145,32 +229,16 @@ export default class ZumoKit {
       this.zumoCore.authUser(
         JSON.stringify(userTokenSet),
         new window.ZumoCoreModule.UserCallbackWrapper({
-        onError: function (error: string) {
+        onError: (error: string) => {
           reject(new ZumoKitError(error));
         },
-        onSuccess: function (user: any) {
-          resolve(new User(user));
+        onSuccess: (user: any) => {
+          this.currentUser = new User(user);
+          resolve(this.currentUser);
         }
       }));
     })
   };
-
-   /**
-    * Get active user if exists.
-    *
-    * @return active user or null
-    */
-  getActiveUser() {
-    const activeUser = this.zumoCore.getActiveUser();
-    return activeUser ? new User(activeUser) : null;
-  }
-
-  /**
-   * Returns crypto utility class.
-   */
-  getUtils(): Utils {
-    return new Utils(this.zumoCore.getUtils());
-  }
 
   /**
    * Get exchange rate for selected currency pair.
@@ -189,32 +257,32 @@ export default class ZumoKit {
   }
 
   /**
-   * Get exchange settings for selected currency pair.
+   * Get exchange setting for selected currency pair.
    *
    * @param fromCurrency   currency code
    * @param toCurrency     currency code
    *
-   * @return exchange rate or null
+   * @return exchange setting or null
    */
-  getExchangeSettings(fromCurrency: CurrencyCode, toCurrency: CurrencyCode) {
-    const exchangeSettings = this.zumoCore.getExchangeSettings(fromCurrency, toCurrency);
+  getExchangeSetting(fromCurrency: CurrencyCode, toCurrency: CurrencyCode) {
+    const exchangeSettings = this.zumoCore.getExchangeSetting(fromCurrency, toCurrency);
     if (exchangeSettings.hasValue())
-      return new ExchangeSettings(JSON.parse(exchangeSettings.get()));
+      return new ExchangeSetting(JSON.parse(exchangeSettings.get()));
     else
       return null;
   }
 
     /**
-   * Get exchange settings for selected currency pair.
+   * Get transaction fee rate for selected crypto currency.
    *
    * @param currency   currency code
    *
-   * @return fee rates or null
+   * @return transaction fee rate or null
    */
-  getFeeRates(currency: CurrencyCode) {
-    const feeRates = this.zumoCore.getFeeRates(currency);
-    if (feeRates.hasValue())
-      return new FeeRates(JSON.parse(feeRates.get()));
+  getTransactionFeeRate(currency: CurrencyCode) {
+    const feeRate = this.zumoCore.getTransactionFeeRate(currency);
+    if (feeRate.hasValue())
+      return new TransactionFeeRate(JSON.parse(feeRate.get()));
     else
       return null;
   }
@@ -233,10 +301,41 @@ export default class ZumoKit {
           reject(new ZumoKitError((error)));
         },
         onSuccess: function (json: string) {
-          const exchangeRateMapJSON = JSON.parse(json) as HistoricalExchangeRatesJSON;
-          resolve(parseHistoricalExchangeRates(exchangeRateMapJSON));
+          const historicalExchangeRatesJSON = JSON.parse(json) as HistoricalExchangeRatesJSON;
+          resolve(parseHistoricalExchangeRates(historicalExchangeRatesJSON));
         }
       }));
     })
+  }
+
+  /**
+   * Listen to changes in exchange rates, exchange settings or transaction fee rates.
+   *
+   * @param listener interface to listen to user changes
+   */
+  addChangeListener(listener: () => void) {
+    let listenerImpl = new window.ZumoCoreModule.ChangeListenerWrapper({
+      onChange: function () {
+        listener();
+      }
+    });
+
+    this.zumoCore.addChangeListener(listenerImpl);
+
+    this.changeListeners.push(listener);
+    this.changeListenersImpl.push(listenerImpl);
+  }
+
+  /**
+   * Remove change listener.
+   *
+   * @param listener interface to listen to changes
+   */
+  removeChangeListener(listener: () => void) {
+    let index;
+    while ((index = this.changeListeners.indexOf(listener)) != -1) {
+      this.changeListeners.splice(index, 1);
+      this.zumoCore.removeChangeListener(this.changeListenersImpl.splice(index, 1)[0]);
+    }
   }
 }

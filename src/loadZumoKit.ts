@@ -12,8 +12,12 @@ declare global {
  * once ZumoKit SDK has loaded. Behind the scenes, it will load ZumoKit WebAssebly module
  * for you by inserting the zumocore.js script tag. ZumoKit requires browser environment
  * to work as expected and it will not work in in a server environment.
+ *
+ * @param apiKey        ZumoKit Api-Key
+ * @param apiUrl        ZumoKit API url
+ * @param txServiceUrl  ZumoKit Transaction Service url
  * */
-const loadZumoKit = (apiKey: string, apiRoot: string, txServiceUrl: string) => {
+const loadZumoKit = (apiKey: string, apiUrl: string, txServiceUrl: string) => {
   return new Promise<ZumoKit>((resolve, reject) => {
     if (window.ZumoKit) {
       resolve(window.ZumoKit);
@@ -21,7 +25,7 @@ const loadZumoKit = (apiKey: string, apiRoot: string, txServiceUrl: string) => {
     }
 
     loadZumoCore().then(() => {
-      window.ZumoKit = new ZumoKit(apiKey, apiRoot, txServiceUrl);
+      window.ZumoKit = new ZumoKit(apiKey, apiUrl, txServiceUrl);
       resolve(window.ZumoKit);
     }).catch(reject);
   });

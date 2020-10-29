@@ -17,7 +17,7 @@ import AccountDataSnapshot from './models/AccountDataSnapshot';
 /**
  * User class provides methods for managing user wallet and accounts.
  * <p>
- * User instance can be obtained via {@link ZumoKit.getUser} method.
+ * User instance can be obtained via {@link ZumoKit.authUser} method.
  * <p>
  * See <a href="https://developers.zumo.money/docs/guides/manage-user-wallet">Manage User Wallet</a>,
  * <a href="https://developers.zumo.money/docs/guides/create-fiat-account">Create Fiat Account</a> and
@@ -25,28 +25,33 @@ import AccountDataSnapshot from './models/AccountDataSnapshot';
  * guides for usage details.
  */
 export default class User {
-  /** @internal */
-  userImpl: any;
+  private userImpl: any;
 
-  /** @internal */
   private accountDataListeners: Array<(state: Array<AccountDataSnapshot>) => void> = [];
 
-  /** @internal */
   private accountDataListenersImpl: Array<any> = [];
+
+  /** User dentifier. */
+  id: string;
+
+  /** Indicator if user has wallet. */
+  hasWallet: boolean;
+
+  /** User accounts. */
+  accounts: Array<Account>;
 
   /** @internal */
   constructor(userImpl: any) {
     this.userImpl = userImpl;
-  }
+    this.id = userImpl.getId();
+    this.hasWallet = userImpl.hasWallet();
+    this.accounts =
+      JSON.parse(userImpl.getAccounts()).map((json: AccountJSON) => new Account(json));
 
-  /** Get user dentifier. */
-  getId(): string {
-    return this.userImpl.getId();
-  }
-
-  /** Indicator if user has wallet. */
-  hasWallet(): boolean {
-    return this.userImpl.hasWallet();
+    // listen to account changes
+    this.addAccountDataListener((snapshots) => {
+      this.accounts = snapshots.map((snapshot) => snapshot.account);
+    });
   }
 
   /**
@@ -62,10 +67,11 @@ export default class User {
           mnemonic,
           password,
           new window.ZumoCoreModule.WalletCallbackWrapper({
-          onError: function (error: string) {
+          onError: (error: string) => {
             reject(new ZumoKitError(error));
           },
-          onSuccess: function (wallet: any) {
+          onSuccess: (wallet: any) => {
+            this.hasWallet = true;
             resolve(new Wallet(wallet));
           }
         }));
@@ -158,14 +164,6 @@ export default class User {
       return new Account(JSON.parse(account.get()));
     else
       return null;
-  }
-
-  /**
-   * Get all user accounts.
-   */
-  getAccounts(): Array<Account>{
-    return JSON.parse(this.userImpl.getAccounts())
-      .map((json: AccountJSON) => new Account(json));
   }
 
   /**
@@ -266,11 +264,11 @@ export default class User {
    *
    * @param listener interface to listen to user changes
    */
-  addAccountDataListener(listener: (snapshot: Array<AccountDataSnapshot>) => void) {
+  addAccountDataListener(listener: (snapshots: Array<AccountDataSnapshot>) => void) {
     let listenerImpl = new window.ZumoCoreModule.AccountDataListenerWrapper({
-      onDataChange: function (snapshot: string) {
+      onDataChange: function (snapshots: string) {
         listener(
-          JSON.parse(snapshot).map(
+          JSON.parse(snapshots).map(
             (json: AccountDataSnapshotJSON) => new AccountDataSnapshot(json)
           )
         );
@@ -288,7 +286,7 @@ export default class User {
    *
    * @param listener interface to listen to state changes
    */
-  removeAccountDataListener(listener: (snapshot: Array<AccountDataSnapshot>) => void) {
+  removeAccountDataListener(listener: (snapshots: Array<AccountDataSnapshot>) => void) {
     let index;
     while ((index = this.accountDataListeners.indexOf(listener)) != -1) {
       this.accountDataListeners.splice(index, 1);

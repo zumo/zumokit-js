@@ -5,7 +5,7 @@ import ComposedTransaction from './models/ComposedTransaction';
 import Exchange from './models/Exchange';
 import ComposedExchange from './models/ComposedExchange';
 import ExchangeRate from './models/ExchangeRate';
-import ExchangeSettings from './models/ExchangeSettings';
+import ExchangeSetting from './models/ExchangeSetting';
 import Decimal from 'decimal.js';
 
 /**
@@ -96,7 +96,7 @@ export default class Wallet {
    * @param fromAccountId       {@link  Account Account} identifier
    * @param changeAccountId     change {@link  Account Account} identifier, which can be the same as fromAccountId
    * @param destinationAddress  destination wallet address
-   * @param amount              amount in BTC
+   * @param amount              amount in BTC or BSV
    * @param feeRate             fee rate in satoshis/byte
    * @param sendMax             send maximum possible funds to destination
    */
@@ -241,7 +241,7 @@ export default class Wallet {
     fromAccountId: string,
     toAccountId: string,
     exchangeRate: ExchangeRate,
-    exchangeSettings: ExchangeSettings,
+    exchangeSetting: ExchangeSetting,
     amount: Decimal | null,
     sendMax = false
   ) {
@@ -254,7 +254,7 @@ export default class Wallet {
         fromAccountId,
         toAccountId,
         JSON.stringify(exchangeRate.json),
-        JSON.stringify(exchangeSettings.json),
+        JSON.stringify(exchangeSetting.json),
         amountOptional,
         sendMax,
         new window.ZumoCoreModule.ComposeExchangeCallbackWrapper({

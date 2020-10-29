@@ -1,14 +1,13 @@
 import ZumoKitError from './ZumoKitError';
 import { Network } from './types';
-import Decimal from 'decimal.js';
 
 declare global {
   interface Window { ZumoCoreModule: any; }
 }
 
 /**
- * Crypto utility class provides mnemonic phrase generation utility, Bitcoin & Ethereum
- * address validation utilities and Ethereum unit conversion methods.
+ * Crypto utility class provides mnemonic phrase generation utility and
+ * Bitcoin/Ethereum address validation utilities.
  */
 export default class Utils {
   /** @internal */
