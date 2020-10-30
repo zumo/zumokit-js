@@ -39,21 +39,21 @@ export default class ComposedExchange {
   /**
    * Amount that user receives, calculated as <code>value X exchangeRate X (1 - feeRate) - returnTransactionFee</code>.
    * <p>
-   * See {@link ExchangeSettings}.
+   * See {@link ExchangeSetting}.
    */
   returnAmount: Decimal;
 
   /**
    * Exchange fee, calculated as <code>value X exchangeRate X exchangeFeeRate</code>.
    * <p>
-   * See {@link ExchangeSettings}.
+   * See {@link ExchangeSetting}.
    */
   exchangeFee: Decimal;
 
   /**
    * Return transaction fee.
    * <p>
-   * See {@link ExchangeSettings}.
+   * See {@link ExchangeSetting}.
    */
   returnTransactionFee: Decimal;
 

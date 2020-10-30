@@ -11,7 +11,7 @@ const parseExchangeAddressMap = (exchangeAddressMapJSON: Record<string, string>)
 }
 
 /** Zumo exchange settings used in making exchanges. */
-export default class ExchangeSettings {
+export default class ExchangeSetting {
   /** @internal */
   json: ExchangeSettingJSON;
 

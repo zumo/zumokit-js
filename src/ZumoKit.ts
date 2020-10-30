@@ -309,9 +309,9 @@ export default class ZumoKit {
   }
 
   /**
-   * Listen to changes in exchange rates, exchange settings or transaction fee rates.
+   * Listen to changes in current user’s sign in state, exchange rates, exchange settings or transaction fee rates.
    *
-   * @param listener interface to listen to user changes
+   * @param listener interface to listen to changes
    */
   addChangeListener(listener: () => void) {
     let listenerImpl = new window.ZumoCoreModule.ChangeListenerWrapper({

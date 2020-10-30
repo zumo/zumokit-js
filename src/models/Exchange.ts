@@ -60,14 +60,14 @@ export default class Exchange {
   /**
    * Amount that user receives in target account currency, calculated as <code>amount X exchangeRate X (1 - feeRate) - returnTransactionFee</code>.
    * <p>
-   * See {@link ExchangeSettings}.
+   * See {@link ExchangeSetting}.
    */
   returnAmount: Decimal;
 
   /**
    * Exchange fee in target account currency, calculated as <code>amount X exchangeRate X exchangeFeeRate</code>.
    * <p>
-   * See {@link ExchangeSettings}.
+   * See {@link ExchangeSetting}.
    */
   exchangeFee: Decimal;
 
