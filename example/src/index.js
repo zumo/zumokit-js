@@ -32,7 +32,7 @@ import { Decimal } from 'decimal.js';
 
   try {
     // use userTokenSet to retrieve ZumoKit user
-    const user = await zumokit.authUser(userTokenSet);
+    const user = await zumokit.signIn(userTokenSet);
 
     console.log(user.id);
     console.log(user.hasWallet);

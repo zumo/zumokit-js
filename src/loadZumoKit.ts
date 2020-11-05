@@ -1,8 +1,12 @@
-import {loadZumoCore} from './loadZumoCore';
-import ZumoKit from './ZumoKit';
+import { loadZumoCore } from './utility/loadZumoCore';
+import { ZumoKit } from './interfaces';
+import { ZumoKit as ZumoKitImpl } from './models/ZumoKit';
 
 declare global {
-  interface Window { ZumoKit: any; loadZumoKit: any; }
+  interface Window {
+    ZumoKit: any;
+    loadZumoKit: any;
+  }
 }
 
 /**
@@ -16,19 +20,25 @@ declare global {
  * @param apiKey        ZumoKit Api-Key
  * @param apiUrl        ZumoKit API url
  * @param txServiceUrl  ZumoKit Transaction Service url
+ *
+ * @return ZumoKit instance
  * */
-const loadZumoKit = (apiKey: string, apiUrl: string, txServiceUrl: string) => {
+export const loadZumoKit = (
+  apiKey: string,
+  apiUrl: string,
+  txServiceUrl: string
+) => {
   return new Promise<ZumoKit>((resolve, reject) => {
     if (window.ZumoKit) {
       resolve(window.ZumoKit);
       return;
     }
 
-    loadZumoCore().then(() => {
-      window.ZumoKit = new ZumoKit(apiKey, apiUrl, txServiceUrl);
-      resolve(window.ZumoKit);
-    }).catch(reject);
+    loadZumoCore()
+      .then(() => {
+        window.ZumoKit = new ZumoKitImpl(apiKey, apiUrl, txServiceUrl);
+        resolve(window.ZumoKit);
+      })
+      .catch(reject);
   });
 };
-
-export { loadZumoKit };

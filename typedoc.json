@@ -1,13 +1,13 @@
 {
   "name": "ZumoKit",
   "includeVersion": true,
-  "inputFiles": [
-    "./src"
+  "exclude": [
+    "**/models/*",
+    "**/utility/*",
+    "src/types/index.ts",
+    "src/types/internal.ts"
   ],
   "mode": "file",
   "out": "docs",
-  "theme": "minimal",
-  "excludeExternals": true,
-  "excludePrivate": true,
-  "stripInternal": true
+  "theme": "minimal"
 }

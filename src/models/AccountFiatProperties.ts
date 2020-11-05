@@ -1,30 +1,11 @@
+import { AccountFiatProperties as IAccountFiatProperties } from '../interfaces';
 import { AccountFiatPropertiesJSON } from '../types';
 
-/**
- * Account's fiat related properties.
- * <p>
- * See {@link Account}.
- */
-export default class AccountFiatProperties {
-  /** @internal */
+interface AccountFiatProperties extends IAccountFiatProperties {}
+
+class AccountFiatProperties {
   json: AccountFiatPropertiesJSON;
 
-  /** Fiat account number or null. */
-  accountNumber: string | null;
-
-  /** Fiat account sort code or null. */
-  sortCode: string | null;
-
-  /** Fiat account BIC or null. */
-  bic: string | null;
-
-  /** Fiat account IBAN or null. */
-  iban: string | null;
-
-  /** Customer name or null. */
-  customerName: string | null;
-
-  /** @internal */
   constructor(json: AccountFiatPropertiesJSON) {
     this.json = json;
     this.accountNumber = json.accountNumber;
@@ -34,3 +15,5 @@ export default class AccountFiatProperties {
     this.customerName = json.customerName;
   }
 }
+
+export { AccountFiatProperties };

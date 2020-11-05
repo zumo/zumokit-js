@@ -1,20 +1,11 @@
-import AccountFiatProperties from './AccountFiatProperties';
+import { AccountFiatProperties } from './AccountFiatProperties';
 import { TransactionFiatPropertiesJSON } from '../types';
+import { TransactionFiatProperties as ITransactionFiatProperties } from '../interfaces';
 
-/**
- * Record containing transaction fiat properties.
- * <p>
- * See {@link Transaction}.
- * */
-export default class TransactionFiatProperties {
-  /** @internal */
+interface TransactionFiatProperties extends ITransactionFiatProperties {}
+
+class TransactionFiatProperties {
   json: TransactionFiatPropertiesJSON;
-
-  /** Sender fiat account properties. */
-  fromFiatAccount: AccountFiatProperties;
-
-  /** Recipient fiat account properties. */
-  toFiatAccount: AccountFiatProperties;
 
   /** @internal */
   constructor(json: TransactionFiatPropertiesJSON) {
@@ -23,3 +14,5 @@ export default class TransactionFiatProperties {
     this.toFiatAccount = new AccountFiatProperties(json.toFiatAccount);
   }
 }
+
+export { TransactionFiatProperties };
