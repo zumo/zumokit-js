@@ -1,9 +1,28 @@
-import { ZumoKitErrorJSON } from '../types';
-import { ZumoKitError as IZumoKitError } from '../interfaces';
+import { ZumoKitErrorJSON } from '../interfaces';
 
-interface ZumoKitError extends IZumoKitError {}
+/**
+ * ZumoKitError extension to Error class with type, code and message properties.
+ * Refer to <a href="https://developers.zumo.money/docs/guides/handling-errors">Handling Errors</a>
+ * guide for details on handling errors.
+ */
+export class ZumoKitError extends Error {
+  /**
+   * Error type, such as api_connection_error, api_error, wallet_error etc.
+   */
+  type: string;
 
-class ZumoKitError extends Error {
+  /**
+   * In case an error could be handled programmatically in addition to error type
+   * error code is returned.
+   */
+  code: string;
+
+  /**
+   * Error message.
+   */
+  message: string;
+
+  /** @internal */
   constructor(error: ZumoKitErrorJSON | string) {
     if (typeof error === 'string' || error instanceof String) {
       // eslint-disable-next-line no-param-reassign
@@ -17,5 +36,3 @@ class ZumoKitError extends Error {
     this.message = error.message;
   }
 }
-
-export { ZumoKitError };

@@ -1,21 +1,24 @@
-import { AccountDataSnapshotJSON } from '../types';
-import { AccountDataSnapshot as IAccountDataSnapshot } from '../interfaces';
+import { AccountDataSnapshotJSON } from '../interfaces';
 import { Account } from './Account';
 import { Transaction } from './Transaction';
 
-interface AccountDataSnapshot extends IAccountDataSnapshot {}
+/** Account data. */
+export class AccountDataSnapshot {
+  /** @internal */
+  json: AccountDataSnapshotJSON;
 
-class AccountDataSnapshot {
+  /** Account. */
   account: Account;
 
+  /** Account's transactions. */
   transactions: Array<Transaction>;
 
+  /** @internal */
   constructor(json: AccountDataSnapshotJSON) {
+    this.json = json;
     this.account = new Account(json.account);
     this.transactions = json.transactions.map(
       (transactionJson) => new Transaction(transactionJson)
     );
   }
 }
-
-export { AccountDataSnapshot };

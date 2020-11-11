@@ -1,9 +1,16 @@
 import { ExchangeRate } from './ExchangeRate';
-import { ExchangeRates as IExchangeRates } from '../interfaces';
-import { Dictionary, CurrencyCode, ExchangeRateJSON } from '../types';
+import { Dictionary, CurrencyCode, ExchangeRateJSON } from '../interfaces';
 
-export type ExchangeRates = IExchangeRates;
+/**
+ * Exchange rates are contained in a mapping between from currency,
+ * to currency and exchange rates.
+ */
+export type ExchangeRates = Dictionary<
+  CurrencyCode,
+  Dictionary<CurrencyCode, ExchangeRate>
+>;
 
+/** @internal */
 export const ExchangeRates = (
   exchangeRatesJSON: Record<string, Record<string, ExchangeRateJSON>>
 ) => {

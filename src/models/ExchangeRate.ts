@@ -1,12 +1,33 @@
 import { Decimal } from 'decimal.js';
-import { ExchangeRate as IExchangeRate } from '../interfaces';
-import { CurrencyCode, ExchangeRateJSON } from '../types';
+import { ExchangeRateJSON, CurrencyCode } from '../interfaces';
 
-interface ExchangeRate extends IExchangeRate {}
-
-class ExchangeRate {
+/**
+ * Zumo exchange rates used in making exchanges.
+ * Can also be used to display amounts in local currency to the user.
+ */
+export class ExchangeRate {
+  /** @internal */
   json: ExchangeRateJSON;
 
+  /** Identifier. */
+  id: string;
+
+  /** Currency from which exchange is being made. */
+  fromCurrency: CurrencyCode;
+
+  /** Currency to which exchange is being made. */
+  toCurrency: CurrencyCode;
+
+  /** Value of 1 unit of source currency in target currency. */
+  value: Decimal;
+
+  /** Epoch timestamp representing expiration time of this exchange rate. */
+  validTo: number;
+
+  /** Epoch timestamp when the exchange rate was issued. */
+  timestamp: number;
+
+  /** @internal */
   constructor(json: ExchangeRateJSON) {
     this.json = json;
     this.id = json.id;
@@ -17,5 +38,3 @@ class ExchangeRate {
     this.timestamp = json.timestamp;
   }
 }
-
-export { ExchangeRate };

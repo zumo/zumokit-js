@@ -1,9 +1,17 @@
 import { TransactionFeeRate } from './TransactionFeeRate';
-import { TransactionFeeRates as ITransactionFeeRates } from '../interfaces';
-import { TransactionFeeRateJSON, CurrencyCode, Dictionary } from '../types';
+import {
+  CurrencyCode,
+  Dictionary,
+  TransactionFeeRateJSON,
+} from '../interfaces';
 
-export type TransactionFeeRates = ITransactionFeeRates;
+/**
+ * Transaction fee rates are contained in a mapping between crypto currency and
+ * tranfaction fee rate.
+ */
+export type TransactionFeeRates = Dictionary<CurrencyCode, TransactionFeeRate>;
 
+/** @internal */
 export const TransactionFeeRates = (
   transactionFeeRatesJSON: Record<string, TransactionFeeRateJSON>
 ) => {

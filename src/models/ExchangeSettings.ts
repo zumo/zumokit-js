@@ -1,9 +1,16 @@
 import { ExchangeSetting } from './ExchangeSetting';
-import { ExchangeSettings as IExchangeSettings } from '../interfaces';
-import { ExchangeSettingJSON, CurrencyCode, Dictionary } from '../types';
+import { CurrencyCode, Dictionary, ExchangeSettingJSON } from '../interfaces';
 
-export type ExchangeSettings = IExchangeSettings;
+/**
+ * Exchange settings are contained in a mapping between from currency,
+ * to currency and exchange settings.
+ */
+export type ExchangeSettings = Dictionary<
+  CurrencyCode,
+  Dictionary<CurrencyCode, ExchangeSetting>
+>;
 
+/** @internal */
 export const ExchangeSettings = (
   exchangeSettingsJSON: Record<string, Record<string, ExchangeSettingJSON>>
 ) => {

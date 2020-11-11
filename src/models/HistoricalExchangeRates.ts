@@ -1,14 +1,21 @@
-import { HistoricalExchangeRates as IHistoricalExchangeRates } from '../interfaces';
 import { ExchangeRate } from './ExchangeRate';
 import {
-  ExchangeRateJSON,
   CurrencyCode,
   Dictionary,
   TimeInterval,
-} from '../types';
+  ExchangeRateJSON,
+} from '../interfaces';
 
-export type HistoricalExchangeRates = IHistoricalExchangeRates;
+/**
+ * Historical exchange rates are contained in a mapping between time interval,
+ * from currency, to currency on third level and exchange rates.
+ */
+export type HistoricalExchangeRates = Dictionary<
+  TimeInterval,
+  Dictionary<CurrencyCode, Dictionary<CurrencyCode, Array<ExchangeRate>>>
+>;
 
+/** @internal */
 export const HistoricalExchangeRates = (
   historicalExchangeRatesJSON: Record<
     string,

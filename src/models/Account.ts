@@ -1,5 +1,4 @@
 import { Decimal } from 'decimal.js';
-import { Account as IAccount } from '../interfaces';
 import { AccountCryptoProperties } from './AccountCryptoProperties';
 import { AccountFiatProperties } from './AccountFiatProperties';
 import {
@@ -8,13 +7,41 @@ import {
   Network,
   AccountType,
   AccountJSON,
-} from '../types';
+} from '../interfaces';
 
-interface Account extends IAccount {}
-
-class Account {
+/** Account details. */
+export class Account {
+  /** @internal */
   json: AccountJSON;
 
+  /** Unique account identifier. */
+  id: string;
+
+  /** Account currency type. */
+  currencyType: CurrencyType;
+
+  /** Account currency code. */
+  currencyCode: CurrencyCode;
+
+  /** Account network type. */
+  network: Network;
+
+  /** Account type. */
+  type: AccountType;
+
+  /** Account balance. */
+  balance: Decimal;
+
+  /** Account has associated nominated account. */
+  hasNominatedAccount: boolean;
+
+  /** Account crypto properties if account is a crypto account, otherwise null. */
+  cryptoProperties: AccountCryptoProperties | null;
+
+  /** Account fiat properties if account is a fiat account, otherwise null. */
+  fiatProperties: AccountFiatProperties | null;
+
+  /** @internal */
   constructor(json: AccountJSON) {
     this.json = json;
     this.id = json.id;
@@ -32,5 +59,3 @@ class Account {
       : null;
   }
 }
-
-export { Account };

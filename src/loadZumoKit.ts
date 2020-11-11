@@ -1,6 +1,5 @@
-import { loadZumoCore } from './utility/loadZumoCore';
-import { ZumoKit } from './interfaces';
-import { ZumoKit as ZumoKitImpl } from './models/ZumoKit';
+import { loadZumoCore } from './utility';
+import { ZumoKit } from './ZumoKit';
 
 declare global {
   interface Window {
@@ -36,7 +35,7 @@ export const loadZumoKit = (
 
     loadZumoCore()
       .then(() => {
-        window.ZumoKit = new ZumoKitImpl(apiKey, apiUrl, txServiceUrl);
+        window.ZumoKit = new ZumoKit(apiKey, apiUrl, txServiceUrl);
         resolve(window.ZumoKit);
       })
       .catch(reject);
