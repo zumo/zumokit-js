@@ -8,12 +8,8 @@ import {
   FiatCustomerData,
 } from './interfaces';
 import { Wallet } from './Wallet';
-import {
-  ZumoKitError,
-  Account,
-  AccountFiatProperties,
-  AccountDataSnapshot,
-} from './models';
+import { ZumoKitError } from './ZumoKitError';
+import { Account, AccountFiatProperties, AccountDataSnapshot } from './models';
 
 /**
  * User instance contains methods for managing user wallet and accounts.

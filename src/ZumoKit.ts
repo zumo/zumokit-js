@@ -12,10 +12,10 @@ import {
   TransactionFeeRate,
   TransactionFeeRates,
   HistoricalExchangeRates,
-  ZumoKitError,
 } from './models';
 import { User } from './User';
 import { Utils } from './Utils';
+import { ZumoKitError } from './ZumoKitError';
 
 /**
  * ZumoKit instance.

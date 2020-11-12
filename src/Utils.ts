@@ -1,4 +1,4 @@
-import { ZumoKitError } from './models/ZumoKitError';
+import { ZumoKitError } from './ZumoKitError';
 import { Network } from './interfaces';
 
 declare global {

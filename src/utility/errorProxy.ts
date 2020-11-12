@@ -1,4 +1,4 @@
-import { ZumoKitError } from '../models/ZumoKitError';
+import { ZumoKitError } from '../ZumoKitError';
 
 declare global {
   interface Window {

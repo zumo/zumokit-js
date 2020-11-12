@@ -15,4 +15,3 @@ export { TransactionCryptoProperties } from './TransactionCryptoProperties';
 export { TransactionFeeRate } from './TransactionFeeRate';
 export { TransactionFeeRates } from './TransactionFeeRates';
 export { TransactionFiatProperties } from './TransactionFiatProperties';
-export { ZumoKitError } from './ZumoKitError';

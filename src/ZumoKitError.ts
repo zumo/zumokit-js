@@ -1,4 +1,4 @@
-import { ZumoKitErrorJSON } from '../interfaces';
+import { ZumoKitErrorJSON } from './interfaces';
 
 /**
  * ZumoKitError extension to Error class with type, code and message properties.
@@ -23,14 +23,11 @@ export class ZumoKitError extends Error {
   message: string;
 
   /** @internal */
-  constructor(error: ZumoKitErrorJSON | string) {
-    if (typeof error === 'string' || error instanceof String) {
-      // eslint-disable-next-line no-param-reassign
-      error = JSON.parse(error as string) as ZumoKitErrorJSON;
-    }
+  constructor(json: string) {
+    const error = JSON.parse(json) as ZumoKitErrorJSON;
 
     super(error.message);
-
+    this.name = 'ZumoKitError';
     this.type = error.type;
     this.code = error.code;
     this.message = error.message;

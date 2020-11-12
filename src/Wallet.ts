@@ -1,7 +1,7 @@
 import { Decimal } from 'decimal.js';
 import { errorProxy } from './utility';
+import { ZumoKitError } from './ZumoKitError';
 import {
-  ZumoKitError,
   Transaction,
   ComposedTransaction,
   Exchange,
