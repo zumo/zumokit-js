@@ -32,7 +32,7 @@ export class TransactionCryptoProperties {
    * Ethereum transaction nonce if greater than 0 and
    * it is Ethereum transaction, otherwise returns null.
    */
-  nonce: string | null;
+  nonce: number | null;
 
   /** Wallet address of sender, */
   fromAddress: string;
@@ -64,7 +64,7 @@ export class TransactionCryptoProperties {
     this.toAddress = json.toAddress;
     this.data = json.data;
     this.gasPrice = json.gasPrice ? new Decimal(json.gasPrice) : null;
-    this.gasLimit = json.gasLimit ? parseInt(json.gasLimit, 10) : null;
+    this.gasLimit = json.gasLimit;
     this.fiatFee = parseFiatMap(json.fiatFee);
     this.fiatAmount = parseFiatMap(json.fiatAmount);
   }

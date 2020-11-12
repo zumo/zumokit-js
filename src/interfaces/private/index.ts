@@ -83,12 +83,12 @@ export interface TransactionFeeRateJSON {
 
 export interface TransactionCryptoPropertiesJSON {
   txHash: string | null;
-  nonce: string | null;
+  nonce: number | null;
   fromAddress: string;
   toAddress: string | null;
   data: string | null;
   gasPrice: string | null;
-  gasLimit: string | null;
+  gasLimit: number | null;
   fiatFee: Record<string, string>;
   fiatAmount: Record<string, string>;
 }
