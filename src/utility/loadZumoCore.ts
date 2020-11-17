@@ -1,11 +1,13 @@
 declare global {
-  interface Window { ZumoCoreModule: any; loadZumoCoreModule: any; }
+  interface Window {
+    ZumoCoreModule: any;
+    loadZumoCoreModule: any;
+  }
 }
 
-/** @internal */
 const injectScript = () => {
   const script = document.createElement('script');
-  script.src = "https://js.zumo.money/VERSION/zumocore.js";
+  script.src = 'https://js.zumo.money/VERSION/zumocore.js';
 
   const headOrBody = document.head || document.body;
 
@@ -20,7 +22,6 @@ const injectScript = () => {
   return script;
 };
 
-/** @internal */
 export const loadZumoCore = () => {
   return new Promise((resolve, reject) => {
     if (window.ZumoCoreModule) {
@@ -29,14 +30,17 @@ export const loadZumoCore = () => {
     }
 
     try {
-      let script = injectScript();
+      const script = injectScript();
 
       script.addEventListener('load', () => {
         if (window.loadZumoCoreModule) {
-          window.loadZumoCoreModule().then((module: any) => {
-            window.ZumoCoreModule = module;
-            resolve(module)
-          }).catch(reject);
+          window
+            .loadZumoCoreModule()
+            .then((module: any) => {
+              window.ZumoCoreModule = module;
+              resolve(module);
+            })
+            .catch(reject);
         } else {
           reject(new Error('ZumoCore WebAssembly module not available'));
         }
@@ -47,7 +51,6 @@ export const loadZumoCore = () => {
       });
     } catch (error) {
       reject(error);
-      return;
     }
   });
 };

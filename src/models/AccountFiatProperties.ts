@@ -1,11 +1,11 @@
-import { AccountFiatPropertiesJSON } from '../types';
+import { AccountFiatPropertiesJSON } from '../interfaces';
 
 /**
  * Account's fiat related properties.
  * <p>
  * See {@link Account}.
  */
-export default class AccountFiatProperties {
+export class AccountFiatProperties {
   /** @internal */
   json: AccountFiatPropertiesJSON;
 

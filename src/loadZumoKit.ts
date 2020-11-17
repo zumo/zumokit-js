@@ -1,8 +1,11 @@
-import {loadZumoCore} from './loadZumoCore';
-import ZumoKit from './ZumoKit';
+import { loadZumoCore } from './utility';
+import { ZumoKit } from './ZumoKit';
 
 declare global {
-  interface Window { ZumoKit: any; loadZumoKit: any; }
+  interface Window {
+    ZumoKit: any;
+    loadZumoKit: any;
+  }
 }
 
 /**
@@ -12,19 +15,29 @@ declare global {
  * once ZumoKit SDK has loaded. Behind the scenes, it will load ZumoKit WebAssebly module
  * for you by inserting the zumocore.js script tag. ZumoKit requires browser environment
  * to work as expected and it will not work in in a server environment.
+ *
+ * @param apiKey        ZumoKit Api-Key
+ * @param apiUrl        ZumoKit API url
+ * @param txServiceUrl  ZumoKit Transaction Service url
+ *
+ * @return ZumoKit instance
  * */
-const loadZumoKit = (apiKey: string, apiRoot: string, txServiceUrl: string) => {
+export const loadZumoKit = (
+  apiKey: string,
+  apiUrl: string,
+  txServiceUrl: string
+) => {
   return new Promise<ZumoKit>((resolve, reject) => {
     if (window.ZumoKit) {
       resolve(window.ZumoKit);
       return;
     }
 
-    loadZumoCore().then(() => {
-      window.ZumoKit = new ZumoKit(apiKey, apiRoot, txServiceUrl);
-      resolve(window.ZumoKit);
-    }).catch(reject);
+    loadZumoCore()
+      .then(() => {
+        window.ZumoKit = new ZumoKit(apiKey, apiUrl, txServiceUrl);
+        resolve(window.ZumoKit);
+      })
+      .catch(reject);
   });
 };
-
-export { loadZumoKit };

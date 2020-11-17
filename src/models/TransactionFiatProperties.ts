@@ -1,12 +1,12 @@
-import AccountFiatProperties from './AccountFiatProperties';
-import { TransactionFiatPropertiesJSON } from '../types';
+import { TransactionFiatPropertiesJSON } from '../interfaces';
+import { AccountFiatProperties } from './AccountFiatProperties';
 
 /**
- * Record containing transaction fiat properties.
+ * Interface describing transaction fiat properties.
  * <p>
  * See {@link Transaction}.
  * */
-export default class TransactionFiatProperties {
+export class TransactionFiatProperties {
   /** @internal */
   json: TransactionFiatPropertiesJSON;
 

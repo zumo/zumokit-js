@@ -1,11 +1,11 @@
 import { Decimal } from 'decimal.js';
-import Account from './Account';
-import { TransactionType, ComposedTransactionJSON } from '../types';
+import { Account } from './Account';
+import { TransactionType, ComposedTransactionJSON } from '../interfaces';
 
 /**
  * Result of one of the transaction compose methods on {@link  Wallet Wallet} object.
  */
-export default class ComposedTransaction {
+export class ComposedTransaction {
   /** @internal */
   json: ComposedTransactionJSON;
 

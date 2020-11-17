@@ -1,52 +1,56 @@
-
-import { errorProxy } from './errorProxy';
-import Wallet from './Wallet';
-import ZumoKitError from './ZumoKitError';
-import Account from './models/Account';
-import AccountFiatProperties from './models/AccountFiatProperties';
+import { errorProxy } from './utility';
 import {
   CurrencyCode,
   Network,
   AccountType,
   AccountJSON,
   AccountDataSnapshotJSON,
-  ModulrCustomerData,
-} from './types';
-import AccountDataSnapshot from './models/AccountDataSnapshot';
+  FiatCustomerData,
+} from './interfaces';
+import { Wallet } from './Wallet';
+import { ZumoKitError } from './ZumoKitError';
+import { Account, AccountFiatProperties, AccountDataSnapshot } from './models';
 
 /**
- * User class provides methods for managing user wallet and accounts.
+ * User instance contains methods for managing user wallet and accounts.
  * <p>
- * User instance can be obtained via {@link ZumoKit.getUser} method.
+ * User instance can be obtained via {@link ZumoKit.signIn} method.
  * <p>
  * See <a href="https://developers.zumo.money/docs/guides/manage-user-wallet">Manage User Wallet</a>,
  * <a href="https://developers.zumo.money/docs/guides/create-fiat-account">Create Fiat Account</a> and
  * <a href="https://developers.zumo.money/docs/guides/view-user-data">View User Data</a>
  * guides for usage details.
  */
-export default class User {
-  /** @internal */
-  userImpl: any;
+export class User {
+  private userImpl: any;
 
-  /** @internal */
-  private accountDataListeners: Array<(state: Array<AccountDataSnapshot>) => void> = [];
+  private accountDataListeners: Array<
+    (state: Array<AccountDataSnapshot>) => void
+  > = [];
 
-  /** @internal */
   private accountDataListenersImpl: Array<any> = [];
+
+  /** User dentifier. */
+  id: string;
+
+  /** Indicator if user has wallet. */
+  hasWallet: boolean;
+
+  /** User accounts. */
+  accounts: Array<Account>;
 
   /** @internal */
   constructor(userImpl: any) {
     this.userImpl = userImpl;
-  }
+    this.id = userImpl.getId();
+    this.hasWallet = userImpl.hasWallet();
+    this.accounts = JSON.parse(userImpl.getAccounts()).map(
+      (json: AccountJSON) => new Account(json)
+    );
 
-  /** Get user dentifier. */
-  getId(): string {
-    return this.userImpl.getId();
-  }
-
-  /** Indicator if user has wallet. */
-  hasWallet(): boolean {
-    return this.userImpl.hasWallet();
+    this.addAccountDataListener((snapshots) => {
+      this.accounts = snapshots.map((snapshot) => snapshot.account);
+    });
   }
 
   /**
@@ -58,17 +62,19 @@ export default class User {
    */
   createWallet(mnemonic: string, password: string) {
     return errorProxy<Wallet>((resolve: any, reject: any) => {
-        this.userImpl.createWallet(
-          mnemonic,
-          password,
-          new window.ZumoCoreModule.WalletCallbackWrapper({
-          onError: function (error: string) {
+      this.userImpl.createWallet(
+        mnemonic,
+        password,
+        new window.ZumoCoreModule.WalletCallbackWrapper({
+          onError: (error: string) => {
             reject(new ZumoKitError(error));
           },
-          onSuccess: function (wallet: any) {
+          onSuccess: (wallet: any) => {
+            this.hasWallet = true;
             resolve(new Wallet(wallet));
-          }
-        }));
+          },
+        })
+      );
     });
   }
 
@@ -80,17 +86,18 @@ export default class User {
    */
   recoverWallet(mnemonic: string, password: string) {
     return errorProxy<Wallet>((resolve: any, reject: any) => {
-        this.userImpl.recoverWallet(
-          mnemonic,
-          password,
-          new window.ZumoCoreModule.WalletCallbackWrapper({
-          onError: function (error: string) {
+      this.userImpl.recoverWallet(
+        mnemonic,
+        password,
+        new window.ZumoCoreModule.WalletCallbackWrapper({
+          onError(error: string) {
             reject(new ZumoKitError(error));
           },
-          onSuccess: function (wallet: any) {
+          onSuccess(wallet: any) {
             resolve(new Wallet(wallet));
-          }
-        }));
+          },
+        })
+      );
     });
   }
 
@@ -100,16 +107,17 @@ export default class User {
    */
   unlockWallet(password: string) {
     return errorProxy<Wallet>((resolve: any, reject: any) => {
-        this.userImpl.unlockWallet(
-          password,
-          new window.ZumoCoreModule.WalletCallbackWrapper({
-          onError: function (error: string) {
+      this.userImpl.unlockWallet(
+        password,
+        new window.ZumoCoreModule.WalletCallbackWrapper({
+          onError(error: string) {
             reject(new ZumoKitError(error));
           },
-          onSuccess: function (wallet: any) {
+          onSuccess(wallet: any) {
             resolve(new Wallet(wallet));
-          }
-        }));
+          },
+        })
+      );
     });
   }
 
@@ -119,19 +127,19 @@ export default class User {
    */
   revealMnemonic(password: string) {
     return errorProxy<string>((resolve: any, reject: any) => {
-        this.userImpl.revealMnemonic(
-          password,
-          new window.ZumoCoreModule.MnemonicCallbackWrapper({
-          onError: function (error: string) {
+      this.userImpl.revealMnemonic(
+        password,
+        new window.ZumoCoreModule.MnemonicCallbackWrapper({
+          onError(error: string) {
             reject(new ZumoKitError(error));
           },
-          onSuccess: function (mnemonic: string) {
+          onSuccess(mnemonic: string) {
             resolve(mnemonic);
-          }
-        }));
+          },
+        })
+      );
     });
   }
-
 
   /**
    * Check if mnemonic seed phrase corresponds to user's wallet.
@@ -154,44 +162,32 @@ export default class User {
    */
   getAccount(currencyCode: CurrencyCode, network: Network, type: AccountType) {
     const account = this.userImpl.getAccount(currencyCode, network, type);
-    if (account.hasValue())
-      return new Account(JSON.parse(account.get()));
-    else
-      return null;
+    if (account.hasValue()) return new Account(JSON.parse(account.get()));
+    return null;
   }
 
   /**
-   * Get all user accounts.
-   */
-  getAccounts(): Array<Account>{
-    return JSON.parse(this.userImpl.getAccounts())
-      .map((json: AccountJSON) => new Account(json));
-  }
-
-  /**
-   * Check if user is a Modulr customer on 'MAINNET' or 'TESTNET' network.
+   * Check if user is a fiat customer on 'MAINNET' or 'TESTNET' network.
    * @param  network 'MAINNET' or 'TESTNET'
    */
-  isModulrCustomer(network: string): boolean {
-    return this.userImpl.isModulrCustomer(network);
+  isFiatCustomer(network: string): boolean {
+    return this.userImpl.isFiatCustomer(network);
   }
 
   /**
-   * Make user Modulr customer on specified network by providing user's personal details.
+   * Make user fiat customer on specified network by providing user's personal details.
    * @param  network        'MAINNET' or 'TESTNET'
    * @param  customerData    user's personal details.
    */
-  makeModulrCustomer(network: Network, customerData: ModulrCustomerData) {
+  makeFiatCustomer(network: Network, customerData: FiatCustomerData) {
     return errorProxy<void>((resolve: any, reject: any) => {
-      let middleName = new window.ZumoCoreModule.OptionalString();
-      if (customerData.middleName)
-        middleName.set(customerData.middleName);
+      const middleName = new window.ZumoCoreModule.OptionalString();
+      if (customerData.middleName) middleName.set(customerData.middleName);
 
-      let addressLine2 = new window.ZumoCoreModule.OptionalString();
-      if (customerData.addressLine2)
-        middleName.set(customerData.addressLine2);
+      const addressLine2 = new window.ZumoCoreModule.OptionalString();
+      if (customerData.addressLine2) middleName.set(customerData.addressLine2);
 
-      this.userImpl.makeModulrCustomer(
+      this.userImpl.makeFiatCustomer(
         network,
         customerData.firstName,
         middleName,
@@ -205,19 +201,19 @@ export default class User {
         customerData.postCode,
         customerData.postTown,
         new window.ZumoCoreModule.SuccessCallbackWrapper({
-          onError: function (error: string) {
+          onError(error: string) {
             reject(new ZumoKitError(error));
           },
-          onSuccess: function () {
+          onSuccess() {
             resolve();
-          }
+          },
         })
       );
     });
   }
 
   /**
-   * Create fiat account on specified network and currency code. User must already be Modulr customer on specified network.
+   * Create fiat account on specified network and currency code. User must already be fiat customer on specified network.
    * @param  network        'MAINNET' or 'TESTNET'
    * @param  currencyCode  country code in ISO 4217 format, e.g. 'GBP'
    */
@@ -227,12 +223,12 @@ export default class User {
         network,
         currencyCode,
         new window.ZumoCoreModule.AccountCallbackWrapper({
-          onError: function (error: string) {
+          onError(error: string) {
             reject(new ZumoKitError(error));
           },
-          onSuccess: function (account: string) {
+          onSuccess(account: string) {
             resolve(new Account(JSON.parse(account)));
-          }
+          },
         })
       );
     });
@@ -246,16 +242,18 @@ export default class User {
    * @param  accountId     {@link  Account Account} identifier
    */
   getNominatedAccountFiatProperties(accountId: string) {
-    return errorProxy<AccountFiatProperties>((resolve: any, reject: any) => {
+    return errorProxy<AccountFiatProperties | null>((resolve: any) => {
       this.userImpl.getNominatedAccountFiatProperties(
         accountId,
         new window.ZumoCoreModule.AccountFiatPropertiesCallbackWrapper({
-          onError: function (error: string) {
-            reject(new ZumoKitError(error));
+          onError() {
+            resolve(null);
           },
-          onSuccess: function (accountFiatProperties: string) {
-            resolve(new AccountFiatProperties(JSON.parse(accountFiatProperties)));
-          }
+          onSuccess(accountFiatProperties: string) {
+            resolve(
+              new AccountFiatProperties(JSON.parse(accountFiatProperties))
+            );
+          },
         })
       );
     });
@@ -266,15 +264,17 @@ export default class User {
    *
    * @param listener interface to listen to user changes
    */
-  addAccountDataListener(listener: (snapshot: Array<AccountDataSnapshot>) => void) {
-    let listenerImpl = new window.ZumoCoreModule.AccountDataListenerWrapper({
-      onDataChange: function (snapshot: string) {
+  addAccountDataListener(
+    listener: (snapshots: Array<AccountDataSnapshot>) => void
+  ) {
+    const listenerImpl = new window.ZumoCoreModule.AccountDataListenerWrapper({
+      onDataChange(snapshots: string) {
         listener(
-          JSON.parse(snapshot).map(
+          JSON.parse(snapshots).map(
             (json: AccountDataSnapshotJSON) => new AccountDataSnapshot(json)
           )
         );
-      }
+      },
     });
 
     this.userImpl.addAccountDataListener(listenerImpl);
@@ -288,11 +288,16 @@ export default class User {
    *
    * @param listener interface to listen to state changes
    */
-  removeAccountDataListener(listener: (snapshot: Array<AccountDataSnapshot>) => void) {
+  removeAccountDataListener(
+    listener: (snapshots: Array<AccountDataSnapshot>) => void
+  ) {
     let index;
-    while ((index = this.accountDataListeners.indexOf(listener)) != -1) {
+    // eslint-disable-next-line no-cond-assign
+    while ((index = this.accountDataListeners.indexOf(listener)) !== -1) {
       this.accountDataListeners.splice(index, 1);
-      this.userImpl.removeAccountDataListener(this.accountDataListenersImpl.splice(index, 1)[0]);
+      this.userImpl.removeAccountDataListener(
+        this.accountDataListenersImpl.splice(index, 1)[0]
+      );
     }
   }
 }

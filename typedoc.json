@@ -1,12 +1,13 @@
 {
   "name": "ZumoKit",
   "includeVersion": true,
-  "inputFiles": [
-    "./src"
+  "exclude": [
+    "**/utility/*",
+    "src/interfaces/private/*"
   ],
   "mode": "file",
+  "excludePrivate": true,
+  "stripInternal": true,
   "out": "docs",
-  "theme": "minimal",
-  "excludeExternals": false,
-  "stripInternal": true
+  "theme": "minimal"
 }

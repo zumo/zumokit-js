@@ -1,11 +1,11 @@
 import { Decimal } from 'decimal.js';
-import { CurrencyCode, ExchangeRateJSON } from '../types';
+import { ExchangeRateJSON, CurrencyCode } from '../interfaces';
 
 /**
  * Zumo exchange rates used in making exchanges.
  * Can also be used to display amounts in local currency to the user.
  */
-export default class ExchangeRate {
+export class ExchangeRate {
   /** @internal */
   json: ExchangeRateJSON;
 
@@ -31,8 +31,8 @@ export default class ExchangeRate {
   constructor(json: ExchangeRateJSON) {
     this.json = json;
     this.id = json.id;
-    this.fromCurrency = json.depositCurrency as CurrencyCode;
-    this.toCurrency = json.withdrawCurrency as CurrencyCode;
+    this.fromCurrency = json.fromCurrency as CurrencyCode;
+    this.toCurrency = json.toCurrency as CurrencyCode;
     this.value = new Decimal(json.value);
     this.validTo = json.validTo;
     this.timestamp = json.timestamp;

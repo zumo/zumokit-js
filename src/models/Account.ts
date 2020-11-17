@@ -1,10 +1,16 @@
 import { Decimal } from 'decimal.js';
-import AccountCryptoProperties from './AccountCryptoProperties';
-import AccountFiatProperties from './AccountFiatProperties';
-import { CurrencyType, CurrencyCode, Network, AccountType, AccountJSON } from '../types';
+import { AccountCryptoProperties } from './AccountCryptoProperties';
+import { AccountFiatProperties } from './AccountFiatProperties';
+import {
+  CurrencyType,
+  CurrencyCode,
+  Network,
+  AccountType,
+  AccountJSON,
+} from '../interfaces';
 
-/** Record containing account details. */
-export default class Account {
+/** Account details. */
+export class Account {
   /** @internal */
   json: AccountJSON;
 

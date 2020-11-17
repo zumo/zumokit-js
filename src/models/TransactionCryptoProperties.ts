@@ -1,21 +1,27 @@
 import { Decimal } from 'decimal.js';
-import { TransactionCryptoPropertiesJSON, Dictionary, CurrencyCode } from '../types';
+import {
+  TransactionCryptoPropertiesJSON,
+  Dictionary,
+  CurrencyCode,
+} from '../interfaces';
 
 /** @internal */
-const parseFiatMap = (fiatMapJSON: Record<string, string>) =>  {
+const parseFiatMap = (fiatMapJSON: Record<string, string>) => {
   const fiatMap: Dictionary<CurrencyCode, Decimal> = {};
   Object.keys(fiatMapJSON).forEach((currencyCode) => {
-    fiatMap[currencyCode as CurrencyCode] = new Decimal(fiatMapJSON[currencyCode]);
+    fiatMap[currencyCode as CurrencyCode] = new Decimal(
+      fiatMapJSON[currencyCode]
+    );
   });
   return fiatMap;
-}
+};
 
 /**
- * Record containing transaction crypto properties.
+ * Transaction crypto properties.
  * <p>
  * See {@link Transaction}.
  * */
-export default class TransactionCryptoProperties {
+export class TransactionCryptoProperties {
   /** @internal */
   json: TransactionCryptoPropertiesJSON;
 
@@ -26,7 +32,7 @@ export default class TransactionCryptoProperties {
    * Ethereum transaction nonce if greater than 0 and
    * it is Ethereum transaction, otherwise returns null.
    */
-  nonce: string | null;
+  nonce: number | null;
 
   /** Wallet address of sender, */
   fromAddress: string;
@@ -58,7 +64,7 @@ export default class TransactionCryptoProperties {
     this.toAddress = json.toAddress;
     this.data = json.data;
     this.gasPrice = json.gasPrice ? new Decimal(json.gasPrice) : null;
-    this.gasLimit = json.gasLimit ? parseInt(json.gasLimit, 10) : null;
+    this.gasLimit = json.gasLimit;
     this.fiatFee = parseFiatMap(json.fiatFee);
     this.fiatAmount = parseFiatMap(json.fiatAmount);
   }

@@ -1,19 +1,17 @@
 import { Decimal } from 'decimal.js';
-// eslint-disable-next-line import/no-cycle
-import TransactionCryptoProperties from './TransactionCryptoProperties';
-import TransactionFiatProperties from './TransactionFiatProperties';
+import { TransactionCryptoProperties } from './TransactionCryptoProperties';
+import { TransactionFiatProperties } from './TransactionFiatProperties';
 import {
   TransactionType,
   TransactionStatus,
   CurrencyCode,
   Network,
   TransactionJSON,
-} from '../types';
-import Exchange from './Exchange';
+} from '../interfaces';
+import { Exchange } from './Exchange';
 
-// TODO: Add transaction subscription
-/** Record containing transaction details. */
-export default class Transaction {
+/** Transaction details. */
+export class Transaction {
   /** @internal */
   json: TransactionJSON;
 
@@ -105,9 +103,7 @@ export default class Transaction {
     this.fiatProperties = json.fiatProperties
       ? new TransactionFiatProperties(json.fiatProperties)
       : null;
-    this.exchange = json.exchange
-      ? new Exchange(json.exchange)
-      : null;
+    this.exchange = json.exchange ? new Exchange(json.exchange) : null;
     this.submittedAt = json.submittedAt;
     this.confirmedAt = json.confirmedAt;
     this.timestamp = json.timestamp;

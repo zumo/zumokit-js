@@ -1,15 +1,18 @@
-import { errorProxy } from './errorProxy';
-import ZumoKitError from './ZumoKitError';
-import Transaction from './models/Transaction';
-import ComposedTransaction from './models/ComposedTransaction';
-import Exchange from './models/Exchange';
-import ComposedExchange from './models/ComposedExchange';
-import ExchangeRate from './models/ExchangeRate';
-import ExchangeSettings from './models/ExchangeSettings';
-import Decimal from 'decimal.js';
+import { Decimal } from 'decimal.js';
+import { errorProxy } from './utility';
+import { ZumoKitError } from './ZumoKitError';
+import {
+  Transaction,
+  ComposedTransaction,
+  Exchange,
+  ComposedExchange,
+  ExchangeRate,
+  ExchangeSetting,
+} from './models';
 
 /**
- * User wallet provides methods for transfer and exchange of fiat and cryptocurrency funds.
+ * User wallet instance describes methods for transfer and exchange of fiat and cryptocurrency funds.
+ *
  * Sending a transaction or making an exchange is a two step process. First a transaction or
  * exchange has to be composed via one of the compose methods, then {@link  ComposedTransaction ComposedTransaction} or
  * {@link  ComposedExchange ComposedExchange} can be submitted.
@@ -18,8 +21,7 @@ import Decimal from 'decimal.js';
  * <p>
  * See {@link User}.
  */
-export default class Wallet {
-  /** @internal */
+export class Wallet {
   walletImpl: any;
 
   /** @internal */
@@ -37,54 +39,55 @@ export default class Wallet {
    * @param gasLimit             gas limit
    * @param destinationAddress   destination wallet address
    * @param amount               amount in ETH
-   * @param data                 data in string format or null
-   * @param nonce                next transaction nonce or null
-   * @param sendMax              send maximum possible funds to destination
+   * @param data                 data in string format or null (defaults to null)
+   * @param nonce                next transaction nonce or null (defaults to null)
+   * @param sendMax              send maximum possible funds to destination (defaults to false)
    */
   composeEthTransaction(
     fromAccountId: string,
     gasPrice: Decimal,
-    gasLimit: Decimal,
+    gasLimit: number,
     destinationAddress: string | null,
     amount: Decimal | null,
-    data: string | null,
-    nonce: number | null,
+    data: string | null = null,
+    nonce: number | null = null,
     sendMax = false
   ) {
     return errorProxy<ComposedTransaction>((resolve: any, reject: any) => {
-      let destinationAddressOptional = new window.ZumoCoreModule.OptionalString();
+      const destinationAddressOptional = new window.ZumoCoreModule.OptionalString();
       if (destinationAddress)
         destinationAddressOptional.set(destinationAddress);
 
-      let amountOptional = new window.ZumoCoreModule.OptionalDecimal();
+      const amountOptional = new window.ZumoCoreModule.OptionalDecimal();
       if (amount)
-        amountOptional.set(new window.ZumoCoreModule.Decimal(amount.toString()));
+        amountOptional.set(
+          new window.ZumoCoreModule.Decimal(amount.toString())
+        );
 
-      let dataOptional = new window.ZumoCoreModule.OptionalString();
-      if (data)
-        dataOptional.set(data);
+      const dataOptional = new window.ZumoCoreModule.OptionalString();
+      if (data) dataOptional.set(data);
 
-      let nonceOptional = new window.ZumoCoreModule.OptionalInt64();
-      if (nonce)
-        nonceOptional.set(nonce);
+      const nonceOptional = new window.ZumoCoreModule.OptionalInteger();
+      if (nonce) nonceOptional.set(nonce);
 
       this.walletImpl.composeEthTransaction(
         fromAccountId,
         new window.ZumoCoreModule.Decimal(gasPrice.toString()),
-        new window.ZumoCoreModule.Decimal(gasLimit.toString()),
+        gasLimit,
         destinationAddressOptional,
         amountOptional,
         dataOptional,
         nonceOptional,
         sendMax,
         new window.ZumoCoreModule.ComposeTransactionCallbackWrapper({
-        onError: function (error: string) {
-          reject(new ZumoKitError(error));
-        },
-        onSuccess: function (composedTransaction: string) {
-          resolve(new ComposedTransaction(JSON.parse(composedTransaction)));
-        }
-      }));
+          onError(error: string) {
+            reject(new ZumoKitError(error));
+          },
+          onSuccess(composedTransaction: string) {
+            resolve(new ComposedTransaction(JSON.parse(composedTransaction)));
+          },
+        })
+      );
     });
   }
 
@@ -96,9 +99,9 @@ export default class Wallet {
    * @param fromAccountId       {@link  Account Account} identifier
    * @param changeAccountId     change {@link  Account Account} identifier, which can be the same as fromAccountId
    * @param destinationAddress  destination wallet address
-   * @param amount              amount in BTC
+   * @param amount              amount in BTC or BSV
    * @param feeRate             fee rate in satoshis/byte
-   * @param sendMax             send maximum possible funds to destination
+   * @param sendMax             send maximum possible funds to destination (defaults to false)
    */
   composeTransaction(
     fromAccountId: string,
@@ -109,9 +112,11 @@ export default class Wallet {
     sendMax = false
   ) {
     return errorProxy<ComposedTransaction>((resolve: any, reject: any) => {
-      let amountOptional = new window.ZumoCoreModule.OptionalDecimal();
+      const amountOptional = new window.ZumoCoreModule.OptionalDecimal();
       if (amount)
-        amountOptional.set(new window.ZumoCoreModule.Decimal(amount.toString()));
+        amountOptional.set(
+          new window.ZumoCoreModule.Decimal(amount.toString())
+        );
 
       this.walletImpl.composeTransaction(
         fromAccountId,
@@ -121,13 +126,14 @@ export default class Wallet {
         new window.ZumoCoreModule.Decimal(feeRate.toString()),
         sendMax,
         new window.ZumoCoreModule.ComposeTransactionCallbackWrapper({
-        onError: function (error: string) {
-          reject(new ZumoKitError(error));
-        },
-        onSuccess: function (composedTransaction: string) {
-          resolve(new ComposedTransaction(JSON.parse(composedTransaction)));
-        }
-      }));
+          onError(error: string) {
+            reject(new ZumoKitError(error));
+          },
+          onSuccess(composedTransaction: string) {
+            resolve(new ComposedTransaction(JSON.parse(composedTransaction)));
+          },
+        })
+      );
     });
   }
 
@@ -139,7 +145,7 @@ export default class Wallet {
    * @param fromAccountId {@link  Account Account} identifier
    * @param toAccountId   {@link  Account Account} identifier
    * @param amount          amount in source account currency
-   * @param sendMax        send maximum possible funds to destination
+   * @param sendMax        send maximum possible funds to destination (defaults to false)
    */
   composeInternalFiatTransaction(
     fromAccountId: string,
@@ -148,9 +154,11 @@ export default class Wallet {
     sendMax = false
   ) {
     return errorProxy<ComposedTransaction>((resolve: any, reject: any) => {
-      let amountOptional = new window.ZumoCoreModule.OptionalDecimal();
+      const amountOptional = new window.ZumoCoreModule.OptionalDecimal();
       if (amount)
-        amountOptional.set(new window.ZumoCoreModule.Decimal(amount.toString()));
+        amountOptional.set(
+          new window.ZumoCoreModule.Decimal(amount.toString())
+        );
 
       this.walletImpl.composeInternalFiatTransaction(
         fromAccountId,
@@ -158,13 +166,14 @@ export default class Wallet {
         amountOptional,
         sendMax,
         new window.ZumoCoreModule.ComposeTransactionCallbackWrapper({
-        onError: function (error: string) {
-          reject(new ZumoKitError(error));
-        },
-        onSuccess: function (composedTransaction: string) {
-          resolve(new ComposedTransaction(JSON.parse(composedTransaction)));
-        }
-      }));
+          onError(error: string) {
+            reject(new ZumoKitError(error));
+          },
+          onSuccess(composedTransaction: string) {
+            resolve(new ComposedTransaction(JSON.parse(composedTransaction)));
+          },
+        })
+      );
     });
   }
 
@@ -175,7 +184,7 @@ export default class Wallet {
    *
    * @param fromAccountId {@link  Account Account} identifier
    * @param amount          amount in source account currency
-   * @param sendMax        send maximum possible funds to destination
+   * @param sendMax        send maximum possible funds to destination (defaults to false)
    */
   composeTransactionToNominatedAccount(
     fromAccountId: string,
@@ -183,22 +192,25 @@ export default class Wallet {
     sendMax = false
   ) {
     return errorProxy<ComposedTransaction>((resolve: any, reject: any) => {
-      let amountOptional = new window.ZumoCoreModule.OptionalDecimal();
+      const amountOptional = new window.ZumoCoreModule.OptionalDecimal();
       if (amount)
-        amountOptional.set(new window.ZumoCoreModule.Decimal(amount.toString()));
+        amountOptional.set(
+          new window.ZumoCoreModule.Decimal(amount.toString())
+        );
 
       this.walletImpl.composeTransactionToNominatedAccount(
         fromAccountId,
         amountOptional,
         sendMax,
         new window.ZumoCoreModule.ComposeTransactionCallbackWrapper({
-        onError: function (error: string) {
-          reject(new ZumoKitError(error));
-        },
-        onSuccess: function (composedTransaction: string) {
-          resolve(new ComposedTransaction(JSON.parse(composedTransaction)));
-        }
-      }));
+          onError(error: string) {
+            reject(new ZumoKitError(error));
+          },
+          onSuccess(composedTransaction: string) {
+            resolve(new ComposedTransaction(JSON.parse(composedTransaction)));
+          },
+        })
+      );
     });
   }
 
@@ -215,13 +227,14 @@ export default class Wallet {
       this.walletImpl.submitTransaction(
         JSON.stringify(composedTransaction.json),
         new window.ZumoCoreModule.SubmitTransactionCallbackWrapper({
-        onError: function (error: string) {
-          reject(new ZumoKitError(error));
-        },
-        onSuccess: function (transaction: string) {
-          resolve(new Transaction(JSON.parse(transaction)));
-        }
-      }));
+          onError(error: string) {
+            reject(new ZumoKitError(error));
+          },
+          onSuccess(transaction: string) {
+            resolve(new Transaction(JSON.parse(transaction)));
+          },
+        })
+      );
     });
   }
 
@@ -233,38 +246,41 @@ export default class Wallet {
    * @param fromAccountId       {@link  Account Account} identifier
    * @param toAccountId         {@link  Account Account} identifier
    * @param exchangeRate        Zumo exchange rate obtained from ZumoKit state
-   * @param exchangeSettings    Zumo exchange settings obtained from ZumoKit state
+   * @param exchangeSetting     Zumo exchange setting obtained from ZumoKit state
    * @param amount              amount in deposit account currency
-   * @param sendMax             exchange maximum possible funds
+   * @param sendMax             exchange maximum possible funds (defaults to false)
    */
   composeExchange(
     fromAccountId: string,
     toAccountId: string,
     exchangeRate: ExchangeRate,
-    exchangeSettings: ExchangeSettings,
+    exchangeSetting: ExchangeSetting,
     amount: Decimal | null,
     sendMax = false
   ) {
     return errorProxy<ComposedExchange>((resolve: any, reject: any) => {
-      let amountOptional = new window.ZumoCoreModule.OptionalDecimal();
+      const amountOptional = new window.ZumoCoreModule.OptionalDecimal();
       if (amount)
-        amountOptional.set(new window.ZumoCoreModule.Decimal(amount.toString()));
+        amountOptional.set(
+          new window.ZumoCoreModule.Decimal(amount.toString())
+        );
 
       this.walletImpl.composeExchange(
         fromAccountId,
         toAccountId,
         JSON.stringify(exchangeRate.json),
-        JSON.stringify(exchangeSettings.json),
+        JSON.stringify(exchangeSetting.json),
         amountOptional,
         sendMax,
         new window.ZumoCoreModule.ComposeExchangeCallbackWrapper({
-        onError: function (error: string) {
-          reject(new ZumoKitError(error));
-        },
-        onSuccess: function (composedExchange: string) {
-          resolve(new ComposedExchange(JSON.parse(composedExchange)));
-        }
-      }));
+          onError(error: string) {
+            reject(new ZumoKitError(error));
+          },
+          onSuccess(composedExchange: string) {
+            resolve(new ComposedExchange(JSON.parse(composedExchange)));
+          },
+        })
+      );
     });
   }
 
@@ -281,13 +297,14 @@ export default class Wallet {
       this.walletImpl.submitExchange(
         JSON.stringify(composedExchange.json),
         new window.ZumoCoreModule.SubmitExchangeCallbackWrapper({
-        onError: function (error: string) {
-          reject(new ZumoKitError(error));
-        },
-        onSuccess: function (exchange: string) {
-          resolve(new Exchange(JSON.parse(exchange)));
-        }
-      }));
+          onError(error: string) {
+            reject(new ZumoKitError(error));
+          },
+          onSuccess(exchange: string) {
+            resolve(new Exchange(JSON.parse(exchange)));
+          },
+        })
+      );
     });
   }
 }

@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist/",
+    "noImplicitAny": true,
+    "target": "es5",
+    "jsx": "react",
+    "baseUrl": ".",
+    "paths": {
+      "decimal.js": ["node_modules/decimal.js"]
+      }
+  }
+}

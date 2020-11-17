@@ -1,9 +1,12 @@
-import { AccountDataSnapshotJSON } from '../types';
-import Account from './Account';
-import Transaction from './Transaction';
+import { AccountDataSnapshotJSON } from '../interfaces';
+import { Account } from './Account';
+import { Transaction } from './Transaction';
 
-/** Record containing ZumoKit state. */
-export default class AccountDataSnapshot {
+/** Account data. */
+export class AccountDataSnapshot {
+  /** @internal */
+  json: AccountDataSnapshotJSON;
+
   /** Account. */
   account: Account;
 
@@ -12,7 +15,10 @@ export default class AccountDataSnapshot {
 
   /** @internal */
   constructor(json: AccountDataSnapshotJSON) {
+    this.json = json;
     this.account = new Account(json.account);
-    this.transactions = json.transactions.map((json) => new Transaction(json));
+    this.transactions = json.transactions.map(
+      (transactionJson) => new Transaction(transactionJson)
+    );
   }
 }

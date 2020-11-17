@@ -1,16 +1,17 @@
-import ZumoKitError from './ZumoKitError';
-import { Network } from './types';
-import Decimal from 'decimal.js';
+import { ZumoKitError } from './ZumoKitError';
+import { Network } from './interfaces';
 
 declare global {
-  interface Window { ZumoCoreModule: any; }
+  interface Window {
+    ZumoCoreModule: any;
+  }
 }
 
 /**
- * Crypto utility class provides mnemonic phrase generation utility, Bitcoin & Ethereum
- * address validation utilities and Ethereum unit conversion methods.
+ * Crypto utility inteface decribes methods for mnemonic phrase generatio and
+ * Bitcoin/Ethereum address validation.
  */
-export default class Utils {
+export class Utils {
   /** @internal */
   utilsImpl: any;
 
@@ -19,7 +20,7 @@ export default class Utils {
     this.utilsImpl = utilsImpl;
   }
 
-/**
+  /**
    * Generates mnemonic seed phrase used in wallet creation process.
    * @param wordCount   12, 15, 18, 21 or 24
    */

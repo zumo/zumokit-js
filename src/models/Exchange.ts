@@ -1,26 +1,11 @@
 import { Decimal } from 'decimal.js';
-import ExchangeRate from './ExchangeRate';
-import ExchangeSettings from './ExchangeSettings';
-import { Dictionary, ExchangeStatus, CurrencyCode, ExchangeJSON, ExchangeRateJSON } from '../types';
+import { ExchangeRate } from './ExchangeRate';
+import { ExchangeRates } from './ExchangeRates';
+import { ExchangeSetting } from './ExchangeSetting';
+import { ExchangeStatus, CurrencyCode, ExchangeJSON } from '../interfaces';
 
-/** @internal */
-const parseExchangeRates = (exchangeRateMapJSON: Record<string, Record<string, ExchangeRateJSON>>) => {
-  const exchangeRatesMap: Dictionary<CurrencyCode, Dictionary<CurrencyCode, ExchangeRate>> = {};
-  Object.keys(exchangeRateMapJSON).forEach((depositCurrency) => {
-    const innerMap: Dictionary<CurrencyCode, ExchangeRate> = {};
-    Object.keys(exchangeRateMapJSON[depositCurrency]).forEach((withdrawCurrency) => {
-      innerMap[withdrawCurrency as CurrencyCode] = new ExchangeRate(
-        exchangeRateMapJSON[depositCurrency][withdrawCurrency]
-      );
-    });
-    exchangeRatesMap[depositCurrency as CurrencyCode] = innerMap;
-  });
-  return exchangeRatesMap;
-}
-
-
-/** Record containing exchange details. */
-export default class Exchange {
+/** Exchange details. */
+export class Exchange {
   /** @internal */
   json: ExchangeJSON;
 
@@ -49,25 +34,25 @@ export default class Exchange {
   toAccountId: string;
 
   /** Return {@link  Transaction Transaction} identifier. */
-  incomingTransactionId: string | null;
+  returnTransactionId: string | null;
 
   /** Return {@link  Transaction Transaction} fee. */
-  incomingTransactionFee: Decimal;
+  returnTransactionFee: Decimal;
 
   /** Amount in source account currency. */
   amount: Decimal;
 
   /**
-   * Amount that user receives in target account currency, calculated as <code>amount X exchangeRate X (1 - feeRate) - withdrawFee</code>.
+   * Amount that user receives in target account currency, calculated as <code>amount X exchangeRate X (1 - feeRate) - returnTransactionFee</code>.
    * <p>
-   * See {@link ExchangeSettings}.
+   * See {@link ExchangeSetting}.
    */
   returnAmount: Decimal;
 
   /**
-   * Exchange fee in target account currency, calculated as <code>amount X exchangeRate X feeRate</code>.
+   * Exchange fee in target account currency, calculated as <code>amount X exchangeRate X exchangeFeeRate</code>.
    * <p>
-   * See {@link ExchangeSettings}.
+   * See {@link ExchangeSetting}.
    */
   exchangeFee: Decimal;
 
@@ -75,13 +60,13 @@ export default class Exchange {
   exchangeRate: ExchangeRate;
 
   /** Exchange settings used. */
-  exchangeSettings: ExchangeSettings;
+  exchangeSetting: ExchangeSetting;
 
   /**
    * Exchange rates at the time exchange was made.
    * This can be used to display amounts in local currency to the user.
    */
-  exchangeRates: Dictionary<CurrencyCode, Dictionary<CurrencyCode, ExchangeRate>>;
+  exchangeRates: ExchangeRates;
 
   /** Exchange nonce or null. Used to prevent double spend. */
   nonce: string | null;
@@ -100,20 +85,22 @@ export default class Exchange {
     this.json = json;
     this.id = json.id;
     this.status = json.status as ExchangeStatus;
-    this.fromCurrency = json.depositCurrency as CurrencyCode;
-    this.fromAccountId = json.depositAccountId;
-    this.outgoingTransactionId = json.depositTransactionId;
-    this.outgoingTransactionFee = json.depositFee ? new Decimal(json.depositFee) : null;
-    this.toCurrency = json.withdrawCurrency as CurrencyCode;
-    this.toAccountId = json.withdrawAccountId;
-    this.incomingTransactionId = json.withdrawTransactionId;
-    this.incomingTransactionFee = new Decimal(json.withdrawFee);
+    this.fromCurrency = json.fromCurrency as CurrencyCode;
+    this.fromAccountId = json.fromAccountId;
+    this.outgoingTransactionId = json.outgoingTransactionId;
+    this.outgoingTransactionFee = json.outgoingTransactionFee
+      ? new Decimal(json.outgoingTransactionFee)
+      : null;
+    this.toCurrency = json.toCurrency as CurrencyCode;
+    this.toAccountId = json.toAccountId;
+    this.returnTransactionId = json.returnTransactionId;
+    this.returnTransactionFee = new Decimal(json.returnTransactionFee);
     this.amount = new Decimal(json.amount);
     this.returnAmount = new Decimal(json.returnAmount);
     this.exchangeFee = new Decimal(json.exchangeFee);
     this.exchangeRate = new ExchangeRate(json.exchangeRate);
-    this.exchangeSettings = new ExchangeSettings(json.exchangeSettings);
-    this.exchangeRates = parseExchangeRates(json.exchangeRates);
+    this.exchangeSetting = new ExchangeSetting(json.exchangeSetting);
+    this.exchangeRates = ExchangeRates(json.exchangeRates);
     this.nonce = json.nonce;
     this.submittedAt = json.submittedAt;
     this.confirmedAt = json.confirmedAt;
