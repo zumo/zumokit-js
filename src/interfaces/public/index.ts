@@ -35,7 +35,8 @@ export type TimeInterval =
   | 'week'
   | 'month'
   | 'quarter'
-  | 'year';
+  | 'year'
+  | 'max';
 
 /** Interface describes user tokens set, which is a parameter of {@link ZumoKit.signIn}. */
 export interface TokenSet {

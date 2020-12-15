@@ -79,9 +79,11 @@ export class ZumoKit {
           callback.onSuccess(response.status, result);
         } catch (exception) {
           if (typeof exception === 'number') {
-            callback.onNetworkError(
-              window.ZumoCoreModule.getException(exception).message
+            const error = new ZumoKitError(
+              window.ZumoCoreModule.getException(exception)
             );
+
+            callback.onNetworkError(error.message);
           } else {
             callback.onNetworkError(exception.message);
           }
