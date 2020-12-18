@@ -3,6 +3,7 @@ import { TransactionCryptoProperties } from './TransactionCryptoProperties';
 import { TransactionFiatProperties } from './TransactionFiatProperties';
 import {
   TransactionType,
+  TransactionDirection,
   TransactionStatus,
   CurrencyCode,
   Network,
@@ -23,6 +24,13 @@ export class Transaction {
 
   /** Currency code. */
   currencyCode: CurrencyCode;
+
+  /**
+   * Transaction direction relative to account data snapshot.
+   * <p>
+   * See {@link AccountDataSnapshot}.
+   */
+  direction: TransactionDirection;
 
   /** Sender integrator user identifier or null if it is external user. */
   fromUserId: string | null;
@@ -88,6 +96,7 @@ export class Transaction {
     this.id = json.id;
     this.type = json.type as TransactionType;
     this.currencyCode = json.currencyCode as CurrencyCode;
+    this.direction = json.direction as TransactionDirection;
     this.fromUserId = json.fromUserId;
     this.toUserId = json.toUserId;
     this.fromAccountId = json.fromAccountId;

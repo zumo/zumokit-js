@@ -10,6 +10,8 @@ export type AccountType = 'STANDARD' | 'COMPATIBILITY' | 'SEGWIT';
 
 export type TransactionType = 'CRYPTO' | 'EXCHANGE' | 'FIAT' | 'NOMINATED';
 
+export type TransactionDirection = 'INCOMING' | 'OUTGOING';
+
 export type TransactionStatus =
   | 'PENDING'
   | 'CONFIRMED'

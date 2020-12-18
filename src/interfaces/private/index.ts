@@ -102,6 +102,7 @@ export interface TransactionJSON {
   id: string;
   type: string;
   currencyCode: string;
+  direction: string;
   fromUserId: string | null;
   toUserId: string | null;
   fromAccountId: string | null;
