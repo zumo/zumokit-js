@@ -8,7 +8,7 @@ declare global {
 }
 
 /**
- * Crypto utility inteface decribes methods for mnemonic phrase generatio and
+ * Crypto utility interface describes methods for mnemonic phrase generation and
  * Bitcoin/Ethereum address validation.
  */
 export class Utils {

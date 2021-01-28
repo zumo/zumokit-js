@@ -8,7 +8,13 @@ export type Network = 'MAINNET' | 'TESTNET' | 'RINKEBY' | 'ROPSTEN' | 'GOERLI';
 
 export type AccountType = 'STANDARD' | 'COMPATIBILITY' | 'SEGWIT';
 
-export type TransactionType = 'CRYPTO' | 'EXCHANGE' | 'FIAT' | 'NOMINATED';
+export type CardType = 'VIRTUAL' | 'PHYSICAL';
+
+export type CardStatus = 'CREATED' | 'ACTIVE' | 'BLOCKED' | 'SUSPENDED' | 'EXPIRED' | 'CANCELLED';
+
+export type TransactionType = 'CRYPTO' | 'EXCHANGE' | 'FIAT' | 'NOMINATED' | 'CARD';
+
+export type TransactionDirection = 'INCOMING' | 'OUTGOING';
 
 export type TransactionStatus =
   | 'PENDING'
@@ -17,7 +23,8 @@ export type TransactionStatus =
   | 'RESUBMITTED'
   | 'CANCELLED'
   | 'PAUSED'
-  | 'REJECTED';
+  | 'REJECTED'
+  | 'REVERSED';
 
 export type ExchangeStatus =
   | 'PENDING'
@@ -35,7 +42,8 @@ export type TimeInterval =
   | 'week'
   | 'month'
   | 'quarter'
-  | 'year';
+  | 'year'
+  | 'max';
 
 /** Interface describes user tokens set, which is a parameter of {@link ZumoKit.signIn}. */
 export interface TokenSet {
@@ -44,19 +52,19 @@ export interface TokenSet {
   refreshToken: string;
 }
 
-/** Interface describes customer details, which is a parameter of {@link User.makeFiatCustomer}. */
-export interface FiatCustomerData {
-  firstName: string;
-  middleName: string | null;
-  lastName: string;
-  /** date of birth in ISO 8601 format, e.g '2020-08-12' */
-  dateOfBirth: string;
-  email: string;
-  phone: string;
+/** Interface describes user address, which is a parameter of {@link User.makeFiatCustomer} and {@link User.createCard}. */
+export interface Address {
   addressLine1: string;
   addressLine2: string | null;
   /** country code in ISO 3166-1 Alpha-2 format, e.g. 'GB' */
   country: string;
   postCode: string;
   postTown: string;
+}
+
+/** Interface describes sensitive card details, retrieved via {@link User.revealCardDetails} method. */
+export interface CardDetails {
+  pan: string;
+  cvv2: string;
+  expiry: string;
 }

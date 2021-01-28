@@ -5,11 +5,14 @@ import {
   AccountType,
   AccountJSON,
   AccountDataSnapshotJSON,
-  FiatCustomerData,
+  Address,
+  CardType,
+  CardStatus,
+  CardDetails
 } from './interfaces';
 import { Wallet } from './Wallet';
 import { ZumoKitError } from './ZumoKitError';
-import { Account, AccountFiatProperties, AccountDataSnapshot } from './models';
+import { Account, AccountFiatProperties, AccountDataSnapshot, Card } from './models';
 
 /**
  * User instance contains methods for managing user wallet and accounts.
@@ -30,7 +33,7 @@ export class User {
 
   private accountDataListenersImpl: Array<any> = [];
 
-  /** User dentifier. */
+  /** User identifier. */
   id: string;
 
   /** Indicator if user has wallet. */
@@ -177,29 +180,36 @@ export class User {
   /**
    * Make user fiat customer on specified network by providing user's personal details.
    * @param  network        'MAINNET' or 'TESTNET'
-   * @param  customerData    user's personal details.
+   * @param  firstName       first name
+   * @param  middleName      middle name or null
+   * @param  lastName        last name
+   * @param  dateOfBirth     date of birth in ISO 8601 format, e.g '2020-08-12' 
+   * @param  email           email
+   * @param  phone           phone number
+   * @param  address         home address
    */
-  makeFiatCustomer(network: Network, customerData: FiatCustomerData) {
+  makeFiatCustomer(
+    network: Network, 
+    firstName: string,
+    middleName: string | null,
+    lastName: string,
+    dateOfBirth: string,
+    email: string,
+    phone: string,
+    address: Address) {
     return errorProxy<void>((resolve: any, reject: any) => {
-      const middleName = new window.ZumoCoreModule.OptionalString();
-      if (customerData.middleName) middleName.set(customerData.middleName);
-
-      const addressLine2 = new window.ZumoCoreModule.OptionalString();
-      if (customerData.addressLine2) middleName.set(customerData.addressLine2);
+      const optionalMiddleName = new window.ZumoCoreModule.OptionalString();
+      if (middleName) optionalMiddleName.set(middleName);
 
       this.userImpl.makeFiatCustomer(
         network,
-        customerData.firstName,
-        middleName,
-        customerData.lastName,
-        customerData.dateOfBirth,
-        customerData.email,
-        customerData.phone,
-        customerData.addressLine1,
-        addressLine2,
-        customerData.country,
-        customerData.postCode,
-        customerData.postTown,
+        firstName,
+        optionalMiddleName,
+        lastName,
+        dateOfBirth,
+        email,
+        phone,
+        JSON.stringify(address),
         new window.ZumoCoreModule.SuccessCallbackWrapper({
           onError(error: string) {
             reject(new ZumoKitError(error));
@@ -214,7 +224,7 @@ export class User {
 
   /**
    * Create fiat account on specified network and currency code. User must already be fiat customer on specified network.
-   * @param  network        'MAINNET' or 'TESTNET'
+   * @param  network       'MAINNET' or 'TESTNET'
    * @param  currencyCode  country code in ISO 4217 format, e.g. 'GBP'
    */
   createFiatAccount(network: Network, currencyCode: CurrencyCode) {
@@ -281,6 +291,151 @@ export class User {
 
     this.accountDataListeners.push(listener);
     this.accountDataListenersImpl.push(listenerImpl);
+  }
+
+  /**
+  * Create card for a fiat account.
+  * @param  fiatAccountId fiat {@link  Account Account} identifier
+  * @param  cardType       'VIRTUAL' or 'PHYSICAL'
+  * @param  firstName      card holder first name
+  * @param  lastName       card holder last name
+  * @param  title          card holder title or null
+  * @param  dateOfBirth    card holder date of birth in ISO 8601 format, e.g '2020-08-12', or null
+  * @param  mobileNumber   card holder mobile number, starting with a '+', followed by the country code and then the mobile number, or null
+  * @param  address        card holder address
+   */
+  createCard(
+    fiatAccountId: string, 
+    cardType: CardType,
+    firstName: string,
+    lastName: string,
+    title: string | null,
+    dateOfBirth: string,
+    mobileNumber: string,
+    address: Address) {
+    return errorProxy<void>((resolve: any, reject: any) => {
+      const optionalTitle = new window.ZumoCoreModule.OptionalString();
+      if (title) optionalTitle.set(title);
+
+      this.userImpl.createCard(
+        fiatAccountId,
+        cardType,
+        firstName,
+        lastName,
+        optionalTitle,
+        dateOfBirth,
+        mobileNumber,
+        JSON.stringify(address),
+        new window.ZumoCoreModule.CardCallbackWrapper({
+          onError(error: string) {
+            reject(new ZumoKitError(error));
+          },
+          onSuccess(card: string) {
+            resolve(new Card(JSON.parse(card)));
+          },
+        })
+      );
+    });
+  }
+
+  /**
+   * Set card status to 'ACTIVE', 'BLOCKED' or 'CANCELLED'.
+   * - To block card, set card status to 'BLOCKED'. 
+   * - To activate a physical card, set card status to 'ACTIVE' and provide PAN and CVC2 fields.
+   * - To cancel a card, set card status to 'CANCELLED'.
+   * - To unblock a card, set card status to 'ACTIVE.'. 
+   * @param  cardId        card identifier
+   * @param  cardStatus    new card status
+   * @param  pan           PAN when activating a physical card, null otherwise (defaults to null)
+   * @param  cvv2          CVV2 when activating a physical card, null otherwise (defaults to null)
+   */
+  setCardStatus(
+    cardId: string, 
+    cardStatus: CardStatus,
+    pan: string | null = null,
+    cvv2: string | null = null) {
+    return errorProxy<void>((resolve: any, reject: any) => {
+      const optionalPan = new window.ZumoCoreModule.OptionalString();
+      if (pan) optionalPan.set(pan);
+
+      const optionalCvv2 = new window.ZumoCoreModule.OptionalString();
+      if (cvv2) optionalCvv2.set(cvv2);
+
+      this.userImpl.setCardStatus(
+        cardId,
+        cardStatus,
+        optionalPan,
+        optionalCvv2,
+        new window.ZumoCoreModule.SuccessCallbackWrapper({
+          onError(error: string) {
+            reject(new ZumoKitError(error));
+          },
+          onSuccess() {
+            resolve();
+          },
+        })
+      );
+    });
+  }
+
+  /**
+   * Reveals sensitive card details.
+   * @param  cardId        card identifier
+   */
+  revealCardDetails(cardId: string) {
+    return errorProxy<void>((resolve: any, reject: any) => {
+      this.userImpl.revealCardDetails(
+        cardId,
+        new window.ZumoCoreModule.CardDetailsCallbackWrapper({
+          onError(error: string) {
+            reject(new ZumoKitError(error));
+          },
+          onSuccess(cardDetails: string) {
+            resolve(JSON.parse(cardDetails) as CardDetails);
+          },
+        })
+      );
+    });
+  }
+
+  /**
+   * Reveal card PIN.
+   * @param  cardId        card identifier
+   */
+  revealPin(cardId: string) {
+    return errorProxy<void>((resolve: any, reject: any) => {
+      this.userImpl.revealCardDetails(
+        cardId,
+        new window.ZumoCoreModule.PinCallbackWrapper({
+          onError(error: string) {
+            reject(new ZumoKitError(error));
+          },
+          onSuccess(pin: number) {
+            resolve(pin);
+          },
+        })
+      );
+    });
+  }
+
+  /**
+   * Unblock card PIN.
+   * @param  cardId        card identifier
+   */
+  unblockPin(cardId: string) {
+    return errorProxy<void>((resolve: any, reject: any) => {
+      this.userImpl.unblockPin(
+        cardId,
+        new window.ZumoCoreModule.SuccessCallbackWrapper({
+          onError(error: string) {
+            reject(new ZumoKitError(error));
+          },
+          onSuccess() {
+            resolve();
+          },
+        })
+      );
+    });
   }
 
   /**

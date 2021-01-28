@@ -1,8 +1,10 @@
 import { Decimal } from 'decimal.js';
 import { TransactionCryptoProperties } from './TransactionCryptoProperties';
 import { TransactionFiatProperties } from './TransactionFiatProperties';
+import { TransactionCardProperties } from './TransactionCardProperties';
 import {
   TransactionType,
+  TransactionDirection,
   TransactionStatus,
   CurrencyCode,
   Network,
@@ -23,6 +25,13 @@ export class Transaction {
 
   /** Currency code. */
   currencyCode: CurrencyCode;
+
+  /**
+   * Transaction direction relative to account data snapshot.
+   * <p>
+   * See {@link AccountDataSnapshot}.
+   */
+  direction: TransactionDirection;
 
   /** Sender integrator user identifier or null if it is external user. */
   fromUserId: string | null;
@@ -63,8 +72,14 @@ export class Transaction {
    * <p>
    * See {@link TransactionType}.
    */
-  /** Fiat properties if it is crypto transaction, null otherwise. */
   fiatProperties: TransactionFiatProperties | null;
+
+  /**
+   * Card properties if it is a card transaction, null otherwise.
+   * <p>
+   * See {@link TransactionType}.
+   */
+  cardProperties: TransactionCardProperties | null;
 
   /**
    * Exchange properties if it is a transaction associated with an exchange, null otherwise.
@@ -88,6 +103,7 @@ export class Transaction {
     this.id = json.id;
     this.type = json.type as TransactionType;
     this.currencyCode = json.currencyCode as CurrencyCode;
+    this.direction = json.direction as TransactionDirection;
     this.fromUserId = json.fromUserId;
     this.toUserId = json.toUserId;
     this.fromAccountId = json.fromAccountId;
@@ -102,6 +118,9 @@ export class Transaction {
       : null;
     this.fiatProperties = json.fiatProperties
       ? new TransactionFiatProperties(json.fiatProperties)
+      : null;
+    this.cardProperties = json.cardProperties
+      ? new TransactionCardProperties(json.cardProperties)
       : null;
     this.exchange = json.exchange ? new Exchange(json.exchange) : null;
     this.submittedAt = json.submittedAt;
