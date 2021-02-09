@@ -1,6 +1,7 @@
 import { loadZumoCore } from './utility';
 import { ZumoKit } from './ZumoKit';
 
+/** @internal */
 declare global {
   interface Window {
     ZumoKit: any;
@@ -37,7 +38,12 @@ export const loadZumoKit = (
 
     loadZumoCore()
       .then(() => {
-        window.ZumoKit = new ZumoKit(apiKey, apiUrl, transactionServiceUrl, cardServiceUrl);
+        window.ZumoKit = new ZumoKit(
+          apiKey,
+          apiUrl,
+          transactionServiceUrl,
+          cardServiceUrl
+        );
         resolve(window.ZumoKit);
       })
       .catch(reject);

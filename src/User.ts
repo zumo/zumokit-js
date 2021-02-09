@@ -8,20 +8,25 @@ import {
   Address,
   CardType,
   CardStatus,
-  CardDetails
+  CardDetails,
 } from './interfaces';
 import { Wallet } from './Wallet';
 import { ZumoKitError } from './ZumoKitError';
-import { Account, AccountFiatProperties, AccountDataSnapshot, Card } from './models';
+import {
+  Account,
+  AccountFiatProperties,
+  AccountDataSnapshot,
+  Card,
+} from './models';
 
 /**
- * User instance contains methods for managing user wallet and accounts.
+ * User instance, obtained via {@link ZumoKit.signIn} method, provides methods for managing user wallet and accounts.
  * <p>
- * User instance can be obtained via {@link ZumoKit.signIn} method.
- * <p>
- * See <a href="https://developers.zumo.money/docs/guides/manage-user-wallet">Manage User Wallet</a>,
- * <a href="https://developers.zumo.money/docs/guides/create-fiat-account">Create Fiat Account</a> and
- * <a href="https://developers.zumo.money/docs/guides/view-user-data">View User Data</a>
+ * Refer to
+ * <a href="https://developers.zumo.money/docs/guides/manage-user-wallet">Manage User Wallet</a>,
+ * <a href="https://developers.zumo.money/docs/guides/create-fiat-account">Create Fiat Account</a>,
+ * <a href="https://developers.zumo.money/docs/guides/view-user-accounts">View User Accounts</a> and
+ * <a href="https://developers.zumo.money/docs/guides/get-account-data">Get Account Data</a>
  * guides for usage details.
  */
 export class User {
@@ -183,20 +188,21 @@ export class User {
    * @param  firstName       first name
    * @param  middleName      middle name or null
    * @param  lastName        last name
-   * @param  dateOfBirth     date of birth in ISO 8601 format, e.g '2020-08-12' 
+   * @param  dateOfBirth     date of birth in ISO 8601 format, e.g '2020-08-12'
    * @param  email           email
    * @param  phone           phone number
    * @param  address         home address
    */
   makeFiatCustomer(
-    network: Network, 
+    network: Network,
     firstName: string,
     middleName: string | null,
     lastName: string,
     dateOfBirth: string,
     email: string,
     phone: string,
-    address: Address) {
+    address: Address
+  ) {
     return errorProxy<void>((resolve: any, reject: any) => {
       const optionalMiddleName = new window.ZumoCoreModule.OptionalString();
       if (middleName) optionalMiddleName.set(middleName);
@@ -249,7 +255,7 @@ export class User {
    * Refer to
    * <a href="https://developers.zumo.money/docs/guides/send-transactions#bitcoin">Create Fiat Account</a>
    * for explanation about nominated account.
-   * @param  accountId     {@link  Account Account} identifier
+   * @param  accountId     {@link Account Account} identifier
    */
   getNominatedAccountFiatProperties(accountId: string) {
     return errorProxy<AccountFiatProperties | null>((resolve: any) => {
@@ -270,49 +276,26 @@ export class User {
   }
 
   /**
-   * Listen to all account data changes.
-   *
-   * @param listener interface to listen to user changes
-   */
-  addAccountDataListener(
-    listener: (snapshots: Array<AccountDataSnapshot>) => void
-  ) {
-    const listenerImpl = new window.ZumoCoreModule.AccountDataListenerWrapper({
-      onDataChange(snapshots: string) {
-        listener(
-          JSON.parse(snapshots).map(
-            (json: AccountDataSnapshotJSON) => new AccountDataSnapshot(json)
-          )
-        );
-      },
-    });
-
-    this.userImpl.addAccountDataListener(listenerImpl);
-
-    this.accountDataListeners.push(listener);
-    this.accountDataListenersImpl.push(listenerImpl);
-  }
-
-  /**
-  * Create card for a fiat account.
-  * @param  fiatAccountId fiat {@link  Account Account} identifier
-  * @param  cardType       'VIRTUAL' or 'PHYSICAL'
-  * @param  firstName      card holder first name
-  * @param  lastName       card holder last name
-  * @param  title          card holder title or null
-  * @param  dateOfBirth    card holder date of birth in ISO 8601 format, e.g '2020-08-12', or null
-  * @param  mobileNumber   card holder mobile number, starting with a '+', followed by the country code and then the mobile number, or null
-  * @param  address        card holder address
+   * Create card for a fiat account.
+   * @param  fiatAccountId fiat {@link Account account} identifier
+   * @param  cardType       'VIRTUAL' or 'PHYSICAL'
+   * @param  firstName      card holder first name
+   * @param  lastName       card holder last name
+   * @param  title          card holder title or null
+   * @param  dateOfBirth    card holder date of birth in ISO 8601 format, e.g '2020-08-12', or null
+   * @param  mobileNumber   card holder mobile number, starting with a '+', followed by the country code and then the mobile number, or null
+   * @param  address        card holder address
    */
   createCard(
-    fiatAccountId: string, 
+    fiatAccountId: string,
     cardType: CardType,
     firstName: string,
     lastName: string,
     title: string | null,
     dateOfBirth: string,
     mobileNumber: string,
-    address: Address) {
+    address: Address
+  ) {
     return errorProxy<void>((resolve: any, reject: any) => {
       const optionalTitle = new window.ZumoCoreModule.OptionalString();
       if (title) optionalTitle.set(title);
@@ -340,20 +323,21 @@ export class User {
 
   /**
    * Set card status to 'ACTIVE', 'BLOCKED' or 'CANCELLED'.
-   * - To block card, set card status to 'BLOCKED'. 
+   * - To block card, set card status to 'BLOCKED'.
    * - To activate a physical card, set card status to 'ACTIVE' and provide PAN and CVC2 fields.
    * - To cancel a card, set card status to 'CANCELLED'.
-   * - To unblock a card, set card status to 'ACTIVE.'. 
-   * @param  cardId        card identifier
+   * - To unblock a card, set card status to 'ACTIVE.'.
+   * @param  cardId        {@link Card card}  identifier
    * @param  cardStatus    new card status
    * @param  pan           PAN when activating a physical card, null otherwise (defaults to null)
    * @param  cvv2          CVV2 when activating a physical card, null otherwise (defaults to null)
    */
   setCardStatus(
-    cardId: string, 
+    cardId: string,
     cardStatus: CardStatus,
     pan: string | null = null,
-    cvv2: string | null = null) {
+    cvv2: string | null = null
+  ) {
     return errorProxy<void>((resolve: any, reject: any) => {
       const optionalPan = new window.ZumoCoreModule.OptionalString();
       if (pan) optionalPan.set(pan);
@@ -400,11 +384,11 @@ export class User {
 
   /**
    * Reveal card PIN.
-   * @param  cardId        card identifier
+   * @param  cardId        {@link Card card} identifier
    */
   revealPin(cardId: string) {
     return errorProxy<void>((resolve: any, reject: any) => {
-      this.userImpl.revealCardDetails(
+      this.userImpl.revealPin(
         cardId,
         new window.ZumoCoreModule.PinCallbackWrapper({
           onError(error: string) {
@@ -420,7 +404,7 @@ export class User {
 
   /**
    * Unblock card PIN.
-   * @param  cardId        card identifier
+   * @param  cardId        {@link Card card} identifier
    */
   unblockPin(cardId: string) {
     return errorProxy<void>((resolve: any, reject: any) => {
@@ -436,6 +420,30 @@ export class User {
         })
       );
     });
+  }
+
+  /**
+   * Listen to all account data changes.
+   *
+   * @param listener interface to listen to user changes
+   */
+  addAccountDataListener(
+    listener: (snapshots: Array<AccountDataSnapshot>) => void
+  ) {
+    const listenerImpl = new window.ZumoCoreModule.AccountDataListenerWrapper({
+      onDataChange(snapshots: string) {
+        listener(
+          JSON.parse(snapshots).map(
+            (json: AccountDataSnapshotJSON) => new AccountDataSnapshot(json)
+          )
+        );
+      },
+    });
+
+    this.userImpl.addAccountDataListener(listenerImpl);
+
+    this.accountDataListeners.push(listener);
+    this.accountDataListenersImpl.push(listenerImpl);
   }
 
   /**

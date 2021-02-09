@@ -24,14 +24,14 @@ export class TransactionCardProperties {
   /** Exchange rate applied to any conversion between transaction & billing amount rounded to 6 decimal places. */
   exchangeRateValue: Decimal;
   
-  /** The Merchant Category Code (MCC) for the card activity in ISO-18245 format. */
-  mcc: string;
+  /** The Merchant Category Code (MCC) for the card activity in ISO-18245 format if available. */
+  mcc: string | null;
   
-  /** The merchant name. */
-  merchantName: string;
+  /** The merchant name if available. */
+  merchantName: string | null;
   
-  /** The 3 letter ISO 3166 merchant country code. */
-  merchantCountry: string;
+  /** The 3 letter ISO 3166 merchant country code if available. */
+  merchantCountry: string | null;
  
   /** @internal */
   constructor(json: TransactionCardPropertiesJSON) {

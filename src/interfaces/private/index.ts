@@ -19,6 +19,7 @@ export interface CardJSON {
   cardStatus: string;
   limit: number;
   maskedPan: string;
+  expiry: string;
 }
 
 export interface AccountJSON {
@@ -115,9 +116,9 @@ export interface TransactionCardPropertiesJSON {
   billingAmount: string;
   billingCurrency: string;
   exchangeRateValue: string;
-  mcc: string;
-  merchantName: string;
-  merchantCountry: string;
+  mcc: string | null;
+  merchantName: string | null;
+  merchantCountry: string | null;
 }
 
 export interface TransactionJSON {

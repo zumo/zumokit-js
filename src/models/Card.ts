@@ -23,6 +23,9 @@ export class Card {
   /** Card masked pan, e.g **** **** **** 5454. */
   maskedPan: string;
 
+  /** Card year and month of expiry, e.g. 2024-08. */
+  expiry: string;
+
   /** @internal */
   constructor(json: CardJSON) {
     this.json = json;
@@ -32,5 +35,6 @@ export class Card {
     this.cardStatus = json.cardStatus as CardStatus;
     this.limit = json.limit;
     this.maskedPan = json.maskedPan;
+    this.expiry = json.expiry;
   }
 }

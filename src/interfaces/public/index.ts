@@ -10,9 +10,21 @@ export type AccountType = 'STANDARD' | 'COMPATIBILITY' | 'SEGWIT';
 
 export type CardType = 'VIRTUAL' | 'PHYSICAL';
 
-export type CardStatus = 'CREATED' | 'ACTIVE' | 'BLOCKED' | 'SUSPENDED' | 'EXPIRED' | 'CANCELLED';
+export type CardStatus =
+  | 'CREATED'
+  | 'ACTIVE'
+  | 'BLOCKED'
+  | 'SUSPENDED'
+  | 'FROZEN'
+  | 'EXPIRED'
+  | 'CANCELLED';
 
-export type TransactionType = 'CRYPTO' | 'EXCHANGE' | 'FIAT' | 'NOMINATED' | 'CARD';
+export type TransactionType =
+  | 'CRYPTO'
+  | 'EXCHANGE'
+  | 'FIAT'
+  | 'NOMINATED'
+  | 'CARD';
 
 export type TransactionDirection = 'INCOMING' | 'OUTGOING';
 
@@ -64,7 +76,8 @@ export interface Address {
 
 /** Interface describes sensitive card details, retrieved via {@link User.revealCardDetails} method. */
 export interface CardDetails {
+  /**  Card PAN, e.g 4564 6545 7997 5454 */
   pan: string;
+  /**  Card CVV2, e.g. 078 */
   cvv2: string;
-  expiry: string;
 }

@@ -18,9 +18,7 @@ import { Utils } from './Utils';
 import { ZumoKitError } from './ZumoKitError';
 
 /**
- * ZumoKit instance.
- * <p>
- * See <a href="https://developers.zumo.money/docs/guides/getting-started">Getting Started</a> guide for usage details.
+ * ZumoKit instance. Refer to <a href="https://developers.zumo.money/docs/guides/initialize-zumokit">documentation</a> for usage details.
  * */
 export class ZumoKit {
   private zumoCore: any;
@@ -48,7 +46,12 @@ export class ZumoKit {
   transactionFeeRates: TransactionFeeRates = {};
 
   /** @internal */
-  constructor(apiKey: string, apiUrl: string, transactionServiceUrl: string, cardServiceUrl: string) {
+  constructor(
+    apiKey: string,
+    apiUrl: string,
+    transactionServiceUrl: string,
+    cardServiceUrl: string
+  ) {
     this.version = window.ZumoCoreModule.ZumoCore.getVersion();
 
     const httpImpl = new window.ZumoCoreModule.HttpProviderWrapper({
