@@ -28,6 +28,9 @@ declare let process: {
     process.env.CARD_SERVICE_URL
   );
 
+  // add custom logger
+  zumokit.onLog(console.log, 'debug');
+
   // log version
   console.log(zumokit.version);
 

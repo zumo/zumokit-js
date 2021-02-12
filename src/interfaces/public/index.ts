@@ -1,3 +1,12 @@
+export type LogLevel =
+  | 'trace'
+  | 'debug'
+  | 'info'
+  | 'warning'
+  | 'error'
+  | 'critical'
+  | 'off';
+
 export type Dictionary<K extends string, T> = Partial<Record<K, T>>;
 
 export type CurrencyType = 'CRYPTO' | 'FIAT';

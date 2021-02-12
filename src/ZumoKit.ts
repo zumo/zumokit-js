@@ -2,6 +2,7 @@ import {
   CurrencyCode,
   TokenSet,
   HistoricalExchangeRatesJSON,
+  LogLevel,
 } from './interfaces';
 import { errorProxy } from './utility';
 import {
@@ -164,6 +165,32 @@ export class ZumoKit {
         JSON.parse(this.zumoCore.getTransactionFeeRates())
       );
     });
+  }
+
+  /**
+   * Sets log level for current logger.
+   *
+   * @param logLevel log level, e.g. 'debug' or 'info'
+   */
+  setLogLevel(logLevel: LogLevel) {
+    window.ZumoCoreModule.ZumoCore.setLogLevel(logLevel);
+  }
+
+  /**
+   * Sets log handler for all ZumoKit related logs.
+   *
+   * @param listener interface to listen to changes
+   * @param logLevel log level, e.g. 'debug' or 'info'
+   */
+  onLog(listener: (message: string) => void, logLevel: LogLevel) {
+    window.ZumoCoreModule.ZumoCore.onLog(
+      new window.ZumoCoreModule.LogListenerWrapper({
+        onLog(message: string) {
+          listener(message);
+        },
+      }),
+      logLevel
+    );
   }
 
   /**
