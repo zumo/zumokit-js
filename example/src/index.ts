@@ -29,7 +29,7 @@ declare let process: {
   );
 
   // add custom logger
-  zumokit.onLog(console.log, 'INFO');
+  zumokit.onLog(console.log, 'debug');
 
   // log version
   console.log(zumokit.version);

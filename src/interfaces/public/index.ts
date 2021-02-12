@@ -1,11 +1,11 @@
 export type LogLevel =
-  | 'TRACE'
-  | 'DEBUG'
-  | 'INFO'
-  | 'WARNING'
-  | 'ERROR'
-  | 'CRITICAL'
-  | 'OFF';
+  | 'trace'
+  | 'debug'
+  | 'info'
+  | 'warning'
+  | 'error'
+  | 'critical'
+  | 'off';
 
 export type Dictionary<K extends string, T> = Partial<Record<K, T>>;
 

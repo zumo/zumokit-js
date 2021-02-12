@@ -70,6 +70,8 @@ export class ZumoKit {
           requestHeaders[key] = headers.get(key);
         }
 
+        // eslint-disable-next-line no-console
+        console.log(`Requesting ${url}`);
         try {
           const response = await fetch(url, {
             method,
@@ -119,6 +121,8 @@ export class ZumoKit {
             );
 
             // TODO: Reconnect via fuzzing back off generator
+            // eslint-disable-next-line no-console
+            console.log('Reconnecting in 5 seconds...');
             setTimeout(() => {
               connectWebSocket();
             }, 5000);
@@ -169,9 +173,7 @@ export class ZumoKit {
    * @param logLevel log level, e.g. 'debug' or 'info'
    */
   setLogLevel(logLevel: LogLevel) {
-    window.ZumoCoreModule.ZumoCore.setLogLevel(
-      window.ZumoCoreModule.LogLevel[logLevel]
-    );
+    window.ZumoCoreModule.ZumoCore.setLogLevel(logLevel);
   }
 
   /**
@@ -187,7 +189,7 @@ export class ZumoKit {
           listener(message);
         },
       }),
-      window.ZumoCoreModule.LogLevel[logLevel]
+      logLevel
     );
   }
 
