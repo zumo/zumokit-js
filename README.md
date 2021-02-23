@@ -17,8 +17,8 @@ Include the ZumoKit script on each page of your site — it should always be loa
 Additionally, ZumoKit is dependent on [decimal.js](https://github.com/MikeMcl/decimal.js/), which has to be added separately.
 
 ```html
-<script src="https://js.zumo.money/2.3.0-beta.18/decimal.js"></script>
-<script src="https://js.zumo.money/2.3.0-beta.18/zumokit.js"></script>
+<script src="https://js.zumo.money/2.3.0-beta.19/decimal.js"></script>
+<script src="https://js.zumo.money/2.3.0-beta.19/zumokit.js"></script>
 ```
 
 ### ES6 Module
@@ -61,8 +61,8 @@ Replace API_KEY, API_ROOT and TX_SERVICE_URL in the examples below with credenti
 
   <body>
     <p>Check console output!</p>
-    <script src="https://js.zumo.money/2.3.0-beta.18/decimal.js"></script>
-    <script src="https://js.zumo.money/2.3.0-beta.18/zumokit.js"></script>
+    <script src="https://js.zumo.money/2.3.0-beta.19/decimal.js"></script>
+    <script src="https://js.zumo.money/2.3.0-beta.19/zumokit.js"></script>
   </body>
 </html>
 ```
