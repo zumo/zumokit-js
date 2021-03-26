@@ -218,12 +218,14 @@ export class Wallet {
    * guide for usage details.
    *
    * @param composedTransaction Composed transaction retrieved as a result
-   *                             of one of the compose transaction methods
+   *                            of one of the compose transaction methods
+   * @param metadata            Optional metadata that will be attached to transaction
    */
-  submitTransaction(composedTransaction: ComposedTransaction) {
+  submitTransaction(composedTransaction: ComposedTransaction, metadata: any = null) {
     return errorProxy<Transaction>((resolve: any, reject: any) => {
       this.walletImpl.submitTransaction(
         JSON.stringify(composedTransaction.json),
+        JSON.stringify(metadata),
         new window.ZumoCoreModule.SubmitTransactionCallbackWrapper({
           onError(error: string) {
             reject(new ZumoKitError(error));

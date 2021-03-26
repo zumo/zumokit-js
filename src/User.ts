@@ -279,36 +279,18 @@ export class User {
    * Create card for a fiat account.
    * @param  fiatAccountId fiat {@link Account account} identifier
    * @param  cardType       'VIRTUAL' or 'PHYSICAL'
-   * @param  firstName      card holder first name
-   * @param  lastName       card holder last name
-   * @param  title          card holder title or null
-   * @param  dateOfBirth    card holder date of birth in ISO 8601 format, e.g '2020-08-12', or null
    * @param  mobileNumber   card holder mobile number, starting with a '+', followed by the country code and then the mobile number, or null
-   * @param  address        card holder address
    */
   createCard(
     fiatAccountId: string,
     cardType: CardType,
-    firstName: string,
-    lastName: string,
-    title: string | null,
-    dateOfBirth: string,
-    mobileNumber: string,
-    address: Address
+    mobileNumber: string
   ) {
     return errorProxy<void>((resolve: any, reject: any) => {
-      const optionalTitle = new window.ZumoCoreModule.OptionalString();
-      if (title) optionalTitle.set(title);
-
       this.userImpl.createCard(
         fiatAccountId,
         cardType,
-        firstName,
-        lastName,
-        optionalTitle,
-        dateOfBirth,
         mobileNumber,
-        JSON.stringify(address),
         new window.ZumoCoreModule.CardCallbackWrapper({
           onError(error: string) {
             reject(new ZumoKitError(error));

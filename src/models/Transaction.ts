@@ -88,6 +88,9 @@ export class Transaction {
    */
   exchange: Exchange | null;
 
+  /**  Transaction metadata. */
+  metadata: any;
+
   /** Epoch timestamp when transaction was submitted or null for incoming transactions from outside of Zumo ecosystem. */
   submittedAt: number | null;
 
@@ -123,6 +126,7 @@ export class Transaction {
       ? new TransactionCardProperties(json.cardProperties)
       : null;
     this.exchange = json.exchange ? new Exchange(json.exchange) : null;
+    this.metadata = json.metadata ? JSON.parse(json.metadata) : null;
     this.submittedAt = json.submittedAt;
     this.confirmedAt = json.confirmedAt;
     this.timestamp = json.timestamp;

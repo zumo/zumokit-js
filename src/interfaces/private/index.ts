@@ -139,6 +139,7 @@ export interface TransactionJSON {
   fiatProperties: TransactionFiatPropertiesJSON | null;
   cardProperties: TransactionCardPropertiesJSON | null;
   exchange: ExchangeJSON | null;
+  metadata: string | null;
   submittedAt: number | null;
   confirmedAt: number | null;
   timestamp: number;
