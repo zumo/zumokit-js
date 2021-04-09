@@ -45,6 +45,7 @@ export type TransactionStatus =
   | 'CANCELLED'
   | 'PAUSED'
   | 'REJECTED'
+  | 'AUTHORISED'
   | 'REVERSED';
 
 export type ExchangeStatus =
