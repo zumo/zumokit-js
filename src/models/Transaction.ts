@@ -1,6 +1,7 @@
 import { Decimal } from 'decimal.js';
 import { TransactionCryptoProperties } from './TransactionCryptoProperties';
 import { TransactionFiatProperties } from './TransactionFiatProperties';
+import { TransactionCardProperties } from './TransactionCardProperties';
 import {
   TransactionType,
   TransactionDirection,
@@ -71,8 +72,14 @@ export class Transaction {
    * <p>
    * See {@link TransactionType}.
    */
-  /** Fiat properties if it is crypto transaction, null otherwise. */
   fiatProperties: TransactionFiatProperties | null;
+
+  /**
+   * Card properties if it is a card transaction, null otherwise.
+   * <p>
+   * See {@link TransactionType}.
+   */
+  cardProperties: TransactionCardProperties | null;
 
   /**
    * Exchange properties if it is a transaction associated with an exchange, null otherwise.
@@ -80,6 +87,9 @@ export class Transaction {
    * See {@link TransactionType}.
    */
   exchange: Exchange | null;
+
+  /**  Transaction metadata. */
+  metadata: any;
 
   /** Epoch timestamp when transaction was submitted or null for incoming transactions from outside of Zumo ecosystem. */
   submittedAt: number | null;
@@ -112,7 +122,11 @@ export class Transaction {
     this.fiatProperties = json.fiatProperties
       ? new TransactionFiatProperties(json.fiatProperties)
       : null;
+    this.cardProperties = json.cardProperties
+      ? new TransactionCardProperties(json.cardProperties)
+      : null;
     this.exchange = json.exchange ? new Exchange(json.exchange) : null;
+    this.metadata = json.metadata ? JSON.parse(json.metadata) : null;
     this.submittedAt = json.submittedAt;
     this.confirmedAt = json.confirmedAt;
     this.timestamp = json.timestamp;

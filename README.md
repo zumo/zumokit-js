@@ -14,11 +14,11 @@ Refer to ZumoKit SDK developer [documentation](https://developers.zumo.money/doc
 
 Include the ZumoKit script on each page of your site — it should always be loaded directly from https://js.zumo.money, rather than included in a bundle or hosted yourself.
 
-Additionaly, ZumoKit is dependent on [decimal.js](https://github.com/MikeMcl/decimal.js/), which has to be added separately.
+Additionally, ZumoKit is dependent on [decimal.js](https://github.com/MikeMcl/decimal.js/), which has to be added separately.
 
 ```html
-<script src="https://js.zumo.money/2.2.4/decimal.js"></script>
-<script src="https://js.zumo.money/2.2.4/zumokit.js"></script>
+<script src="https://js.zumo.money/2.3.0/decimal.js"></script>
+<script src="https://js.zumo.money/2.3.0/zumokit.js"></script>
 ```
 
 ### ES6 Module
@@ -47,16 +47,22 @@ Replace API_KEY, API_ROOT and TX_SERVICE_URL in the examples below with credenti
     <title>ZumoKit Example</title>
     <script>
       window.addEventListener("load", async (event) => {
-        const zumokit = await loadZumoKit(API_KEY, API_URL, TX_SERVICE_URL);
-        zumokit.log(zumoKit.version);
+        const zumokit = await loadZumoKit(
+          API_KEY, 
+          API_URL, 
+          TRANSACTION_SERVICE_URL, 
+          CARD_SERVICE_URL
+        );
+
+        console.log(zumokit.version);
       });
     </script>
   </head>
 
   <body>
     <p>Check console output!</p>
-    <script src="https://js.zumo.money/2.2.4/decimal.js"></script>
-    <script src="https://js.zumo.money/2.2.4/zumokit.js"></script>
+    <script src="https://js.zumo.money/2.3.0/decimal.js"></script>
+    <script src="https://js.zumo.money/2.3.0/zumokit.js"></script>
   </body>
 </html>
 ```
@@ -66,7 +72,13 @@ Replace API_KEY, API_ROOT and TX_SERVICE_URL in the examples below with credenti
 ```js
 import { loadZumoKit } from "zumokit";
 
-const zumokit = await loadZumoKit(API_KEY, API_ROOT, TX_SERVICE_URL);
+const zumokit = await loadZumoKit(
+  API_KEY, 
+  API_URL, 
+  TRANSACTION_SERVICE_URL, 
+  CARD_SERVICE_URL
+);
+
 console.log(zumoKit.version);
 ```
 

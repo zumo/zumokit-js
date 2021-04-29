@@ -11,15 +11,13 @@ import {
 } from './models';
 
 /**
- * User wallet instance describes methods for transfer and exchange of fiat and cryptocurrency funds.
- *
- * Sending a transaction or making an exchange is a two step process. First a transaction or
- * exchange has to be composed via one of the compose methods, then {@link  ComposedTransaction ComposedTransaction} or
- * {@link  ComposedExchange ComposedExchange} can be submitted.
+ * User wallet interface describes methods for transfer and exchange of fiat and cryptocurrency funds.
  * <p>
  * User wallet instance can be obtained by {@link User.createWallet creating}, {@link User.unlockWallet unlocking} or {@link User.recoverWallet recovering} user wallet.
  * <p>
- * See {@link User}.
+ * Sending a transaction or making an exchange is a two step process. First a transaction or
+ * exchange has to be composed via one of the compose methods, then {@link  ComposedTransaction ComposedTransaction} or
+ * {@link  ComposedExchange ComposedExchange} can be submitted.
  */
 export class Wallet {
   walletImpl: any;
@@ -220,12 +218,14 @@ export class Wallet {
    * guide for usage details.
    *
    * @param composedTransaction Composed transaction retrieved as a result
-   *                             of one of the compose transaction methods
+   *                            of one of the compose transaction methods
+   * @param metadata            Optional metadata that will be attached to transaction
    */
-  submitTransaction(composedTransaction: ComposedTransaction) {
+  submitTransaction(composedTransaction: ComposedTransaction, metadata: any = null) {
     return errorProxy<Transaction>((resolve: any, reject: any) => {
       this.walletImpl.submitTransaction(
         JSON.stringify(composedTransaction.json),
+        JSON.stringify(metadata),
         new window.ZumoCoreModule.SubmitTransactionCallbackWrapper({
           onError(error: string) {
             reject(new ZumoKitError(error));

@@ -1,6 +1,7 @@
 import { Decimal } from 'decimal.js';
 import { AccountCryptoProperties } from './AccountCryptoProperties';
 import { AccountFiatProperties } from './AccountFiatProperties';
+import { Card } from './Card';
 import {
   CurrencyType,
   CurrencyCode,
@@ -41,6 +42,9 @@ export class Account {
   /** Account fiat properties if account is a fiat account, otherwise null. */
   fiatProperties: AccountFiatProperties | null;
 
+  /** Cards associated with this account. */
+  cards: Array<Card>;
+
   /** @internal */
   constructor(json: AccountJSON) {
     this.json = json;
@@ -57,5 +61,6 @@ export class Account {
     this.fiatProperties = json.fiatProperties
       ? new AccountFiatProperties(json.fiatProperties)
       : null;
+    this.cards = json.cards.map((cardJson) => new Card(cardJson));
   }
 }

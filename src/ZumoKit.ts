@@ -2,6 +2,7 @@ import {
   CurrencyCode,
   TokenSet,
   HistoricalExchangeRatesJSON,
+  LogLevel,
 } from './interfaces';
 import { errorProxy } from './utility';
 import {
@@ -18,9 +19,7 @@ import { Utils } from './Utils';
 import { ZumoKitError } from './ZumoKitError';
 
 /**
- * ZumoKit instance.
- * <p>
- * See <a href="https://developers.zumo.money/docs/guides/getting-started">Getting Started</a> guide for usage details.
+ * ZumoKit instance. Refer to <a href="https://developers.zumo.money/docs/guides/initialize-zumokit">documentation</a> for usage details.
  * */
 export class ZumoKit {
   private zumoCore: any;
@@ -48,10 +47,15 @@ export class ZumoKit {
   transactionFeeRates: TransactionFeeRates = {};
 
   /** @internal */
-  constructor(apiKey: string, apiUrl: string, txServiceUrl: string) {
+  constructor(
+    apiKey: string,
+    apiUrl: string,
+    transactionServiceUrl: string,
+    cardServiceUrl: string
+  ) {
     this.version = window.ZumoCoreModule.ZumoCore.getVersion();
 
-    const httpImpl = new window.ZumoCoreModule.HttpImplWrapper({
+    const httpImpl = new window.ZumoCoreModule.HttpProviderWrapper({
       async request(
         url: string,
         method: string,
@@ -91,54 +95,61 @@ export class ZumoKit {
       },
     });
 
-    let socket: WebSocket | null = null;
-    let wsListener: any = null;
-    function connectWebSocket() {
-      socket = new WebSocket(txServiceUrl.replace('https', 'wss'));
+    const wsFactory = new window.ZumoCoreModule.WebSocketFactoryWrapper({
+      createWebSocket(url: string) {
+        let socket: WebSocket | null = null;
+        let wsListener: any = null;
+        function connectWebSocket() {
+          socket = new WebSocket(url);
 
-      socket.addEventListener('open', () => {
-        wsListener?.onOpen(txServiceUrl);
-      });
+          socket.addEventListener('open', () => {
+            wsListener?.onOpen(url);
+          });
 
-      socket.addEventListener('message', (event) => {
-        wsListener?.onMessage(event.data);
-      });
+          socket.addEventListener('message', (event) => {
+            wsListener?.onMessage(event.data);
+          });
 
-      socket.addEventListener('error', () => {
-        wsListener?.onError('WebSocket error observed');
-        socket?.close();
-      });
+          socket.addEventListener('error', () => {
+            wsListener?.onError('WebSocket error observed');
+            socket?.close();
+          });
 
-      socket.addEventListener('close', (event) => {
-        wsListener?.onClose(
-          `WebSocket connection closed with exit code ${event.code}, additional info: ${event.reason}`
-        );
+          socket.addEventListener('close', (event) => {
+            wsListener?.onClose(
+              `WebSocket connection closed with exit code ${event.code}, additional info: ${event.reason}`
+            );
 
-        // TODO: Reconnect via fuzzing back off generator
-        // eslint-disable-next-line no-console
-        console.log('Reconnecting in 5 seconds...');
-        setTimeout(() => {
-          connectWebSocket();
-        }, 5000);
-      });
-    }
-    connectWebSocket();
+            // TODO: Reconnect via fuzzing back off generator
+            // eslint-disable-next-line no-console
+            console.log('Reconnecting in 5 seconds...');
+            setTimeout(() => {
+              connectWebSocket();
+            }, 5000);
+          });
+        }
 
-    const wsImpl = new window.ZumoCoreModule.WebSocketImplWrapper({
-      send(message: string) {
-        socket?.send(message);
-      },
-      subscribe(listener: any) {
-        wsListener = listener;
+        return new window.ZumoCoreModule.WebSocketWrapper({
+          connect() {
+            connectWebSocket();
+          },
+          send(message: string) {
+            socket?.send(message);
+          },
+          subscribe(listener: any) {
+            wsListener = listener;
+          },
+        });
       },
     });
 
     this.zumoCore = new window.ZumoCoreModule.ZumoCore(
       httpImpl,
-      wsImpl,
+      wsFactory,
       apiKey,
       apiUrl,
-      txServiceUrl
+      transactionServiceUrl,
+      cardServiceUrl
     );
 
     this.utils = new Utils(this.zumoCore.getUtils());
@@ -154,6 +165,32 @@ export class ZumoKit {
         JSON.parse(this.zumoCore.getTransactionFeeRates())
       );
     });
+  }
+
+  /**
+   * Sets log level for current logger.
+   *
+   * @param logLevel log level, e.g. 'debug' or 'info'
+   */
+  setLogLevel(logLevel: LogLevel) {
+    window.ZumoCoreModule.ZumoCore.setLogLevel(logLevel);
+  }
+
+  /**
+   * Sets log handler for all ZumoKit related logs.
+   *
+   * @param listener interface to listen to changes
+   * @param logLevel log level, e.g. 'debug' or 'info'
+   */
+  onLog(listener: (message: string) => void, logLevel: LogLevel) {
+    window.ZumoCoreModule.ZumoCore.onLog(
+      new window.ZumoCoreModule.LogListenerWrapper({
+        onLog(message: string) {
+          listener(message);
+        },
+      }),
+      logLevel
+    );
   }
 
   /**

@@ -12,6 +12,16 @@ export interface AccountFiatPropertiesJSON {
   customerName: string | null;
 }
 
+export interface CardJSON {
+  id: string;
+  accountId: string;
+  cardType: string;
+  cardStatus: string;
+  limit: number;
+  maskedPan: string;
+  expiry: string;
+}
+
 export interface AccountJSON {
   id: string;
   currencyType: string;
@@ -22,6 +32,7 @@ export interface AccountJSON {
   hasNominatedAccount: boolean;
   cryptoProperties: AccountCryptoPropertiesJSON;
   fiatProperties: AccountFiatPropertiesJSON;
+  cards: Array<CardJSON>;
 }
 
 export interface ExchangeRateJSON {
@@ -98,6 +109,18 @@ export interface TransactionFiatPropertiesJSON {
   toFiatAccount: AccountFiatPropertiesJSON;
 }
 
+export interface TransactionCardPropertiesJSON {
+  cardId: string;
+  transactionAmount: string;
+  transactionCurrency: string;
+  billingAmount: string;
+  billingCurrency: string;
+  exchangeRateValue: string;
+  mcc: string | null;
+  merchantName: string | null;
+  merchantCountry: string | null;
+}
+
 export interface TransactionJSON {
   id: string;
   type: string;
@@ -114,7 +137,9 @@ export interface TransactionJSON {
   nonce: string;
   cryptoProperties: TransactionCryptoPropertiesJSON | null;
   fiatProperties: TransactionFiatPropertiesJSON | null;
+  cardProperties: TransactionCardPropertiesJSON | null;
   exchange: ExchangeJSON | null;
+  metadata: string | null;
   submittedAt: number | null;
   confirmedAt: number | null;
   timestamp: number;
