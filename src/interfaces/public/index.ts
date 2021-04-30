@@ -74,8 +74,9 @@ export interface TokenSet {
   refreshToken: string;
 }
 
-/** Interface describes user address, which is a parameter of {@link User.makeFiatCustomer} and {@link User.createCard}. */
+/** Interface describes user address, which is a parameter of {@link User.makeFiatCustomer}. */
 export interface Address {
+  houseNumber: string;
   addressLine1: string;
   addressLine2: string | null;
   /** country code in ISO 3166-1 Alpha-2 format, e.g. 'GB' */
