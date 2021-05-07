@@ -38,6 +38,7 @@ module.exports = {
       'process.env.API_URL': JSON.stringify(process.env.API_URL),
       'process.env.TRANSACTION_SERVICE_URL': JSON.stringify(process.env.TRANSACTION_SERVICE_URL),
       'process.env.CARD_SERVICE_URL': JSON.stringify(process.env.CARD_SERVICE_URL),
+      'process.env.NOTIFICATION_SERVICE_URL': JSON.stringify(process.env.NOTIFICATION_SERVICE_URL),
       'process.env.CLIENT_ZUMOKIT_AUTH_ENDPOINT': JSON.stringify(
         process.env.CLIENT_ZUMOKIT_AUTH_ENDPOINT
       ),

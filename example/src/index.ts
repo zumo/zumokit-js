@@ -14,6 +14,7 @@ declare let process: {
     API_URL: string;
     TRANSACTION_SERVICE_URL: string;
     CARD_SERVICE_URL: string;
+    NOTIFICATION_SERVICE_URL: string;
     CLIENT_ZUMOKIT_AUTH_ENDPOINT: string;
     CLIENT_HEADERS: any;
     USER_WALLET_PASSWORD: string;
@@ -25,7 +26,8 @@ declare let process: {
     process.env.API_KEY,
     process.env.API_URL,
     process.env.TRANSACTION_SERVICE_URL,
-    process.env.CARD_SERVICE_URL
+    process.env.CARD_SERVICE_URL,
+    process.env.NOTIFICATION_SERVICE_URL
   );
 
   // add custom logger

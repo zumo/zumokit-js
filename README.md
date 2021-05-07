@@ -17,8 +17,8 @@ Include the ZumoKit script on each page of your site — it should always be loa
 Additionally, ZumoKit is dependent on [decimal.js](https://github.com/MikeMcl/decimal.js/), which has to be added separately.
 
 ```html
-<script src="https://js.zumo.money/2.3.0-beta.22/decimal.js"></script>
-<script src="https://js.zumo.money/2.3.0-beta.22/zumokit.js"></script>
+<script src="https://js.zumo.money/3.0.0-beta.1/decimal.js"></script>
+<script src="https://js.zumo.money/3.0.0-beta.1/zumokit.js"></script>
 ```
 
 ### ES6 Module
@@ -35,7 +35,7 @@ Entry point to ZumoKit SDK is `loadZumoKit` function. This function returns a Pr
 
 Refer to ZumoKit SDK developer [documentation](https://developers.zumo.money/docs) and [reference](https://zumo.github.io/zumokit-js/) for usage details.
 
-Replace API_KEY, API_ROOT and TX_SERVICE_URL in the examples below with credentials provided to you by your [account manager](mailto:support@zumo.money).
+Replace API_KEY, API_ROOT, TX_SERVICE_URL, CARD_SERVICE_URL and NOTIFICATION_SERVICE_URL in the examples below with credentials provided to you by your [account manager](mailto:support@zumo.money).
 
 ### HTML + JS
 
@@ -51,7 +51,8 @@ Replace API_KEY, API_ROOT and TX_SERVICE_URL in the examples below with credenti
           API_KEY, 
           API_URL, 
           TRANSACTION_SERVICE_URL, 
-          CARD_SERVICE_URL
+          CARD_SERVICE_URL,
+          NOTIFICATION_SERVICE_URL
         );
 
         console.log(zumokit.version);
@@ -61,8 +62,8 @@ Replace API_KEY, API_ROOT and TX_SERVICE_URL in the examples below with credenti
 
   <body>
     <p>Check console output!</p>
-    <script src="https://js.zumo.money/2.3.0-beta.22/decimal.js"></script>
-    <script src="https://js.zumo.money/2.3.0-beta.22/zumokit.js"></script>
+    <script src="https://js.zumo.money/3.0.0-beta.1/decimal.js"></script>
+    <script src="https://js.zumo.money/3.0.0-beta.1/zumokit.js"></script>
   </body>
 </html>
 ```
@@ -76,7 +77,8 @@ const zumokit = await loadZumoKit(
   API_KEY, 
   API_URL, 
   TRANSACTION_SERVICE_URL, 
-  CARD_SERVICE_URL
+  CARD_SERVICE_URL,
+  NOTIFICATION_SERVICE_URL
 );
 
 console.log(zumoKit.version);
