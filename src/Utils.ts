@@ -1,5 +1,5 @@
 import { ZumoKitError } from './ZumoKitError';
-import { Network } from './interfaces';
+import { CurrencyCode, Network } from './interfaces';
 
 declare global {
   interface Window {
@@ -33,19 +33,12 @@ export class Utils {
   }
 
   /**
-   * Validates Ethereum address.
-   * @param address Ethereum address
+   * Validates Ethereum, Bitcoin or Bitcoin SV address.
+   * @param currencyCode 'ETH', 'BTC or 'BSV'
+   * @param address      blockchain address
+   * @param network      network type
    */
-  isValidEthAddress(address: string): boolean {
-    return this.utilsImpl.isValidEthAddress(address);
-  }
-
-  /**
-   * Validates Bitcoin address on a given network.
-   * @param address Bitcoin address
-   * @param network network type, either 'MAINNET' or 'TESTNET'
-   */
-  isValidBtcAddress(address: string, network: Network): boolean {
-    return this.utilsImpl.isValidBtcAddress(address, network);
+  isValidAddress(currencyCode: CurrencyCode, address: string, network: Network): boolean {
+    return this.utilsImpl.isValidAddress(currencyCode, address, network);
   }
 }
