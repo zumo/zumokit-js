@@ -11,7 +11,7 @@ export type Dictionary<K extends string, T> = Partial<Record<K, T>>;
 
 export type CurrencyType = 'CRYPTO' | 'FIAT';
 
-export type CurrencyCode = 'BTC' | 'ETH' | 'USD' | 'GBP' | 'EUR';
+export type CurrencyCode = 'ETH' | 'BTC' | 'BSV' | 'USD' | 'GBP' | 'EUR';
 
 export type Network = 'MAINNET' | 'TESTNET' | 'RINKEBY' | 'ROPSTEN' | 'GOERLI';
 

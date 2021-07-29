@@ -51,7 +51,8 @@ export class ZumoKit {
     apiKey: string,
     apiUrl: string,
     transactionServiceUrl: string,
-    cardServiceUrl: string
+    cardServiceUrl: string,
+    notificationServiceUrl: string
   ) {
     this.version = window.ZumoCoreModule.ZumoCore.getVersion();
 
@@ -149,7 +150,8 @@ export class ZumoKit {
       apiKey,
       apiUrl,
       transactionServiceUrl,
-      cardServiceUrl
+      cardServiceUrl,
+      notificationServiceUrl
     );
 
     this.utils = new Utils(this.zumoCore.getUtils());
