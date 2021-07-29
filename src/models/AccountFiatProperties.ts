@@ -9,6 +9,9 @@ export class AccountFiatProperties {
   /** @internal */
   json: AccountFiatPropertiesJSON;
 
+  /** Fiat account provider id or null. */
+  providerId: string | null;
+
   /** Fiat account number or null. */
   accountNumber: string | null;
 
@@ -27,6 +30,7 @@ export class AccountFiatProperties {
   /** @internal */
   constructor(json: AccountFiatPropertiesJSON) {
     this.json = json;
+    this.providerId = json.providerId;
     this.accountNumber = json.accountNumber;
     this.sortCode = json.sortCode;
     this.bic = json.bic;

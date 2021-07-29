@@ -5,6 +5,7 @@ export interface AccountCryptoPropertiesJSON {
 }
 
 export interface AccountFiatPropertiesJSON {
+  providerId: string | null;
   accountNumber: string | null;
   sortCode: string | null;
   bic: string | null;
