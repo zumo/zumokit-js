@@ -41,8 +41,16 @@ export interface ExchangeRateJSON {
   fromCurrency: string;
   toCurrency: string;
   value: string;
-  validTo: number;
   timestamp: number;
+}
+
+export interface QuoteJSON {
+  id: string;
+  expireTime: number;
+  fromCurrency: string;
+  toCurrency: string;
+  depositAmount: string;
+  value: string;
 }
 
 export interface ExchangeSettingJSON {

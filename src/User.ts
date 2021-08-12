@@ -1,3 +1,4 @@
+import { Decimal } from 'decimal.js';
 import { errorProxy } from './utility';
 import {
   CurrencyCode,
@@ -17,6 +18,7 @@ import {
   AccountFiatProperties,
   AccountDataSnapshot,
   Card,
+  Quote,
 } from './models';
 
 /**
@@ -398,6 +400,34 @@ export class User {
           },
           onSuccess() {
             resolve();
+          },
+        })
+      );
+    });
+  }
+
+  /**
+   * Get exchange rate quote.
+   * @param fromCurrency  deposit currency code
+   * @param toCurrency    target currency code
+   * @param depositAmount deposit amount to be exchanged to target currency
+   */
+  getQuote(
+    fromCurrency: CurrencyCode,
+    toCurrency: CurrencyCode,
+    depositAmount: Decimal
+  ) {
+    return errorProxy<void>((resolve: any, reject: any) => {
+      this.userImpl.getQuote(
+        fromCurrency,
+        toCurrency,
+        new window.ZumoCoreModule.Decimal(depositAmount.toString()),
+        new window.ZumoCoreModule.QuoteCallbackWrapper({
+          onError(error: string) {
+            reject(new ZumoKitError(error));
+          },
+          onSuccess(quote: string) {
+            resolve(new Quote(JSON.parse(quote)));
           },
         })
       );
