@@ -87,18 +87,11 @@ declare let process: {
 
     // compose new exchange
     const btcAccount = user.getAccount('BTC', 'TESTNET', 'COMPATIBILITY');
-    const exchangeRate = zumokit.getExchangeRate('ETH', 'BTC') as ExchangeRate;
-    const exchangeSettings = zumokit.getExchangeSetting(
-      'ETH',
-      'BTC'
-    ) as ExchangeSetting;
     const ethAmount = new Decimal('0.1');
 
     const composedExchange = await wallet.composeExchange(
       ethAccount.id,
       btcAccount.id,
-      exchangeRate,
-      exchangeSettings,
       ethAmount,
       false // sendMax
     );

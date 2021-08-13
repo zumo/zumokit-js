@@ -1,7 +1,7 @@
 import { Decimal } from 'decimal.js';
 import { ComposedExchangeJSON } from '../interfaces';
 import { Account } from './Account';
-import { ExchangeRate } from './ExchangeRate';
+import { Quote } from './Quote';
 import { ExchangeSetting } from './ExchangeSetting';
 
 /** Result of the compose exchange method on {@link  Wallet Wallet} object. */
@@ -18,10 +18,10 @@ export class ComposedExchange {
   /** Target account. */
   toAccount: Account;
 
-  /** Exchange rate used composing exchange. */
-  exchangeRate: ExchangeRate;
+  /** Exchange rate quote used when composing exchange. */
+  quote: Quote;
 
-  /** Exchange settings used composing exchange. */
+  /** Exchange settings used when composing exchange. */
   exchangeSetting: ExchangeSetting;
 
   /**
@@ -37,14 +37,14 @@ export class ComposedExchange {
   outgoingTransactionFee: Decimal;
 
   /**
-   * Amount that user receives, calculated as <code>value X exchangeRate X (1 - feeRate) - returnTransactionFee</code>.
+   * Amount that user receives, calculated as <code>value X quote.value X (1 - feeRate) - returnTransactionFee</code>.
    * <p>
    * See {@link ExchangeSetting}.
    */
   returnAmount: Decimal;
 
   /**
-   * Exchange fee, calculated as <code>value X exchangeRate X exchangeFeeRate</code>.
+   * Exchange fee, calculated as <code>value X quote.value X exchangeFeeRate</code>.
    * <p>
    * See {@link ExchangeSetting}.
    */
@@ -66,7 +66,7 @@ export class ComposedExchange {
     this.signedTransaction = json.signedTransaction;
     this.fromAccount = new Account(json.fromAccount);
     this.toAccount = new Account(json.toAccount);
-    this.exchangeRate = new ExchangeRate(json.exchangeRate);
+    this.quote = new Quote(json.quote);
     this.exchangeSetting = new ExchangeSetting(json.exchangeSetting);
     this.exchangeAddress = json.exchangeAddress;
     this.amount = new Decimal(json.amount);

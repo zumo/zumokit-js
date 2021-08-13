@@ -80,7 +80,7 @@ export interface ComposedExchangeJSON {
   signedTransaction: string | null;
   fromAccount: AccountJSON;
   toAccount: AccountJSON;
-  exchangeRate: ExchangeRateJSON;
+  quote: QuoteJSON;
   exchangeSetting: ExchangeSettingJSON;
   exchangeAddress: string | null;
   amount: string;
@@ -168,7 +168,7 @@ export interface ExchangeJSON {
   amount: string;
   returnAmount: string;
   exchangeFee: string;
-  exchangeRate: ExchangeRateJSON;
+  quote: QuoteJSON;
   exchangeSetting: ExchangeSettingJSON;
   exchangeRates: Record<string, Record<string, ExchangeRateJSON>>;
   nonce: string | null;
