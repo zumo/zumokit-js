@@ -47,6 +47,7 @@ export interface ExchangeRateJSON {
 export interface QuoteJSON {
   id: string;
   expireTime: number;
+  expiresIn: number | null;
   fromCurrency: string;
   toCurrency: string;
   depositAmount: string;
@@ -62,7 +63,6 @@ export interface ExchangeSettingJSON {
   outgoingTransactionFeeRate: string;
   exchangeFeeRate: string;
   returnTransactionFee: string;
-  timestamp: number;
 }
 
 export interface ComposedTransactionJSON {

@@ -50,9 +50,6 @@ export class ExchangeSetting {
   /** Fee that will charged for return transaction. */
   returnTransactionFee: Decimal;
 
-  /** Epoch timestamp when the exchange settings were last updated. */
-  timestamp: number;
-
   /** @internal */
   constructor(json: ExchangeSettingJSON) {
     this.json = json;
@@ -66,6 +63,5 @@ export class ExchangeSetting {
     );
     this.exchangeFeeRate = new Decimal(json.exchangeFeeRate);
     this.returnTransactionFee = new Decimal(json.returnTransactionFee);
-    this.timestamp = json.timestamp;
   }
 }

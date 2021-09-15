@@ -14,6 +14,9 @@ export class Quote {
   /** Epoch timestamp representing expiration time of this quote. */
   expireTime: number;
 
+  /** Seconds until expiration time for active quotes, null for historical quotes. */
+  expiresIn: number | null;
+
   /** Deposit currency. */
   fromCurrency: CurrencyCode;
 
@@ -31,6 +34,7 @@ export class Quote {
     this.json = json;
     this.id = json.id;
     this.expireTime = json.expireTime;
+    this.expiresIn = json.expiresIn;
     this.fromCurrency = json.fromCurrency as CurrencyCode;
     this.toCurrency = json.toCurrency as CurrencyCode;
     this.depositAmount = new Decimal(json.depositAmount);
