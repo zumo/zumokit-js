@@ -30,7 +30,6 @@ export type CardStatus =
 
 export type TransactionType =
   | 'CRYPTO'
-  | 'EXCHANGE'
   | 'FIAT'
   | 'NOMINATED'
   | 'CARD';
@@ -50,13 +49,9 @@ export type TransactionStatus =
 
 export type ExchangeStatus =
   | 'PENDING'
-  | 'DEPOSITED'
+  | 'WITHDRAWING'
   | 'CONFIRMED'
-  | 'FAILED'
-  | 'RESUBMITTED'
-  | 'CANCELLED'
-  | 'PAUSED'
-  | 'REJECTED';
+  | 'FAILED';
 
 export type TimeInterval =
   | 'hour'
