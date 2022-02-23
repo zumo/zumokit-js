@@ -94,3 +94,11 @@ export interface AuthenticationConfig {
   /**  Knowledge-Based Authentication (KBA) questions */
   knowledgeBase: Array<KbaQuestion>;
 }
+
+/**  Interface describes Knowledge-Based Authentication (KBA) answer */
+export interface KbaAnswer {
+  /** KBA question type, e.g. "FIRST_PET_NAME" */
+  type: string;
+  /** KBA answer, e.g. "Shurik" */
+  answer: string;
+}
