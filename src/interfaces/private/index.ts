@@ -21,6 +21,7 @@ export interface CardJSON {
   limit: number;
   maskedPan: string;
   expiry: string;
+  sca: boolean;
 }
 
 export interface AccountJSON {

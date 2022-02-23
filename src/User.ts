@@ -10,6 +10,7 @@ import {
   CardType,
   CardStatus,
   CardDetails,
+  AuthenticationConfig,
 } from './interfaces';
 import { Wallet } from './Wallet';
 import { ZumoKitError } from './ZumoKitError';
@@ -18,7 +19,6 @@ import {
   AccountFiatProperties,
   AccountDataSnapshot,
   Card,
-  Quote,
 } from './models';
 
 /**
@@ -278,16 +278,30 @@ export class User {
   }
 
   /**
+   * Fetch Strong Customer Authentication (SCA) config.
+   */
+  fetchAuthenticationConfig() {
+    return errorProxy<void>((resolve: any, reject: any) => {
+      this.userImpl.fetchAuthenticationConfig(
+        new window.ZumoCoreModule.AuthenticationConfigCallbackWrapper({
+          onError(error: string) {
+            reject(new ZumoKitError(error));
+          },
+          onSuccess(authConfig: string) {
+            resolve(JSON.parse(authConfig) as AuthenticationConfig);
+          },
+        })
+      );
+    });
+  }
+
+  /**
    * Create card for a fiat account.
    * @param  fiatAccountId fiat {@link Account account} identifier
    * @param  cardType       'VIRTUAL' or 'PHYSICAL'
    * @param  mobileNumber   card holder mobile number, starting with a '+', followed by the country code and then the mobile number, or null
    */
-  createCard(
-    fiatAccountId: string,
-    cardType: CardType,
-    mobileNumber: string
-  ) {
+  createCard(fiatAccountId: string, cardType: CardType, mobileNumber: string) {
     return errorProxy<void>((resolve: any, reject: any) => {
       this.userImpl.createCard(
         fiatAccountId,
