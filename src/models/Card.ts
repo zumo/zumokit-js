@@ -26,6 +26,9 @@ export class Card {
   /** Card year and month of expiry, e.g. 2024-08. */
   expiry: string;
 
+  /** Boolean indicating if card is SCA compliant. */
+  sca: boolean;
+
   /** @internal */
   constructor(json: CardJSON) {
     this.json = json;
@@ -36,5 +39,6 @@ export class Card {
     this.limit = json.limit;
     this.maskedPan = json.maskedPan;
     this.expiry = json.expiry;
+    this.sca = json.sca;
   }
 }

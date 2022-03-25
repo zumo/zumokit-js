@@ -28,12 +28,7 @@ export type CardStatus =
   | 'EXPIRED'
   | 'CANCELLED';
 
-export type TransactionType =
-  | 'CRYPTO'
-  | 'EXCHANGE'
-  | 'FIAT'
-  | 'NOMINATED'
-  | 'CARD';
+export type TransactionType = 'CRYPTO' | 'FIAT' | 'NOMINATED' | 'CARD';
 
 export type TransactionDirection = 'INCOMING' | 'OUTGOING';
 
@@ -46,17 +41,10 @@ export type TransactionStatus =
   | 'PAUSED'
   | 'REJECTED'
   | 'AUTHORISED'
-  | 'REVERSED';
+  | 'REVERSED'
+  | 'REFUNDED';
 
-export type ExchangeStatus =
-  | 'PENDING'
-  | 'DEPOSITED'
-  | 'CONFIRMED'
-  | 'FAILED'
-  | 'RESUBMITTED'
-  | 'CANCELLED'
-  | 'PAUSED'
-  | 'REJECTED';
+export type ExchangeStatus = 'PENDING' | 'WITHDRAWING' | 'CONFIRMED' | 'FAILED';
 
 export type TimeInterval =
   | 'hour'
@@ -91,4 +79,26 @@ export interface CardDetails {
   pan: string;
   /**  Card CVV2, e.g. 078 */
   cvv2: string;
+}
+
+/**  Interface describes Knowledge-Based Authentication (KBA) question */
+export interface KbaQuestion {
+  /** KBA question type, e.g. "FIRST_PET_NAME" */
+  type: string;
+  /** KBA question, e.g. "What was your first pet's name?" */
+  question: string;
+}
+
+/** Interface describes Strong Customer Authentication (SCA) config, retrieved via {@link User.fetchAuthenticationConfig} method. */
+export interface AuthenticationConfig {
+  /**  Knowledge-Based Authentication (KBA) questions */
+  knowledgeBase: Array<KbaQuestion>;
+}
+
+/**  Interface describes Knowledge-Based Authentication (KBA) answer */
+export interface KbaAnswer {
+  /** KBA question type, e.g. "FIRST_PET_NAME" */
+  type: string;
+  /** KBA answer, e.g. "Shurik" */
+  answer: string;
 }

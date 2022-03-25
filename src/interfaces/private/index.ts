@@ -21,6 +21,7 @@ export interface CardJSON {
   limit: number;
   maskedPan: string;
   expiry: string;
+  sca: boolean;
 }
 
 export interface AccountJSON {
@@ -41,8 +42,17 @@ export interface ExchangeRateJSON {
   fromCurrency: string;
   toCurrency: string;
   value: string;
-  validTo: number;
   timestamp: number;
+}
+
+export interface QuoteJSON {
+  id: string;
+  expireTime: number;
+  expiresIn: number | null;
+  fromCurrency: string;
+  toCurrency: string;
+  depositAmount: string;
+  value: string;
 }
 
 export interface ExchangeSettingJSON {
@@ -54,7 +64,6 @@ export interface ExchangeSettingJSON {
   outgoingTransactionFeeRate: string;
   exchangeFeeRate: string;
   returnTransactionFee: string;
-  timestamp: number;
 }
 
 export interface ComposedTransactionJSON {
@@ -72,7 +81,7 @@ export interface ComposedExchangeJSON {
   signedTransaction: string | null;
   fromAccount: AccountJSON;
   toAccount: AccountJSON;
-  exchangeRate: ExchangeRateJSON;
+  quote: QuoteJSON;
   exchangeSetting: ExchangeSettingJSON;
   exchangeAddress: string | null;
   amount: string;
@@ -160,7 +169,7 @@ export interface ExchangeJSON {
   amount: string;
   returnAmount: string;
   exchangeFee: string;
-  exchangeRate: ExchangeRateJSON;
+  quote: QuoteJSON;
   exchangeSetting: ExchangeSettingJSON;
   exchangeRates: Record<string, Record<string, ExchangeRateJSON>>;
   nonce: string | null;

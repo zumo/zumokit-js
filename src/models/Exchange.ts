@@ -1,8 +1,8 @@
 import { Decimal } from 'decimal.js';
-import { ExchangeRate } from './ExchangeRate';
 import { ExchangeRates } from './ExchangeRates';
 import { ExchangeSetting } from './ExchangeSetting';
 import { ExchangeStatus, CurrencyCode, ExchangeJSON } from '../interfaces';
+import { Quote } from './Quote';
 
 /** Exchange details. */
 export class Exchange {
@@ -43,21 +43,21 @@ export class Exchange {
   amount: Decimal;
 
   /**
-   * Amount that user receives in target account currency, calculated as <code>amount X exchangeRate X (1 - feeRate) - returnTransactionFee</code>.
+   * Amount that user receives in target account currency, calculated as <code>amount X quote.value X (1 - feeRate) - returnTransactionFee</code>.
    * <p>
    * See {@link ExchangeSetting}.
    */
   returnAmount: Decimal;
 
   /**
-   * Exchange fee in target account currency, calculated as <code>amount X exchangeRate X exchangeFeeRate</code>.
+   * Exchange fee in target account currency, calculated as <code>amount X quote.value X exchangeFeeRate</code>.
    * <p>
    * See {@link ExchangeSetting}.
    */
   exchangeFee: Decimal;
 
-  /** Exchange rate used. */
-  exchangeRate: ExchangeRate;
+  /** Exchange rate quote used. */
+  quote: Quote;
 
   /** Exchange settings used. */
   exchangeSetting: ExchangeSetting;
@@ -98,7 +98,7 @@ export class Exchange {
     this.amount = new Decimal(json.amount);
     this.returnAmount = new Decimal(json.returnAmount);
     this.exchangeFee = new Decimal(json.exchangeFee);
-    this.exchangeRate = new ExchangeRate(json.exchangeRate);
+    this.quote = new Quote(json.quote);
     this.exchangeSetting = new ExchangeSetting(json.exchangeSetting);
     this.exchangeRates = ExchangeRates(json.exchangeRates);
     this.nonce = json.nonce;

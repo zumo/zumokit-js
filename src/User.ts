@@ -1,3 +1,4 @@
+import { Decimal } from 'decimal.js';
 import { errorProxy } from './utility';
 import {
   CurrencyCode,
@@ -9,6 +10,8 @@ import {
   CardType,
   CardStatus,
   CardDetails,
+  AuthenticationConfig,
+  KbaAnswer,
 } from './interfaces';
 import { Wallet } from './Wallet';
 import { ZumoKitError } from './ZumoKitError';
@@ -276,21 +279,46 @@ export class User {
   }
 
   /**
+   * Fetch Strong Customer Authentication (SCA) config.
+   */
+  fetchAuthenticationConfig() {
+    return errorProxy<void>((resolve: any, reject: any) => {
+      this.userImpl.fetchAuthenticationConfig(
+        new window.ZumoCoreModule.AuthenticationConfigCallbackWrapper({
+          onError(error: string) {
+            reject(new ZumoKitError(error));
+          },
+          onSuccess(authConfig: string) {
+            resolve(JSON.parse(authConfig) as AuthenticationConfig);
+          },
+        })
+      );
+    });
+  }
+
+  /**
    * Create card for a fiat account.
+   * <p>
+   * At least one Knowledge-Based Authentication (KBA) answers should be defined,
+   * answers are limited to 256 characters and cannot be null or empty and only
+   * one answer per question type should be provided.
    * @param  fiatAccountId fiat {@link Account account} identifier
    * @param  cardType       'VIRTUAL' or 'PHYSICAL'
    * @param  mobileNumber   card holder mobile number, starting with a '+', followed by the country code and then the mobile number, or null
+   * @param  knowledgeBase  list of KBA answers
    */
   createCard(
     fiatAccountId: string,
     cardType: CardType,
-    mobileNumber: string
+    mobileNumber: string,
+    knowledgeBase: Array<KbaAnswer>
   ) {
     return errorProxy<void>((resolve: any, reject: any) => {
       this.userImpl.createCard(
         fiatAccountId,
         cardType,
         mobileNumber,
+        JSON.stringify(knowledgeBase),
         new window.ZumoCoreModule.CardCallbackWrapper({
           onError(error: string) {
             reject(new ZumoKitError(error));
@@ -392,6 +420,36 @@ export class User {
     return errorProxy<void>((resolve: any, reject: any) => {
       this.userImpl.unblockPin(
         cardId,
+        new window.ZumoCoreModule.SuccessCallbackWrapper({
+          onError(error: string) {
+            reject(new ZumoKitError(error));
+          },
+          onSuccess() {
+            resolve();
+          },
+        })
+      );
+    });
+  }
+
+  /**
+   * Add KBA answers to a card without SCA.
+   * <p>
+   * This endpoint is used to set Knowledge-Based Authentication (KBA) answers to
+   * a card without Strong Customer Authentication (SCA). Once it is set SCA flag
+   * on corresponding card is set to true.
+   * <p>
+   * At least one answer should be defined, answers are limited to 256 characters and
+   * cannot be null or empty and only one answer per question type should be provided.
+   *
+   * @param  cardId         card id
+   * @param  knowledgeBase  list of KBA answers
+   */
+  setAuthentication(cardId: string, knowledgeBase: Array<KbaAnswer>) {
+    return errorProxy<void>((resolve: any, reject: any) => {
+      this.userImpl.setAuthentication(
+        cardId,
+        JSON.stringify(knowledgeBase),
         new window.ZumoCoreModule.SuccessCallbackWrapper({
           onError(error: string) {
             reject(new ZumoKitError(error));

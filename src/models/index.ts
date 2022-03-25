@@ -11,6 +11,7 @@ export { ExchangeRates } from './ExchangeRates';
 export { ExchangeSetting } from './ExchangeSetting';
 export { ExchangeSettings } from './ExchangeSettings';
 export { HistoricalExchangeRates } from './HistoricalExchangeRates';
+export { Quote } from './Quote';
 export { Transaction } from './Transaction';
 export { TransactionCardProperties } from './TransactionCardProperties';
 export { TransactionCryptoProperties } from './TransactionCryptoProperties';
