@@ -5,17 +5,6 @@ import {
   CurrencyCode,
 } from '../interfaces';
 
-/** @internal */
-const parseFiatMap = (fiatMapJSON: Record<string, string>) => {
-  const fiatMap: Dictionary<CurrencyCode, Decimal> = {};
-  Object.keys(fiatMapJSON).forEach((currencyCode) => {
-    fiatMap[currencyCode as CurrencyCode] = new Decimal(
-      fiatMapJSON[currencyCode]
-    );
-  });
-  return fiatMap;
-};
-
 /**
  * Transaction crypto properties.
  * <p>
@@ -50,10 +39,10 @@ export class TransactionCryptoProperties {
   gasLimit: number | null;
 
   /** Amount in fiat currencies at the time of the transaction submission. */
-  fiatFee: Dictionary<CurrencyCode, Decimal>;
+  fiatFee: Dictionary<CurrencyCode, number> | null;
 
   /** Fee in fiat currencies at the time of the transaction submission. */
-  fiatAmount: Dictionary<CurrencyCode, Decimal>;
+  fiatAmount: Dictionary<CurrencyCode, number> | null;
 
   /** @internal */
   constructor(json: TransactionCryptoPropertiesJSON) {
@@ -65,7 +54,7 @@ export class TransactionCryptoProperties {
     this.data = json.data;
     this.gasPrice = json.gasPrice ? new Decimal(json.gasPrice) : null;
     this.gasLimit = json.gasLimit;
-    this.fiatFee = parseFiatMap(json.fiatFee);
-    this.fiatAmount = parseFiatMap(json.fiatAmount);
+    this.fiatFee = json.fiatFee;
+    this.fiatAmount = json.fiatAmount;
   }
 }

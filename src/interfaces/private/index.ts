@@ -110,8 +110,8 @@ export interface TransactionCryptoPropertiesJSON {
   data: string | null;
   gasPrice: string | null;
   gasLimit: number | null;
-  fiatFee: Record<string, string>;
-  fiatAmount: Record<string, string>;
+  fiatFee: Record<string, number> | null;
+  fiatAmount: Record<string, number> | null;
 }
 
 export interface TransactionFiatPropertiesJSON {
@@ -131,20 +131,46 @@ export interface TransactionCardPropertiesJSON {
   merchantCountry: string | null;
 }
 
+export interface TransactionAmountJSON {
+  direction: string;
+  userId: string | null;
+  userIntegratorId: string | null;
+  accountId: string | null;
+  amount: string | null;
+  fiatAmount: Record<string, number> | null;
+  address: string | null;
+  isChange: boolean;
+  accountNumber: string | null;
+  sortCode: string | null;
+  bic: string | null;
+  iban: string | null;
+}
+
+export interface InternalTransactionJSON {
+  fromUserId: string | null;
+  fromUserIntegratorId: string | null;
+  fromAccountId: string | null;
+  fromAddress: string | null;
+  toUserId: string | null;
+  toUserIntegratorId: string | null;
+  toAccountId: string | null;
+  toAddress: string | null;
+  amount: string;
+}
+
 export interface TransactionJSON {
   id: string;
   type: string;
   currencyCode: string;
   direction: string;
-  fromUserId: string | null;
-  toUserId: string | null;
-  fromAccountId: string | null;
-  toAccountId: string | null;
   network: string;
   status: string;
   amount: string | null;
   fee: string | null;
   nonce: string;
+  senders: Array<TransactionAmountJSON>;
+  recipients: Array<TransactionAmountJSON>;
+  internalTransactions: Array<InternalTransactionJSON>;
   cryptoProperties: TransactionCryptoPropertiesJSON | null;
   fiatProperties: TransactionFiatPropertiesJSON | null;
   cardProperties: TransactionCardPropertiesJSON | null;

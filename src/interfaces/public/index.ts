@@ -30,7 +30,7 @@ export type CardStatus =
 
 export type TransactionType = 'CRYPTO' | 'FIAT' | 'NOMINATED' | 'CARD';
 
-export type TransactionDirection = 'INCOMING' | 'OUTGOING';
+export type TransactionDirection = 'SENT' | 'RECEIVED';
 
 export type TransactionStatus =
   | 'PENDING'
