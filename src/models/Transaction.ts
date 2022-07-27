@@ -114,7 +114,7 @@ export class Transaction {
     this.senders = json.senders.map(
       (senderJson) => new TransactionAmount(senderJson)
     );
-    this.recipients = json.senders.map(
+    this.recipients = json.recipients.map(
       (recipientJson) => new TransactionAmount(recipientJson)
     );
     this.internalTransactions = json.internalTransactions.map(
