@@ -1,5 +1,9 @@
 import { Decimal } from 'decimal.js';
-import { InternalTransactionJSON } from '../interfaces';
+import {
+  InternalTransactionJSON,
+  Dictionary,
+  CurrencyCode,
+} from '../interfaces';
 
 /**
  * Internal transaction details.
@@ -37,6 +41,9 @@ export class InternalTransaction {
   /** Amount in transaction currency or null if transaction is Ethereum contract deploy. */
   amount: Decimal | null;
 
+  /** Fee in fiat currencies at the time of the transaction submission. */
+  fiatAmount: Dictionary<CurrencyCode, number> | null;
+
   /** @internal */
   constructor(json: InternalTransactionJSON) {
     this.json = json;
@@ -49,5 +56,6 @@ export class InternalTransaction {
     this.toAccountId = json.toAccountId;
     this.toAddress = json.toAddress;
     this.amount = json.amount ? new Decimal(json.amount) : null;
+    this.fiatAmount = json.fiatAmount;
   }
 }

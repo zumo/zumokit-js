@@ -156,6 +156,7 @@ export interface InternalTransactionJSON {
   toAccountId: string | null;
   toAddress: string | null;
   amount: string;
+  fiatAmount: Record<string, number> | null;
 }
 
 export interface TransactionJSON {
