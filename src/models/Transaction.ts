@@ -11,6 +11,8 @@ import {
   TransactionJSON,
 } from '../interfaces';
 import { Exchange } from './Exchange';
+import { TransactionAmount } from './TransactionAmount';
+import { InternalTransaction } from './InternalTransaction';
 
 /** Transaction details. */
 export class Transaction {
@@ -33,18 +35,6 @@ export class Transaction {
    */
   direction: TransactionDirection;
 
-  /** Sender integrator user identifier or null if it is external user. */
-  fromUserId: string | null;
-
-  /** Recipient integrator user identifier or null if it is external user. */
-  toUserId: string | null;
-
-  /** Sender account identifier if it is internal transaction or null otherwise. */
-  fromAccountId: string | null;
-
-  /** Recipient account identifier if it is internal transaction or null otherwise. */
-  toAccountId: string | null;
-
   /** Network type. */
   network: Network;
 
@@ -59,6 +49,15 @@ export class Transaction {
 
   /** Transaction nonce or null. Used to prevent double spend. */
   nonce: string | null;
+
+  /** Transaction senders. */
+  senders: Array<TransactionAmount>;
+
+  /** Transaction recipients. */
+  recipients: Array<TransactionAmount>;
+
+  /** Internal transactions, e.g. ETH contract interaction side effects. */
+  internalTransactions: Array<InternalTransaction>;
 
   /**
    * Crypto properties if it is a crypto transaction, null otherwise.
@@ -107,15 +106,21 @@ export class Transaction {
     this.type = json.type as TransactionType;
     this.currencyCode = json.currencyCode as CurrencyCode;
     this.direction = json.direction as TransactionDirection;
-    this.fromUserId = json.fromUserId;
-    this.toUserId = json.toUserId;
-    this.fromAccountId = json.fromAccountId;
-    this.toAccountId = json.toAccountId;
     this.network = json.network as Network;
     this.status = json.status as TransactionStatus;
     this.amount = json.amount ? new Decimal(json.amount) : null;
     this.fee = json.fee ? new Decimal(json.fee) : null;
     this.nonce = json.nonce;
+    this.senders = json.senders.map(
+      (senderJson) => new TransactionAmount(senderJson)
+    );
+    this.recipients = json.recipients.map(
+      (recipientJson) => new TransactionAmount(recipientJson)
+    );
+    this.internalTransactions = json.internalTransactions.map(
+      (internalTransactionJson) =>
+        new InternalTransaction(internalTransactionJson)
+    );
     this.cryptoProperties = json.cryptoProperties
       ? new TransactionCryptoProperties(json.cryptoProperties)
       : null;

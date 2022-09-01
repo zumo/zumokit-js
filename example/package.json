@@ -13,7 +13,7 @@
   "license": "ISC",
   "dependencies": {
     "@babel/runtime": "^7.11.2",
-    "zumokit": "^3.4.1",
+    "zumokit": "^4.0.3",
     "decimal.js": "^10.2.0"
   },
   "devDependencies": {

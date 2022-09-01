@@ -44,6 +44,9 @@ export class User {
   /** User identifier. */
   id: string;
 
+  /** User integrator identifier. */
+  integratorId: string;
+
   /** Indicator if user has wallet. */
   hasWallet: boolean;
 
@@ -54,6 +57,7 @@ export class User {
   constructor(userImpl: any) {
     this.userImpl = userImpl;
     this.id = userImpl.getId();
+    this.integratorId = userImpl.getIntegratorId();
     this.hasWallet = userImpl.hasWallet();
     this.accounts = JSON.parse(userImpl.getAccounts()).map(
       (json: AccountJSON) => new Account(json)
