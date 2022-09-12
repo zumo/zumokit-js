@@ -8,6 +8,7 @@ import {
   Network,
   AccountType,
   AccountJSON,
+  CustodyType,
 } from '../interfaces';
 
 /** Account details. */
@@ -30,8 +31,20 @@ export class Account {
   /** Account type. */
   type: AccountType;
 
+  /** Custody type. */
+  custodyType: CustodyType;
+
   /** Account balance. */
   balance: Decimal;
+
+  /** Account ledger balance. */
+  ledgerBalance: Decimal;
+
+  /** Account available balance, i.e. ledger balance minus pending transactions. */
+  availableBalance: Decimal;
+
+  /** Overdraft limit. */
+  overdraftLimit: Decimal;
 
   /** Account has associated nominated account. */
   hasNominatedAccount: boolean;
@@ -53,7 +66,11 @@ export class Account {
     this.currencyCode = json.currencyCode as CurrencyCode;
     this.network = json.network as Network;
     this.type = json.type as AccountType;
+    this.custodyType = json.custodyType as CustodyType;
     this.balance = new Decimal(json.balance);
+    this.ledgerBalance = new Decimal(json.ledgerBalance);
+    this.availableBalance = new Decimal(json.availableBalance);
+    this.overdraftLimit = new Decimal(json.overdraftLimit);
     this.hasNominatedAccount = !!json.hasNominatedAccount;
     this.cryptoProperties = json.cryptoProperties
       ? new AccountCryptoProperties(json.cryptoProperties)

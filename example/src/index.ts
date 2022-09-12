@@ -5,6 +5,7 @@ import {
   ExchangeRate,
   ExchangeSetting,
   TransactionFeeRate,
+  TokenSet,
 } from 'zumokit';
 import Decimal from 'decimal.js';
 
@@ -15,8 +16,7 @@ declare let process: {
     TRANSACTION_SERVICE_URL: string;
     CARD_SERVICE_URL: string;
     NOTIFICATION_SERVICE_URL: string;
-    CLIENT_ZUMOKIT_AUTH_ENDPOINT: string;
-    CLIENT_HEADERS: any;
+    USER_TOKEN: string;
     USER_WALLET_PASSWORD: string;
   };
 };
@@ -36,26 +36,15 @@ declare let process: {
   // log version
   console.log(zumokit.version);
 
-  // get user token set from client API
-  const clientUrl = process.env.CLIENT_ZUMOKIT_AUTH_ENDPOINT;
-  const clientHeaders = process.env.CLIENT_HEADERS;
-
-  console.log(`Requesting ${clientUrl}`);
-  const response = await fetch(clientUrl, {
-    method: 'POST',
-    headers: clientHeaders,
-  });
-
-  if (!response.ok) {
-    const error = await response.json();
-    console.error(error);
-    return;
-  }
-
-  const userTokenSet = await response.json();
+  // construct user token set
+  const userTokenSet: TokenSet = {
+    accessToken: process.env.USER_TOKEN,
+    refreshToken: '',
+    expiresIn: 86400,
+  };
 
   try {
-    // use userTokenSet to retrieve ZumoKit user
+    // use user token set to retrieve ZumoKit user
     const user = await zumokit.signIn(userTokenSet);
 
     console.log(user.id);
@@ -65,10 +54,36 @@ declare let process: {
     // use account data listener to retrieve accounts with corresponding transactions
     user.addAccountDataListener(console.log);
 
+    // compose new custody transaction
+    let custodyAccount = user.getAccount(
+      'ETH',
+      'MAINNET',
+      'STANDARD',
+      'CUSTODY'
+    );
+
+    if (!custodyAccount) {
+      custodyAccount = await user.createAccount('ETH');
+    }
+
+    console.log(custodyAccount);
+
+    const composedTransaction = await user.composeTransaction(
+      custodyAccount.id,
+      'e12bf081-371f-4604-8cfc-da8d0b89f70d',
+      new Decimal('0.01')
+    );
+    console.log(composedTransaction);
+
     const wallet = await user.unlockWallet(process.env.USER_WALLET_PASSWORD);
 
     // compose new ETH transaction
-    const ethAccount = user.getAccount('ETH', 'RINKEBY', 'STANDARD');
+    const ethAccount = user.getAccount(
+      'ETH',
+      'RINKEBY',
+      'STANDARD',
+      'NON-CUSTODY'
+    );
     console.log(ethAccount);
 
     const gasPrices = zumokit.transactionFeeRates.BTC as TransactionFeeRate;
@@ -76,20 +91,25 @@ declare let process: {
     const destinationAddress = '0xDa57228C976ba133b46B26066bBac337e62D8357';
     const amount = new Decimal('0.01');
 
-    const composedTransaction = await wallet.composeEthTransaction(
+    const composedEthTransaction = await wallet.composeEthTransaction(
       ethAccount.id,
       gasPrices.average,
       gasLimit,
       destinationAddress,
       amount
     );
-    console.log(composedTransaction);
+    console.log(composedEthTransaction);
 
     // compose new exchange
-    const btcAccount = user.getAccount('BTC', 'TESTNET', 'COMPATIBILITY');
+    const btcAccount = user.getAccount(
+      'BTC',
+      'TESTNET',
+      'COMPATIBILITY',
+      'NON-CUSTODY'
+    );
     const ethAmount = new Decimal('0.1');
 
-    const composedExchange = await wallet.composeExchange(
+    const composedExchange = await user.composeExchange(
       ethAccount.id,
       btcAccount.id,
       ethAmount,

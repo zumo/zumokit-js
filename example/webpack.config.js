@@ -39,10 +39,7 @@ module.exports = {
       'process.env.TRANSACTION_SERVICE_URL': JSON.stringify(process.env.TRANSACTION_SERVICE_URL),
       'process.env.CARD_SERVICE_URL': JSON.stringify(process.env.CARD_SERVICE_URL),
       'process.env.NOTIFICATION_SERVICE_URL': JSON.stringify(process.env.NOTIFICATION_SERVICE_URL),
-      'process.env.CLIENT_ZUMOKIT_AUTH_ENDPOINT': JSON.stringify(
-        process.env.CLIENT_ZUMOKIT_AUTH_ENDPOINT
-      ),
-      'process.env.CLIENT_HEADERS': process.env.CLIENT_HEADERS,
+      'process.env.USER_TOKEN': JSON.stringify(process.env.USER_TOKEN),
       'process.env.USER_WALLET_PASSWORD': JSON.stringify(
         process.env.USER_WALLET_PASSWORD
       ),

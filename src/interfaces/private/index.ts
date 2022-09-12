@@ -30,7 +30,11 @@ export interface AccountJSON {
   currencyCode: string;
   network: string;
   type: string;
+  custodyType: string;
   balance: string;
+  ledgerBalance: string;
+  availableBalance: string;
+  overdraftLimit: string;
   hasNominatedAccount: boolean;
   cryptoProperties: AccountCryptoPropertiesJSON;
   fiatProperties: AccountFiatPropertiesJSON;

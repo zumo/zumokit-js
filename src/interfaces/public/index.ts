@@ -11,6 +11,8 @@ export type Dictionary<K extends string, T> = Partial<Record<K, T>>;
 
 export type CurrencyType = 'CRYPTO' | 'FIAT';
 
+export type CustodyType = 'CUSTODY' | 'NON-CUSTODY';
+
 export type CurrencyCode = 'ETH' | 'BTC' | 'BSV' | 'USD' | 'GBP' | 'EUR';
 
 export type Network = 'MAINNET' | 'TESTNET' | 'RINKEBY' | 'ROPSTEN' | 'GOERLI';
@@ -28,7 +30,14 @@ export type CardStatus =
   | 'EXPIRED'
   | 'CANCELLED';
 
-export type TransactionType = 'CRYPTO' | 'FIAT' | 'NOMINATED' | 'CARD';
+export type TransactionType =
+  | 'CUSTODY'
+  | 'CUSTODY-DEPOSIT'
+  | 'CUSTODY-WITHDRAW'
+  | 'CRYPTO'
+  | 'FIAT'
+  | 'NOMINATED'
+  | 'CARD';
 
 export type TransactionDirection = 'SENT' | 'RECEIVED';
 
