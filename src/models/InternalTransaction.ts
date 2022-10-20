@@ -23,7 +23,7 @@ export class InternalTransaction {
   /** Sender account id or null if it is external user. */
   fromAccountId: string | null;
 
-  /** Sender address.*/
+  /** Sender address. */
   fromAddress: string | null;
 
   /** Recipient user id or null if it is external user. */
@@ -35,7 +35,7 @@ export class InternalTransaction {
   /** Recipient account id or null if it is external user. */
   toAccountId: string | null;
 
-  /** Recipient address.*/
+  /** Recipient address. */
   toAddress: string | null;
 
   /** Amount in transaction currency or null if transaction is Ethereum contract deploy. */

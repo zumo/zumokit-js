@@ -22,6 +22,7 @@ declare global {
  * @param transactionServiceUrl  ZumoKit Transaction Service URL
  * @param cardServiceUrl         ZumoKit Card Service URL
  * @param notificationServiceUrl ZumoKit Notification Service URL
+ * @param exchangeServiceUrl     ZumoKit Exchange Service URL
  *
  * @return ZumoKit instance
  * */
@@ -30,7 +31,8 @@ export const loadZumoKit = (
   apiUrl: string,
   transactionServiceUrl: string,
   cardServiceUrl: string,
-  notificationServiceUrl: string
+  notificationServiceUrl: string,
+  exchangeServiceUrl: string
 ) => {
   return new Promise<ZumoKit>((resolve, reject) => {
     if (window.ZumoKit) {
@@ -45,7 +47,8 @@ export const loadZumoKit = (
           apiUrl,
           transactionServiceUrl,
           cardServiceUrl,
-          notificationServiceUrl
+          notificationServiceUrl,
+          exchangeServiceUrl
         );
         resolve(window.ZumoKit);
       })

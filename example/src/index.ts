@@ -1,12 +1,5 @@
 import './style.css';
-import {
-  loadZumoKit,
-  ZumoKit,
-  ExchangeRate,
-  ExchangeSetting,
-  TransactionFeeRate,
-  TokenSet,
-} from 'zumokit';
+import { loadZumoKit, ZumoKit, TransactionFeeRate, TokenSet } from 'zumokit';
 import Decimal from 'decimal.js';
 
 declare let process: {
@@ -16,6 +9,7 @@ declare let process: {
     TRANSACTION_SERVICE_URL: string;
     CARD_SERVICE_URL: string;
     NOTIFICATION_SERVICE_URL: string;
+    EXCHANGE_SERVICE_URL: string;
     USER_TOKEN: string;
     USER_WALLET_PASSWORD: string;
   };
@@ -27,7 +21,8 @@ declare let process: {
     process.env.API_URL,
     process.env.TRANSACTION_SERVICE_URL,
     process.env.CARD_SERVICE_URL,
-    process.env.NOTIFICATION_SERVICE_URL
+    process.env.NOTIFICATION_SERVICE_URL,
+    process.env.EXCHANGE_SERVICE_URL
   );
 
   // add custom logger

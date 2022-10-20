@@ -39,6 +39,7 @@ module.exports = {
       'process.env.TRANSACTION_SERVICE_URL': JSON.stringify(process.env.TRANSACTION_SERVICE_URL),
       'process.env.CARD_SERVICE_URL': JSON.stringify(process.env.CARD_SERVICE_URL),
       'process.env.NOTIFICATION_SERVICE_URL': JSON.stringify(process.env.NOTIFICATION_SERVICE_URL),
+      'process.env.EXCHANGE_SERVICE_URL': JSON.stringify(process.env.EXCHANGE_SERVICE_URL),
       'process.env.USER_TOKEN': JSON.stringify(process.env.USER_TOKEN),
       'process.env.USER_WALLET_PASSWORD': JSON.stringify(
         process.env.USER_WALLET_PASSWORD

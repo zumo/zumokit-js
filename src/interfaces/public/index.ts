@@ -53,6 +53,8 @@ export type TransactionStatus =
   | 'REVERSED'
   | 'REFUNDED';
 
+export type ExchangeSide = 'BUY' | 'SELL';
+
 export type ExchangeStatus = 'PENDING' | 'WITHDRAWING' | 'CONFIRMED' | 'FAILED';
 
 export type TimeInterval =

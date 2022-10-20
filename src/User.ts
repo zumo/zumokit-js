@@ -13,6 +13,7 @@ import {
   AuthenticationConfig,
   KbaAnswer,
   CustodyType,
+  TradingPairJSON,
 } from './interfaces';
 import { Wallet } from './Wallet';
 import { ZumoKitError } from './ZumoKitError';
@@ -25,6 +26,7 @@ import {
   ComposedExchange,
   Transaction,
   Exchange,
+  TradingPair,
 } from './models';
 
 /**
@@ -670,31 +672,53 @@ export class User {
   }
 
   /**
+   * Fetch trading pairs that are currently supported.
+   */
+  fetchTradingPairs() {
+    return errorProxy<void>((resolve: any, reject: any) => {
+      this.userImpl.fetchTradingPairs(
+        new window.ZumoCoreModule.StringifiedJsonCallbackWrapper({
+          onError(error: string) {
+            reject(new ZumoKitError(error));
+          },
+          onSuccess(stringifiedJSON: string) {
+            const tradingPairsJSON = JSON.parse(
+              stringifiedJSON
+            ) as TradingPairJSON[];
+
+            resolve(tradingPairsJSON.map((json) => new TradingPair(json)));
+          },
+        })
+      );
+    });
+  }
+
+  /**
    * Compose exchange asynchronously.
    * Refer to <a href="https://developers.zumo.money/docs/guides/make-exchanges#compose-exchange">Make Exchanges</a>
    * guide for usage details.
    *
-   * @param fromAccountId       {@link  Account Account} identifier
-   * @param toAccountId         {@link  Account Account} identifier
-   * @param amount              amount in deposit account currency
+   * @param debitAccountId      {@link  Account Account} identifier
+   * @param creditAccountId     {@link  Account Account} identifier
+   * @param debitAmount         amount to be debited from debit account
    * @param sendMax             exchange maximum possible funds (defaults to false)
    */
   composeExchange(
-    fromAccountId: string,
-    toAccountId: string,
-    amount: Decimal | null,
+    debitAccountId: string,
+    creditAccountId: string,
+    debitAmount: Decimal | null,
     sendMax = false
   ) {
     return errorProxy<ComposedExchange>((resolve: any, reject: any) => {
       const amountOptional = new window.ZumoCoreModule.OptionalDecimal();
-      if (amount)
+      if (debitAmount)
         amountOptional.set(
-          new window.ZumoCoreModule.Decimal(amount.toString())
+          new window.ZumoCoreModule.Decimal(debitAmount.toString())
         );
 
       this.userImpl.composeExchange(
-        fromAccountId,
-        toAccountId,
+        debitAccountId,
+        creditAccountId,
         amountOptional,
         sendMax,
         new window.ZumoCoreModule.ComposeExchangeCallbackWrapper({

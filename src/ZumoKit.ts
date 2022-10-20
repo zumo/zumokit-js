@@ -8,8 +8,6 @@ import { errorProxy } from './utility';
 import {
   ExchangeRate,
   ExchangeRates,
-  ExchangeSetting,
-  ExchangeSettings,
   TransactionFeeRate,
   TransactionFeeRates,
   HistoricalExchangeRates,
@@ -40,9 +38,6 @@ export class ZumoKit {
   /** Mapping between currency pairs and available exchange rates. */
   exchangeRates: ExchangeRates = {};
 
-  /** Mapping between currency pairs and available exchange settings. */
-  exchangeSettings: ExchangeSettings = {};
-
   /** Mapping between cryptocurrencies and available transaction fee rates. */
   transactionFeeRates: TransactionFeeRates = {};
 
@@ -52,7 +47,8 @@ export class ZumoKit {
     apiUrl: string,
     transactionServiceUrl: string,
     cardServiceUrl: string,
-    notificationServiceUrl: string
+    notificationServiceUrl: string,
+    exchangeServiceUrl: string
   ) {
     this.version = window.ZumoCoreModule.ZumoCore.getVersion();
 
@@ -151,7 +147,8 @@ export class ZumoKit {
       apiUrl,
       transactionServiceUrl,
       cardServiceUrl,
-      notificationServiceUrl
+      notificationServiceUrl,
+      exchangeServiceUrl
     );
 
     this.utils = new Utils(this.zumoCore.getUtils());
@@ -159,9 +156,6 @@ export class ZumoKit {
     this.addChangeListener(() => {
       this.exchangeRates = ExchangeRates(
         JSON.parse(this.zumoCore.getExchangeRates())
-      );
-      this.exchangeSettings = ExchangeSettings(
-        JSON.parse(this.zumoCore.getExchangeSettings())
       );
       this.transactionFeeRates = TransactionFeeRates(
         JSON.parse(this.zumoCore.getTransactionFeeRates())
@@ -239,24 +233,6 @@ export class ZumoKit {
     );
     if (exchangeRate.hasValue())
       return new ExchangeRate(JSON.parse(exchangeRate.get()));
-    return null;
-  }
-
-  /**
-   * Get exchange setting for selected currency pair.
-   *
-   * @param fromCurrency   currency code
-   * @param toCurrency     currency code
-   *
-   * @return exchange setting or null
-   */
-  getExchangeSetting(fromCurrency: CurrencyCode, toCurrency: CurrencyCode) {
-    const exchangeSettings = this.zumoCore.getExchangeSetting(
-      fromCurrency,
-      toCurrency
-    );
-    if (exchangeSettings.hasValue())
-      return new ExchangeSetting(JSON.parse(exchangeSettings.get()));
     return null;
   }
 

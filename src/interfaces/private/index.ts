@@ -51,23 +51,16 @@ export interface ExchangeRateJSON {
 
 export interface QuoteJSON {
   id: string;
-  expireTime: number;
-  expiresIn: number | null;
-  fromCurrency: string;
-  toCurrency: string;
-  depositAmount: string;
-  value: string;
-}
-
-export interface ExchangeSettingJSON {
-  id: string;
-  fromCurrency: string;
-  toCurrency: string;
-  exchangeAddress: Record<string, string>;
-  minExchangeAmount: string;
-  outgoingTransactionFeeRate: string;
-  exchangeFeeRate: string;
-  returnTransactionFee: string;
+  ttl: number;
+  createdAt: string;
+  expiresAt: string;
+  from: string;
+  to: string;
+  price: string;
+  feeRate: string;
+  debitAmount: string;
+  feeAmount: string;
+  creditAmount: string;
 }
 
 export interface ComposedTransactionJSON {
@@ -81,19 +74,25 @@ export interface ComposedTransactionJSON {
   nonce: string;
 }
 
+export interface TradingPairLimitJSON {
+  base: string;
+  quote: string;
+}
+
+export interface TradingPairJSON {
+  pair: string;
+  base: string;
+  quote: string;
+  trading: boolean;
+  min: TradingPairLimitJSON;
+  max: TradingPairLimitJSON;
+  feeRate: string;
+}
+
 export interface ComposedExchangeJSON {
-  signedTransaction: string | null;
-  fromAccount: AccountJSON;
-  toAccount: AccountJSON;
+  debitAccount: AccountJSON;
+  creditAccount: AccountJSON;
   quote: QuoteJSON;
-  exchangeSetting: ExchangeSettingJSON;
-  exchangeAddress: string | null;
-  amount: string;
-  outgoingTransactionFee: string;
-  returnAmount: string;
-  exchangeFee: string;
-  returnTransactionFee: string;
-  nonce: string;
 }
 
 export interface TransactionFeeRateJSON {
@@ -189,24 +188,19 @@ export interface TransactionJSON {
 export interface ExchangeJSON {
   id: string;
   status: string;
-  fromCurrency: string;
-  fromAccountId: string;
-  outgoingTransactionId: string | null;
-  outgoingTransactionFee: string | null;
-  toCurrency: string;
-  toAccountId: string;
-  returnTransactionId: string | null;
-  returnTransactionFee: string;
+  pair: string;
+  side: string;
+  price: string;
   amount: string;
-  returnAmount: string;
-  exchangeFee: string;
+  debitAccountId: string;
+  debitTransactionId: string;
+  creditAccountId: string;
+  creditTransactionId: string | null;
   quote: QuoteJSON;
-  exchangeSetting: ExchangeSettingJSON;
-  exchangeRates: Record<string, Record<string, ExchangeRateJSON>>;
+  rates: Record<string, Record<string, string>>;
   nonce: string | null;
-  submittedAt: number;
-  confirmedAt: number | null;
-  timestamp: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface AccountDataSnapshotJSON {
