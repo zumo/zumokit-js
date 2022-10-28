@@ -21,10 +21,10 @@ export class Quote {
   expiresAt: number;
 
   /** Debit currency. */
-  from: CurrencyCode;
+  debitCurrency: CurrencyCode;
 
   /** Credit currency. */
-  to: CurrencyCode;
+  creditCurrency: CurrencyCode;
 
   /** Value of 1 unit of debit currency in credit currency. */
   price: Decimal;
@@ -48,8 +48,8 @@ export class Quote {
     this.ttl = json.ttl;
     this.createdAt = Math.round(new Date(json.createdAt).getTime() / 1000);
     this.expiresAt = Math.round(new Date(json.expiresAt).getTime() / 1000);
-    this.from = json.from as CurrencyCode;
-    this.to = json.to as CurrencyCode;
+    this.debitCurrency = json.debitCurrency as CurrencyCode;
+    this.creditCurrency = json.creditCurrency as CurrencyCode;
     this.price = new Decimal(json.price);
     this.feeRate = new Decimal(json.feeRate);
     this.debitAmount = new Decimal(json.debitAmount);

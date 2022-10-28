@@ -54,8 +54,8 @@ export interface QuoteJSON {
   ttl: number;
   createdAt: string;
   expiresAt: string;
-  from: string;
-  to: string;
+  debitCurrency: string;
+  creditCurrency: string;
   price: string;
   feeRate: string;
   debitAmount: string;
