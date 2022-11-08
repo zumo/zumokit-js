@@ -162,6 +162,18 @@ export interface InternalTransactionJSON {
   fiatAmount: Record<string, number> | null;
 }
 
+export interface CustodyOrderJSON {
+  id: string;
+  type: string;
+  status: string;
+  fromAddresses: Array<string>;
+  fromAccountId: string | null;
+  toAddress: string | null;
+  toAccountId: string | null;
+  createdAt: number;
+  updatedAt: number;
+}
+
 export interface TransactionJSON {
   id: string;
   type: string;
@@ -175,6 +187,7 @@ export interface TransactionJSON {
   senders: Array<TransactionAmountJSON>;
   recipients: Array<TransactionAmountJSON>;
   internalTransactions: Array<InternalTransactionJSON>;
+  custodyOrder: string | null;
   cryptoProperties: TransactionCryptoPropertiesJSON | null;
   fiatProperties: TransactionFiatPropertiesJSON | null;
   cardProperties: TransactionCardPropertiesJSON | null;

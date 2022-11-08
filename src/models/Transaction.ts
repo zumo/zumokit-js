@@ -9,10 +9,12 @@ import {
   CurrencyCode,
   Network,
   TransactionJSON,
+  CustodyOrderJSON,
 } from '../interfaces';
 import { Exchange } from './Exchange';
 import { TransactionAmount } from './TransactionAmount';
 import { InternalTransaction } from './InternalTransaction';
+import { CustodyOrder } from './CustodyOrder';
 
 /** Transaction details. */
 export class Transaction {
@@ -60,6 +62,11 @@ export class Transaction {
   internalTransactions: Array<InternalTransaction>;
 
   /**
+   * Custody order properties if it is a transaction associated with a custody order, null otherwise.
+   */
+  custodyOrder: CustodyOrder | null;
+
+  /**
    * Crypto properties if it is a crypto transaction, null otherwise.
    * <p>
    * See {@link TransactionType}.
@@ -82,8 +89,6 @@ export class Transaction {
 
   /**
    * Exchange properties if it is a transaction associated with an exchange, null otherwise.
-   * <p>
-   * See {@link TransactionType}.
    */
   exchange: Exchange | null;
 
@@ -121,6 +126,9 @@ export class Transaction {
       (internalTransactionJson) =>
         new InternalTransaction(internalTransactionJson)
     );
+    this.custodyOrder = json.custodyOrder
+      ? new CustodyOrder(JSON.parse(json.custodyOrder))
+      : null;
     this.cryptoProperties = json.cryptoProperties
       ? new TransactionCryptoProperties(json.cryptoProperties)
       : null;

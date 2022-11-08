@@ -30,6 +30,10 @@ export type CardStatus =
   | 'EXPIRED'
   | 'CANCELLED';
 
+export type CustodyOrderType = 'DEPOSIT' | 'WITHDRAW';
+
+export type CustodyOrderStatus = 'NEW' | 'PENDING' | 'CONFIRMED' | 'FAILED';
+
 export type TransactionType =
   | 'CUSTODY'
   | 'CUSTODY-DEPOSIT'
