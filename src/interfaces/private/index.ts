@@ -206,7 +206,7 @@ export interface ExchangeJSON {
   price: string;
   amount: string;
   debitAccountId: string;
-  debitTransactionId: string;
+  debitTransactionId: string | null;
   creditAccountId: string;
   creditTransactionId: string | null;
   quote: QuoteJSON;
