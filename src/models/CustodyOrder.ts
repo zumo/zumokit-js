@@ -40,12 +40,12 @@ export class CustodyOrder {
     this.json = json;
     this.id = json.id;
     this.type = json.type as CustodyOrderType;
-    this.status = json.status as CustodyOrderStatus;
-    this.fromAddresses = json.fromAddresses;
-    this.fromAccountId = json.fromAccountId;
-    this.toAddress = json.toAddress;
-    this.toAccountId = json.toAccountId;
-    this.createdAt = json.createdAt;
-    this.updatedAt = json.updatedAt;
+    this.status = json.status.toUpperCase() as CustodyOrderStatus;
+    this.fromAddresses = json.from_addresses;
+    this.fromAccountId = json.from_account_id;
+    this.toAddress = json.to_address;
+    this.toAccountId = json.to_account_id;
+    this.createdAt = json.created_at;
+    this.updatedAt = json.updated_at;
   }
 }

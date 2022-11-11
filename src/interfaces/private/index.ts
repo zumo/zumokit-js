@@ -166,12 +166,12 @@ export interface CustodyOrderJSON {
   id: string;
   type: string;
   status: string;
-  fromAddresses: Array<string>;
-  fromAccountId: string | null;
-  toAddress: string | null;
-  toAccountId: string | null;
-  createdAt: number;
-  updatedAt: number;
+  from_addresses: Array<string>;
+  from_account_id: string | null;
+  to_address: string | null;
+  to_account_id: string | null;
+  created_at: number;
+  updated_at: number;
 }
 
 export interface TransactionJSON {
