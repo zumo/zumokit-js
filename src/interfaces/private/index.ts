@@ -30,7 +30,11 @@ export interface AccountJSON {
   currencyCode: string;
   network: string;
   type: string;
+  custodyType: string;
   balance: string;
+  ledgerBalance: string;
+  availableBalance: string;
+  overdraftLimit: string;
   hasNominatedAccount: boolean;
   cryptoProperties: AccountCryptoPropertiesJSON;
   fiatProperties: AccountFiatPropertiesJSON;
@@ -47,23 +51,16 @@ export interface ExchangeRateJSON {
 
 export interface QuoteJSON {
   id: string;
-  expireTime: number;
-  expiresIn: number | null;
-  fromCurrency: string;
-  toCurrency: string;
-  depositAmount: string;
-  value: string;
-}
-
-export interface ExchangeSettingJSON {
-  id: string;
-  fromCurrency: string;
-  toCurrency: string;
-  exchangeAddress: Record<string, string>;
-  minExchangeAmount: string;
-  outgoingTransactionFeeRate: string;
-  exchangeFeeRate: string;
-  returnTransactionFee: string;
+  ttl: number;
+  createdAt: string;
+  expiresAt: string;
+  debitCurrency: string;
+  creditCurrency: string;
+  price: string;
+  feeRate: string;
+  debitAmount: string;
+  feeAmount: string;
+  creditAmount: string;
 }
 
 export interface ComposedTransactionJSON {
@@ -77,19 +74,25 @@ export interface ComposedTransactionJSON {
   nonce: string;
 }
 
+export interface TradingPairLimitJSON {
+  base: string;
+  quote: string;
+}
+
+export interface TradingPairJSON {
+  pair: string;
+  base: string;
+  quote: string;
+  trading: boolean;
+  min: TradingPairLimitJSON;
+  max: TradingPairLimitJSON;
+  feeRate: string;
+}
+
 export interface ComposedExchangeJSON {
-  signedTransaction: string | null;
-  fromAccount: AccountJSON;
-  toAccount: AccountJSON;
+  debitAccount: AccountJSON;
+  creditAccount: AccountJSON;
   quote: QuoteJSON;
-  exchangeSetting: ExchangeSettingJSON;
-  exchangeAddress: string | null;
-  amount: string;
-  outgoingTransactionFee: string;
-  returnAmount: string;
-  exchangeFee: string;
-  returnTransactionFee: string;
-  nonce: string;
 }
 
 export interface TransactionFeeRateJSON {
@@ -159,6 +162,18 @@ export interface InternalTransactionJSON {
   fiatAmount: Record<string, number> | null;
 }
 
+export interface CustodyOrderJSON {
+  id: string;
+  type: string;
+  status: string;
+  from_addresses: Array<string>;
+  from_account_id: string | null;
+  to_address: string | null;
+  to_account_id: string | null;
+  created_at: number;
+  updated_at: number;
+}
+
 export interface TransactionJSON {
   id: string;
   type: string;
@@ -172,6 +187,7 @@ export interface TransactionJSON {
   senders: Array<TransactionAmountJSON>;
   recipients: Array<TransactionAmountJSON>;
   internalTransactions: Array<InternalTransactionJSON>;
+  custodyOrder: string | null;
   cryptoProperties: TransactionCryptoPropertiesJSON | null;
   fiatProperties: TransactionFiatPropertiesJSON | null;
   cardProperties: TransactionCardPropertiesJSON | null;
@@ -185,24 +201,19 @@ export interface TransactionJSON {
 export interface ExchangeJSON {
   id: string;
   status: string;
-  fromCurrency: string;
-  fromAccountId: string;
-  outgoingTransactionId: string | null;
-  outgoingTransactionFee: string | null;
-  toCurrency: string;
-  toAccountId: string;
-  returnTransactionId: string | null;
-  returnTransactionFee: string;
+  pair: string;
+  side: string;
+  price: string;
   amount: string;
-  returnAmount: string;
-  exchangeFee: string;
+  debitAccountId: string;
+  debitTransactionId: string | null;
+  creditAccountId: string;
+  creditTransactionId: string | null;
   quote: QuoteJSON;
-  exchangeSetting: ExchangeSettingJSON;
-  exchangeRates: Record<string, Record<string, ExchangeRateJSON>>;
+  rates: Record<string, Record<string, string>>;
   nonce: string | null;
-  submittedAt: number;
-  confirmedAt: number | null;
-  timestamp: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface AccountDataSnapshotJSON {

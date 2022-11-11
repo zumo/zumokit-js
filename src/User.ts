@@ -12,6 +12,8 @@ import {
   CardDetails,
   AuthenticationConfig,
   KbaAnswer,
+  CustodyType,
+  TradingPairJSON,
 } from './interfaces';
 import { Wallet } from './Wallet';
 import { ZumoKitError } from './ZumoKitError';
@@ -20,6 +22,11 @@ import {
   AccountFiatProperties,
   AccountDataSnapshot,
   Card,
+  ComposedTransaction,
+  ComposedExchange,
+  Transaction,
+  Exchange,
+  TradingPair,
 } from './models';
 
 /**
@@ -174,24 +181,37 @@ export class User {
    * @param  currencyCode   currency code, e.g. 'BTC', 'ETH' or 'GBP'
    * @param  network        network type, e.g. 'MAINNET', 'TESTNET' or 'RINKEBY'
    * @param  type           account type, e.g. 'STANDARD', 'COMPATIBILITY' or 'SEGWIT'
+   * @param  custodyType    custody type, e.g. 'CUSTODY' or 'NON-CUSTODY'
    */
-  getAccount(currencyCode: CurrencyCode, network: Network, type: AccountType) {
-    const account = this.userImpl.getAccount(currencyCode, network, type);
-    if (account.hasValue()) return new Account(JSON.parse(account.get()));
+  getAccount(
+    currencyCode: CurrencyCode,
+    network: Network,
+    type: AccountType,
+    custodyType: CustodyType
+  ) {
+    const account = this.userImpl.getAccount(
+      currencyCode,
+      network,
+      type,
+      custodyType
+    );
+
+    if (account.hasValue()) {
+      return new Account(JSON.parse(account.get()));
+    }
+
     return null;
   }
 
   /**
-   * Check if user is a fiat customer on 'MAINNET' or 'TESTNET' network.
-   * @param  network 'MAINNET' or 'TESTNET'
+   * Check if user is a registered fiat customer.
    */
-  isFiatCustomer(network: string): boolean {
-    return this.userImpl.isFiatCustomer(network);
+  isFiatCustomer(): boolean {
+    return this.userImpl.isFiatCustomer();
   }
 
   /**
-   * Make user fiat customer on specified network by providing user's personal details.
-   * @param  network        'MAINNET' or 'TESTNET'
+   * Make user fiat customer by providing user's personal details.
    * @param  firstName       first name
    * @param  middleName      middle name or null
    * @param  lastName        last name
@@ -201,7 +221,6 @@ export class User {
    * @param  address         home address
    */
   makeFiatCustomer(
-    network: Network,
     firstName: string,
     middleName: string | null,
     lastName: string,
@@ -215,7 +234,6 @@ export class User {
       if (middleName) optionalMiddleName.set(middleName);
 
       this.userImpl.makeFiatCustomer(
-        network,
         firstName,
         optionalMiddleName,
         lastName,
@@ -236,14 +254,13 @@ export class User {
   }
 
   /**
-   * Create fiat account on specified network and currency code. User must already be fiat customer on specified network.
-   * @param  network       'MAINNET' or 'TESTNET'
+   * Create custody or fiat account for specified currency. When creating a fiat account,
+   * user must already be fiat customer.
    * @param  currencyCode  country code in ISO 4217 format, e.g. 'GBP'
    */
-  createFiatAccount(network: Network, currencyCode: CurrencyCode) {
+  createAccount(currencyCode: CurrencyCode) {
     return errorProxy<Account>((resolve: any, reject: any) => {
-      this.userImpl.createFiatAccount(
-        network,
+      this.userImpl.createAccount(
         currencyCode,
         new window.ZumoCoreModule.AccountCallbackWrapper({
           onError(error: string) {
@@ -506,5 +523,237 @@ export class User {
         this.accountDataListenersImpl.splice(index, 1)[0]
       );
     }
+  }
+
+  /**
+   * Compose transaction between custody or fiat accounts in Zumo ecosystem.
+   * Refer to <a href="https://developers.zumo.money/docs/guides/send-transactions#internal-transaction">Send Transactions</a>
+   * guide for usage details.
+   *
+   * @param fromAccountId custody or fiat {@link  Account Account} identifier
+   * @param toAccountId   custody or fiat {@link  Account Account} identifier
+   * @param amount        amount in source account currency
+   * @param sendMax       send maximum possible funds to destination (defaults to false)
+   */
+  composeTransaction(
+    fromAccountId: string,
+    toAccountId: string,
+    amount: Decimal | null,
+    sendMax = false
+  ) {
+    return errorProxy<ComposedTransaction>((resolve: any, reject: any) => {
+      const amountOptional = new window.ZumoCoreModule.OptionalDecimal();
+      if (amount)
+        amountOptional.set(
+          new window.ZumoCoreModule.Decimal(amount.toString())
+        );
+
+      this.userImpl.composeTransaction(
+        fromAccountId,
+        toAccountId,
+        amountOptional,
+        sendMax,
+        new window.ZumoCoreModule.ComposeTransactionCallbackWrapper({
+          onError(error: string) {
+            reject(new ZumoKitError(error));
+          },
+          onSuccess(composedTransaction: string) {
+            resolve(new ComposedTransaction(JSON.parse(composedTransaction)));
+          },
+        })
+      );
+    });
+  }
+
+  /**
+   * Compose custody withdraw transaction from custody account.
+   * Refer to <a href="https://developers.zumo.money/docs/guides/send-transactions#custody-withdraw-transaction">Send Transactions</a>
+   * guide for usage details.
+   *
+   * @param fromAccountId custody or fiat {@link  Account Account} identifier
+   * @param destination   destination address or non-custodial account identifier
+   * @param amount        amount in source account currency
+   * @param sendMax       send maximum possible funds to destination (defaults to false)
+   */
+  composeCustodyWithdrawTransaction(
+    fromAccountId: string,
+    destination: string,
+    amount: Decimal | null,
+    sendMax = false
+  ) {
+    return errorProxy<ComposedTransaction>((resolve: any, reject: any) => {
+      const amountOptional = new window.ZumoCoreModule.OptionalDecimal();
+      if (amount)
+        amountOptional.set(
+          new window.ZumoCoreModule.Decimal(amount.toString())
+        );
+
+      this.userImpl.composeCustodyWithdrawTransaction(
+        fromAccountId,
+        destination,
+        amountOptional,
+        sendMax,
+        new window.ZumoCoreModule.ComposeTransactionCallbackWrapper({
+          onError(error: string) {
+            reject(new ZumoKitError(error));
+          },
+          onSuccess(composedTransaction: string) {
+            resolve(new ComposedTransaction(JSON.parse(composedTransaction)));
+          },
+        })
+      );
+    });
+  }
+
+  /**
+   * Compose transaction from user fiat account to user's nominated account.
+   * Refer to <a href="https://developers.zumo.money/docs/guides/send-transactions#nominated-transaction">Send Transactions</a>
+   * guide for usage details.
+   *
+   * @param fromAccountId {@link  Account Account} identifier
+   * @param amount        amount in source account currency
+   * @param sendMax       send maximum possible funds to destination (defaults to false)
+   */
+  composeNominatedTransaction(
+    fromAccountId: string,
+    amount: Decimal | null,
+    sendMax = false
+  ) {
+    return errorProxy<ComposedTransaction>((resolve: any, reject: any) => {
+      const amountOptional = new window.ZumoCoreModule.OptionalDecimal();
+      if (amount)
+        amountOptional.set(
+          new window.ZumoCoreModule.Decimal(amount.toString())
+        );
+
+      this.userImpl.composeNominatedTransaction(
+        fromAccountId,
+        amountOptional,
+        sendMax,
+        new window.ZumoCoreModule.ComposeTransactionCallbackWrapper({
+          onError(error: string) {
+            reject(new ZumoKitError(error));
+          },
+          onSuccess(composedTransaction: string) {
+            resolve(new ComposedTransaction(JSON.parse(composedTransaction)));
+          },
+        })
+      );
+    });
+  }
+
+  /**
+   * Submit a transaction asynchronously.
+   * Refer to <a href="https://developers.zumo.money/docs/guides/send-transactions#submit-transaction">Send Transactions</a>
+   * guide for usage details.
+   *
+   * @param composedTransaction Composed transaction retrieved as a result
+   *                            of one of the compose transaction methods
+   * @param metadata            Optional metadata that will be attached to transaction
+   */
+  submitTransaction(
+    composedTransaction: ComposedTransaction,
+    metadata: any = null
+  ) {
+    return errorProxy<Transaction>((resolve: any, reject: any) => {
+      this.userImpl.submitTransaction(
+        JSON.stringify(composedTransaction.json),
+        JSON.stringify(metadata),
+        new window.ZumoCoreModule.SubmitTransactionCallbackWrapper({
+          onError(error: string) {
+            reject(new ZumoKitError(error));
+          },
+          onSuccess(transaction: string) {
+            resolve(new Transaction(JSON.parse(transaction)));
+          },
+        })
+      );
+    });
+  }
+
+  /**
+   * Fetch trading pairs that are currently supported.
+   */
+  fetchTradingPairs() {
+    return errorProxy<void>((resolve: any, reject: any) => {
+      this.userImpl.fetchTradingPairs(
+        new window.ZumoCoreModule.StringifiedJsonCallbackWrapper({
+          onError(error: string) {
+            reject(new ZumoKitError(error));
+          },
+          onSuccess(stringifiedJSON: string) {
+            const tradingPairsJSON = JSON.parse(
+              stringifiedJSON
+            ) as TradingPairJSON[];
+
+            resolve(tradingPairsJSON.map((json) => new TradingPair(json)));
+          },
+        })
+      );
+    });
+  }
+
+  /**
+   * Compose exchange asynchronously.
+   * Refer to <a href="https://developers.zumo.money/docs/guides/make-exchanges#compose-exchange">Make Exchanges</a>
+   * guide for usage details.
+   *
+   * @param debitAccountId      {@link  Account Account} identifier
+   * @param creditAccountId     {@link  Account Account} identifier
+   * @param debitAmount         amount to be debited from debit account
+   * @param sendMax             exchange maximum possible funds (defaults to false)
+   */
+  composeExchange(
+    debitAccountId: string,
+    creditAccountId: string,
+    debitAmount: Decimal | null,
+    sendMax = false
+  ) {
+    return errorProxy<ComposedExchange>((resolve: any, reject: any) => {
+      const amountOptional = new window.ZumoCoreModule.OptionalDecimal();
+      if (debitAmount)
+        amountOptional.set(
+          new window.ZumoCoreModule.Decimal(debitAmount.toString())
+        );
+
+      this.userImpl.composeExchange(
+        debitAccountId,
+        creditAccountId,
+        amountOptional,
+        sendMax,
+        new window.ZumoCoreModule.ComposeExchangeCallbackWrapper({
+          onError(error: string) {
+            reject(new ZumoKitError(error));
+          },
+          onSuccess(composedExchange: string) {
+            resolve(new ComposedExchange(JSON.parse(composedExchange)));
+          },
+        })
+      );
+    });
+  }
+
+  /**
+   * Submit an exchange asynchronously.
+   * Refer to <a href="https://developers.zumo.money/docs/guides/make-exchanges#submit-exchange">Make Exchanges</a>
+   * guide for usage details.
+   *
+   * @param composedExchange Composed exchange retrieved as the result
+   *                          of {@link composeExchange} method
+   */
+  submitExchange(composedExchange: ComposedExchange) {
+    return errorProxy<Exchange>((resolve: any, reject: any) => {
+      this.userImpl.submitExchange(
+        JSON.stringify(composedExchange.json),
+        new window.ZumoCoreModule.SubmitExchangeCallbackWrapper({
+          onError(error: string) {
+            reject(new ZumoKitError(error));
+          },
+          onSuccess(exchange: string) {
+            resolve(new Exchange(JSON.parse(exchange)));
+          },
+        })
+      );
+    });
   }
 }

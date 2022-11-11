@@ -1,7 +1,11 @@
 import { Decimal } from 'decimal.js';
-import { ExchangeRates } from './ExchangeRates';
-import { ExchangeSetting } from './ExchangeSetting';
-import { ExchangeStatus, CurrencyCode, ExchangeJSON } from '../interfaces';
+import {
+  ExchangeStatus,
+  CurrencyCode,
+  ExchangeSide,
+  ExchangeJSON,
+  Dictionary,
+} from '../interfaces';
 import { Quote } from './Quote';
 
 /** Exchange details. */
@@ -15,95 +19,76 @@ export class Exchange {
   /** Exchange status. */
   status: ExchangeStatus;
 
-  /** Currency from which exchange was made. */
-  fromCurrency: CurrencyCode;
+  /** Exchange pair, e.g. "ETH-GBP". */
+  pair: string;
 
-  /** Source {@link  Account Account} identifier. */
-  fromAccountId: string;
+  /**  Exchange side, "BUY" or "SELL". */
+  side: ExchangeSide;
 
-  /** Outgoing {@link  Transaction Transaction} identifier. */
-  outgoingTransactionId: string | null;
+  /**  Exchange quote price. */
+  price: Decimal;
 
-  /** Outgoing transaction fee. */
-  outgoingTransactionFee: Decimal | null;
-
-  /** Currency to which exchange was made. */
-  toCurrency: CurrencyCode;
-
-  /** Target {@link  Account Account} identifier. */
-  toAccountId: string;
-
-  /** Return {@link  Transaction Transaction} identifier. */
-  returnTransactionId: string | null;
-
-  /** Return {@link  Transaction Transaction} fee. */
-  returnTransactionFee: Decimal;
-
-  /** Amount in source account currency. */
+  /** Amount in base currency. */
   amount: Decimal;
 
-  /**
-   * Amount that user receives in target account currency, calculated as <code>amount X quote.value X (1 - feeRate) - returnTransactionFee</code>.
-   * <p>
-   * See {@link ExchangeSetting}.
-   */
-  returnAmount: Decimal;
+  /** Debit {@link  Account Account} identifier. */
+  debitAccountId: string;
 
-  /**
-   * Exchange fee in target account currency, calculated as <code>amount X quote.value X exchangeFeeRate</code>.
-   * <p>
-   * See {@link ExchangeSetting}.
-   */
-  exchangeFee: Decimal;
+  /** Debit {@link  Transaction Transaction} identifier. */
+  debitTransactionId: string | null;
+
+  /** Credit {@link  Account Account} identifier. */
+  creditAccountId: string;
+
+  /** Credit {@link  Transaction Transaction} identifier. */
+  creditTransactionId: string | null;
 
   /** Exchange rate quote used. */
   quote: Quote;
-
-  /** Exchange settings used. */
-  exchangeSetting: ExchangeSetting;
 
   /**
    * Exchange rates at the time exchange was made.
    * This can be used to display amounts in local currency to the user.
    */
-  exchangeRates: ExchangeRates;
+  rates: Dictionary<CurrencyCode, Dictionary<CurrencyCode, Decimal>>;
 
   /** Exchange nonce or null. Used to prevent double spend. */
   nonce: string | null;
 
-  /** Epoch timestamp when transaction was submitted. */
-  submittedAt: number;
+  /** Epoch timestamp when exchange was created. */
+  createdAt: number;
 
-  /** Epoch timestamp when transaction was confirmed or null if not yet confirmed. */
-  confirmedAt: number | null;
-
-  /** Alias of {@link submittedAt} timestamp. Provided for convenience to match {@link Transaction} record structure. */
-  timestamp: number;
+  /** Epoch timestamp when exchange was updated */
+  updatedAt: number;
 
   /** @internal */
   constructor(json: ExchangeJSON) {
     this.json = json;
     this.id = json.id;
     this.status = json.status as ExchangeStatus;
-    this.fromCurrency = json.fromCurrency as CurrencyCode;
-    this.fromAccountId = json.fromAccountId;
-    this.outgoingTransactionId = json.outgoingTransactionId;
-    this.outgoingTransactionFee = json.outgoingTransactionFee
-      ? new Decimal(json.outgoingTransactionFee)
-      : null;
-    this.toCurrency = json.toCurrency as CurrencyCode;
-    this.toAccountId = json.toAccountId;
-    this.returnTransactionId = json.returnTransactionId;
-    this.returnTransactionFee = new Decimal(json.returnTransactionFee);
+    this.pair = json.pair;
+    this.side = json.side as ExchangeSide;
+    this.price = new Decimal(json.price);
     this.amount = new Decimal(json.amount);
-    this.returnAmount = new Decimal(json.returnAmount);
-    this.exchangeFee = new Decimal(json.exchangeFee);
+    this.debitAccountId = json.debitAccountId;
+    this.debitTransactionId = json.debitTransactionId;
+    this.creditAccountId = json.creditAccountId;
+    this.creditTransactionId = json.creditTransactionId;
     this.quote = new Quote(json.quote);
-    this.exchangeSetting = new ExchangeSetting(json.exchangeSetting);
-    this.exchangeRates = ExchangeRates(json.exchangeRates);
     this.nonce = json.nonce;
-    this.submittedAt = json.submittedAt;
-    this.confirmedAt = json.confirmedAt;
-    this.timestamp = json.submittedAt;
+    this.createdAt = Math.round(new Date(json.createdAt).getTime() / 1000);
+    this.updatedAt = Math.round(new Date(json.updatedAt).getTime() / 1000);
+
+    // convert rates from strings to decimals
+    this.rates = {};
+    Object.keys(json.rates).forEach((fromCurrency) => {
+      const innerMap: Dictionary<CurrencyCode, Decimal> = {};
+      Object.keys(json.rates[fromCurrency]).forEach((toCurrency) => {
+        innerMap[toCurrency as CurrencyCode] = new Decimal(
+          json.rates[fromCurrency][toCurrency]
+        );
+      });
+      this.rates[fromCurrency as CurrencyCode] = innerMap;
+    });
   }
 }

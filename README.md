@@ -17,8 +17,8 @@ Include the ZumoKit script on each page of your site — it should always be loa
 Additionally, ZumoKit is dependent on [decimal.js](https://github.com/MikeMcl/decimal.js/), which has to be added separately.
 
 ```html
-<script src="https://js.zumo.money/4.0.3/decimal.js"></script>
-<script src="https://js.zumo.money/4.0.3/zumokit.js"></script>
+<script src="https://js.zumo.money/4.4.0/decimal.js"></script>
+<script src="https://js.zumo.money/4.4.0/zumokit.js"></script>
 ```
 
 ### ES6 Module
@@ -46,13 +46,14 @@ Replace API_KEY, API_ROOT, TX_SERVICE_URL, CARD_SERVICE_URL and NOTIFICATION_SER
     <meta charset="UTF-8" />
     <title>ZumoKit Example</title>
     <script>
-      window.addEventListener("load", async (event) => {
+      window.addEventListener('load', async (event) => {
         const zumokit = await loadZumoKit(
-          API_KEY, 
-          API_URL, 
-          TRANSACTION_SERVICE_URL, 
+          API_KEY,
+          API_URL,
+          TRANSACTION_SERVICE_URL,
           CARD_SERVICE_URL,
-          NOTIFICATION_SERVICE_URL
+          NOTIFICATION_SERVICE_URL,
+          EXCHANGE_SERVICE_URL
         );
 
         console.log(zumokit.version);
@@ -62,8 +63,8 @@ Replace API_KEY, API_ROOT, TX_SERVICE_URL, CARD_SERVICE_URL and NOTIFICATION_SER
 
   <body>
     <p>Check console output!</p>
-    <script src="https://js.zumo.money/4.0.3/decimal.js"></script>
-    <script src="https://js.zumo.money/4.0.3/zumokit.js"></script>
+    <script src="https://js.zumo.money/4.4.0/decimal.js"></script>
+    <script src="https://js.zumo.money/4.4.0/zumokit.js"></script>
   </body>
 </html>
 ```
@@ -71,14 +72,15 @@ Replace API_KEY, API_ROOT, TX_SERVICE_URL, CARD_SERVICE_URL and NOTIFICATION_SER
 ### ES6 Module
 
 ```js
-import { loadZumoKit } from "zumokit";
+import { loadZumoKit } from 'zumokit';
 
 const zumokit = await loadZumoKit(
-  API_KEY, 
-  API_URL, 
-  TRANSACTION_SERVICE_URL, 
+  API_KEY,
+  API_URL,
+  TRANSACTION_SERVICE_URL,
   CARD_SERVICE_URL,
-  NOTIFICATION_SERVICE_URL
+  NOTIFICATION_SERVICE_URL,
+  EXCHANGE_SERVICE_URL
 );
 
 console.log(zumoKit.version);
@@ -89,7 +91,7 @@ console.log(zumoKit.version);
 This package exports TypeScript declarations for ZumoKit type aliases and interfaces via named exports. For example:
 
 ```typescript
-import { CurrencyCode, AccountType, Network } from "zumokit";
+import { CurrencyCode, AccountType, Network } from 'zumokit';
 ```
 
 ## Example
