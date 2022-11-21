@@ -10,6 +10,7 @@ declare let process: {
     CARD_SERVICE_URL: string;
     NOTIFICATION_SERVICE_URL: string;
     EXCHANGE_SERVICE_URL: string;
+    CUSTODY_SERVICE_URL: string;
     USER_TOKEN: string;
     USER_WALLET_PASSWORD: string;
   };
@@ -22,7 +23,8 @@ declare let process: {
     process.env.TRANSACTION_SERVICE_URL,
     process.env.CARD_SERVICE_URL,
     process.env.NOTIFICATION_SERVICE_URL,
-    process.env.EXCHANGE_SERVICE_URL
+    process.env.EXCHANGE_SERVICE_URL,
+    process.env.CUSTODY_SERVICE_URL
   );
 
   // add custom logger

@@ -10,7 +10,7 @@ export class ComposedTransaction {
   json: ComposedTransactionJSON;
 
   /**
-   * Transaction type, 'FIAT', 'CRYPTO' or 'NOMINATED'.
+   * Transaction type, 'FIAT', 'CRYPTO', 'NOMINATED' or 'CUSTODY-WITHDRAW'.
    */
   type: TransactionType;
 
@@ -35,6 +35,9 @@ export class ComposedTransaction {
   /** Transaction nonce to prevent double spend. */
   nonce: string;
 
+  /** Custody order id for custody withdraw transaction, null otherwise. */
+  custodyOrderId: string | null;
+
   /** @internal */
   constructor(json: ComposedTransactionJSON) {
     this.json = json;
@@ -46,5 +49,6 @@ export class ComposedTransaction {
     this.data = json.data;
     this.fee = new Decimal(json.fee);
     this.nonce = json.nonce;
+    this.custodyOrderId = json.custodyOrderId;
   }
 }
