@@ -127,7 +127,7 @@ export class Transaction {
         new InternalTransaction(internalTransactionJson)
     );
     this.custodyOrder = json.custodyOrder
-      ? new CustodyOrder(JSON.parse(json.custodyOrder))
+      ? new CustodyOrder(json.custodyOrder)
       : null;
     this.cryptoProperties = json.cryptoProperties
       ? new TransactionCryptoProperties(json.cryptoProperties)

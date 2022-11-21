@@ -192,7 +192,7 @@ export interface TransactionJSON {
   senders: Array<TransactionAmountJSON>;
   recipients: Array<TransactionAmountJSON>;
   internalTransactions: Array<InternalTransactionJSON>;
-  custodyOrder: string | null;
+  custodyOrder: CustodyOrderJSON | null;
   cryptoProperties: TransactionCryptoPropertiesJSON | null;
   fiatProperties: TransactionFiatPropertiesJSON | null;
   cardProperties: TransactionCardPropertiesJSON | null;
