@@ -36,11 +36,23 @@ export class CustodyOrder {
   /** Debit {@link  Account Account} identifier, if applicable. */
   fromAccountId: string | null;
 
+  /** Debit account's user identifier, if applicable. */
+  fromUserId: string | null;
+
+  /** Debit account's user integrator identifier, if applicable. */
+  fromUserIntegratorId: string | null;
+
   /** Destination crypto address, if applicable. */
   toAddress: string | null;
 
   /** Credit {@link  Account Account} identifier, if applicable. */
   toAccountId: string | null;
+
+  /** Credit account's user identifier, if applicable. */
+  toUserId: string | null;
+
+  /** Credit account's user integrator identifier, if applicable. */
+  toUserIntegratorId: string | null;
 
   /** Epoch timestamp when custody order was created. */
   createdAt: number;
@@ -62,8 +74,12 @@ export class CustodyOrder {
     this.fees = json.fees ? new Decimal(json.fees) : null;
     this.fromAddresses = json.fromAddresses;
     this.fromAccountId = json.fromAccountId;
+    this.fromUserId = json.fromUserId;
+    this.fromUserIntegratorId = json.fromUserIntegratorId;
     this.toAddress = json.toAddress;
     this.toAccountId = json.toAccountId;
+    this.toUserId = json.toUserId;
+    this.toUserIntegratorId = json.toUserIntegratorId;
     this.createdAt = json.createdAt;
     this.updatedAt = json.updatedAt;
   }

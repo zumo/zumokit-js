@@ -173,8 +173,12 @@ export interface CustodyOrderJSON {
   fees: string | null;
   fromAddresses: Array<string> | null;
   fromAccountId: string | null;
+  fromUserId: string | null;
+  fromUserIntegratorId: string | null;
   toAddress: string | null;
   toAccountId: string | null;
+  toUserId: string | null;
+  toUserIntegratorId: string | null;
   createdAt: number;
   updatedAt: number;
 }
