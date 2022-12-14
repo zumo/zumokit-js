@@ -1,6 +1,6 @@
 {
   "name": "zumokit",
-  "version": "4.6.0",
+  "version": "4.6.2",
   "description": "ZumoKit is a Wallet as a Service SDK",
   "keywords": [
     "zumo",
@@ -39,7 +39,7 @@
     "url": "https://github.com/zumo/zumokit-js"
   },
   "peerDependencies": {
-    "decimal.js": "^10.2.0"
+    "decimal.js": "^10.4.3"
   },
   "devDependencies": {
     "browserify": "^16.5.2",
