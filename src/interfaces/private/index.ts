@@ -1,5 +1,6 @@
 export interface AccountCryptoPropertiesJSON {
   address: string;
+  directDepositAddress: string | null;
   path: string;
   nonce: number | null;
 }
