@@ -1,6 +1,6 @@
 {
   "name": "zumokit",
-  "version": "4.8.0-alpha.1",
+  "version": "4.8.0-alpha.2",
   "description": "ZumoKit is a Wallet as a Service SDK",
   "keywords": [
     "zumo",
@@ -17,7 +17,7 @@
   "module": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
-    "dist/module",
+    "dist",
     "src",
     "index.ts"
   ],

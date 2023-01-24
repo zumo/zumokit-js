@@ -47,40 +47,45 @@ export class Wallet {
     nonce: number | null = null,
     sendMax = false
   ) {
-    return errorProxy<ComposedTransaction>((resolve: any, reject: any) => {
-      const destinationAddressOptional = new this.zumoCoreModule.OptionalString();
-      if (destinationAddress)
-        destinationAddressOptional.set(destinationAddress);
+    return errorProxy<ComposedTransaction>(
+      this.zumoCoreModule,
+      (resolve: any, reject: any) => {
+        const destinationAddressOptional = new this.zumoCoreModule.OptionalString();
+        if (destinationAddress)
+          destinationAddressOptional.set(destinationAddress);
 
-      const amountOptional = new this.zumoCoreModule.OptionalDecimal();
-      if (amount)
-        amountOptional.set(new this.zumoCoreModule.Decimal(amount.toString()));
+        const amountOptional = new this.zumoCoreModule.OptionalDecimal();
+        if (amount)
+          amountOptional.set(
+            new this.zumoCoreModule.Decimal(amount.toString())
+          );
 
-      const dataOptional = new this.zumoCoreModule.OptionalString();
-      if (data) dataOptional.set(data);
+        const dataOptional = new this.zumoCoreModule.OptionalString();
+        if (data) dataOptional.set(data);
 
-      const nonceOptional = new this.zumoCoreModule.OptionalInteger();
-      if (nonce) nonceOptional.set(nonce);
+        const nonceOptional = new this.zumoCoreModule.OptionalInteger();
+        if (nonce) nonceOptional.set(nonce);
 
-      this.walletImpl.composeEthTransaction(
-        fromAccountId,
-        new this.zumoCoreModule.Decimal(gasPrice.toString()),
-        gasLimit,
-        destinationAddressOptional,
-        amountOptional,
-        dataOptional,
-        nonceOptional,
-        sendMax,
-        new this.zumoCoreModule.ComposeTransactionCallbackWrapper({
-          onError(error: string) {
-            reject(new ZumoKitError(error));
-          },
-          onSuccess(composedTransaction: string) {
-            resolve(new ComposedTransaction(JSON.parse(composedTransaction)));
-          },
-        })
-      );
-    });
+        this.walletImpl.composeEthTransaction(
+          fromAccountId,
+          new this.zumoCoreModule.Decimal(gasPrice.toString()),
+          gasLimit,
+          destinationAddressOptional,
+          amountOptional,
+          dataOptional,
+          nonceOptional,
+          sendMax,
+          new this.zumoCoreModule.ComposeTransactionCallbackWrapper({
+            onError(error: string) {
+              reject(new ZumoKitError(error));
+            },
+            onSuccess(composedTransaction: string) {
+              resolve(new ComposedTransaction(JSON.parse(composedTransaction)));
+            },
+          })
+        );
+      }
+    );
   }
 
   /**
@@ -103,27 +108,32 @@ export class Wallet {
     feeRate: Decimal,
     sendMax = false
   ) {
-    return errorProxy<ComposedTransaction>((resolve: any, reject: any) => {
-      const amountOptional = new this.zumoCoreModule.OptionalDecimal();
-      if (amount)
-        amountOptional.set(new this.zumoCoreModule.Decimal(amount.toString()));
+    return errorProxy<ComposedTransaction>(
+      this.zumoCoreModule,
+      (resolve: any, reject: any) => {
+        const amountOptional = new this.zumoCoreModule.OptionalDecimal();
+        if (amount)
+          amountOptional.set(
+            new this.zumoCoreModule.Decimal(amount.toString())
+          );
 
-      this.walletImpl.composeTransaction(
-        fromAccountId,
-        changeAccountId,
-        destinationAddress,
-        amountOptional,
-        new this.zumoCoreModule.Decimal(feeRate.toString()),
-        sendMax,
-        new this.zumoCoreModule.ComposeTransactionCallbackWrapper({
-          onError(error: string) {
-            reject(new ZumoKitError(error));
-          },
-          onSuccess(composedTransaction: string) {
-            resolve(new ComposedTransaction(JSON.parse(composedTransaction)));
-          },
-        })
-      );
-    });
+        this.walletImpl.composeTransaction(
+          fromAccountId,
+          changeAccountId,
+          destinationAddress,
+          amountOptional,
+          new this.zumoCoreModule.Decimal(feeRate.toString()),
+          sendMax,
+          new this.zumoCoreModule.ComposeTransactionCallbackWrapper({
+            onError(error: string) {
+              reject(new ZumoKitError(error));
+            },
+            onSuccess(composedTransaction: string) {
+              resolve(new ComposedTransaction(JSON.parse(composedTransaction)));
+            },
+          })
+        );
+      }
+    );
   }
 }

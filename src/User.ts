@@ -86,12 +86,12 @@ export class User {
    * @param  password       user provided password
    */
   createWallet(mnemonic: string, password: string) {
-    return errorProxy<Wallet>((resolve: any, reject: any) => {
-      const { zumoCoreModule } = this;
+    const { zumoCoreModule } = this;
+    return errorProxy<Wallet>(zumoCoreModule, (resolve: any, reject: any) => {
       this.userImpl.createWallet(
         mnemonic,
         password,
-        new this.zumoCoreModule.WalletCallbackWrapper({
+        new zumoCoreModule.WalletCallbackWrapper({
           onError: (error: string) => {
             reject(new ZumoKitError(error));
           },
@@ -111,12 +111,12 @@ export class User {
    * @param  password       user provided password
    */
   recoverWallet(mnemonic: string, password: string) {
-    return errorProxy<Wallet>((resolve: any, reject: any) => {
-      const { zumoCoreModule } = this;
+    const { zumoCoreModule } = this;
+    return errorProxy<Wallet>(zumoCoreModule, (resolve: any, reject: any) => {
       this.userImpl.recoverWallet(
         mnemonic,
         password,
-        new this.zumoCoreModule.WalletCallbackWrapper({
+        new zumoCoreModule.WalletCallbackWrapper({
           onError(error: string) {
             reject(new ZumoKitError(error));
           },
@@ -133,11 +133,11 @@ export class User {
    * @param  password       user provided password
    */
   unlockWallet(password: string) {
-    return errorProxy<Wallet>((resolve: any, reject: any) => {
-      const { zumoCoreModule } = this;
+    const { zumoCoreModule } = this;
+    return errorProxy<Wallet>(zumoCoreModule, (resolve: any, reject: any) => {
       this.userImpl.unlockWallet(
         password,
-        new this.zumoCoreModule.WalletCallbackWrapper({
+        new zumoCoreModule.WalletCallbackWrapper({
           onError(error: string) {
             reject(new ZumoKitError(error));
           },
@@ -154,10 +154,11 @@ export class User {
    * @param  password       user provided password
    */
   revealMnemonic(password: string) {
-    return errorProxy<string>((resolve: any, reject: any) => {
+    const { zumoCoreModule } = this;
+    return errorProxy<string>(zumoCoreModule, (resolve: any, reject: any) => {
       this.userImpl.revealMnemonic(
         password,
-        new this.zumoCoreModule.MnemonicCallbackWrapper({
+        new zumoCoreModule.MnemonicCallbackWrapper({
           onError(error: string) {
             reject(new ZumoKitError(error));
           },
@@ -235,28 +236,31 @@ export class User {
     phone: string,
     address: Address
   ) {
-    return errorProxy<void>((resolve: any, reject: any) => {
-      const optionalMiddleName = new this.zumoCoreModule.OptionalString();
-      if (middleName) optionalMiddleName.set(middleName);
+    return errorProxy<void>(
+      this.zumoCoreModule,
+      (resolve: any, reject: any) => {
+        const optionalMiddleName = new this.zumoCoreModule.OptionalString();
+        if (middleName) optionalMiddleName.set(middleName);
 
-      this.userImpl.makeFiatCustomer(
-        firstName,
-        optionalMiddleName,
-        lastName,
-        dateOfBirth,
-        email,
-        phone,
-        JSON.stringify(address),
-        new this.zumoCoreModule.SuccessCallbackWrapper({
-          onError(error: string) {
-            reject(new ZumoKitError(error));
-          },
-          onSuccess() {
-            resolve();
-          },
-        })
-      );
-    });
+        this.userImpl.makeFiatCustomer(
+          firstName,
+          optionalMiddleName,
+          lastName,
+          dateOfBirth,
+          email,
+          phone,
+          JSON.stringify(address),
+          new this.zumoCoreModule.SuccessCallbackWrapper({
+            onError(error: string) {
+              reject(new ZumoKitError(error));
+            },
+            onSuccess() {
+              resolve();
+            },
+          })
+        );
+      }
+    );
   }
 
   /**
@@ -265,19 +269,22 @@ export class User {
    * @param  currencyCode  country code in ISO 4217 format, e.g. 'GBP'
    */
   createAccount(currencyCode: CurrencyCode) {
-    return errorProxy<Account>((resolve: any, reject: any) => {
-      this.userImpl.createAccount(
-        currencyCode,
-        new this.zumoCoreModule.AccountCallbackWrapper({
-          onError(error: string) {
-            reject(new ZumoKitError(error));
-          },
-          onSuccess(account: string) {
-            resolve(new Account(JSON.parse(account)));
-          },
-        })
-      );
-    });
+    return errorProxy<Account>(
+      this.zumoCoreModule,
+      (resolve: any, reject: any) => {
+        this.userImpl.createAccount(
+          currencyCode,
+          new this.zumoCoreModule.AccountCallbackWrapper({
+            onError(error: string) {
+              reject(new ZumoKitError(error));
+            },
+            onSuccess(account: string) {
+              resolve(new Account(JSON.parse(account)));
+            },
+          })
+        );
+      }
+    );
   }
 
   /**
@@ -288,39 +295,45 @@ export class User {
    * @param  accountId     {@link Account Account} identifier
    */
   getNominatedAccountFiatProperties(accountId: string) {
-    return errorProxy<AccountFiatProperties | null>((resolve: any) => {
-      this.userImpl.getNominatedAccountFiatProperties(
-        accountId,
-        new this.zumoCoreModule.AccountFiatPropertiesCallbackWrapper({
-          onError() {
-            resolve(null);
-          },
-          onSuccess(accountFiatProperties: string) {
-            resolve(
-              new AccountFiatProperties(JSON.parse(accountFiatProperties))
-            );
-          },
-        })
-      );
-    });
+    return errorProxy<AccountFiatProperties | null>(
+      this.zumoCoreModule,
+      (resolve: any) => {
+        this.userImpl.getNominatedAccountFiatProperties(
+          accountId,
+          new this.zumoCoreModule.AccountFiatPropertiesCallbackWrapper({
+            onError() {
+              resolve(null);
+            },
+            onSuccess(accountFiatProperties: string) {
+              resolve(
+                new AccountFiatProperties(JSON.parse(accountFiatProperties))
+              );
+            },
+          })
+        );
+      }
+    );
   }
 
   /**
    * Fetch Strong Customer Authentication (SCA) config.
    */
   fetchAuthenticationConfig() {
-    return errorProxy<void>((resolve: any, reject: any) => {
-      this.userImpl.fetchAuthenticationConfig(
-        new this.zumoCoreModule.AuthenticationConfigCallbackWrapper({
-          onError(error: string) {
-            reject(new ZumoKitError(error));
-          },
-          onSuccess(authConfig: string) {
-            resolve(JSON.parse(authConfig) as AuthenticationConfig);
-          },
-        })
-      );
-    });
+    return errorProxy<void>(
+      this.zumoCoreModule,
+      (resolve: any, reject: any) => {
+        this.userImpl.fetchAuthenticationConfig(
+          new this.zumoCoreModule.AuthenticationConfigCallbackWrapper({
+            onError(error: string) {
+              reject(new ZumoKitError(error));
+            },
+            onSuccess(authConfig: string) {
+              resolve(JSON.parse(authConfig) as AuthenticationConfig);
+            },
+          })
+        );
+      }
+    );
   }
 
   /**
@@ -340,22 +353,25 @@ export class User {
     mobileNumber: string,
     knowledgeBase: Array<KbaAnswer>
   ) {
-    return errorProxy<void>((resolve: any, reject: any) => {
-      this.userImpl.createCard(
-        fiatAccountId,
-        cardType,
-        mobileNumber,
-        JSON.stringify(knowledgeBase),
-        new this.zumoCoreModule.CardCallbackWrapper({
-          onError(error: string) {
-            reject(new ZumoKitError(error));
-          },
-          onSuccess(card: string) {
-            resolve(new Card(JSON.parse(card)));
-          },
-        })
-      );
-    });
+    return errorProxy<void>(
+      this.zumoCoreModule,
+      (resolve: any, reject: any) => {
+        this.userImpl.createCard(
+          fiatAccountId,
+          cardType,
+          mobileNumber,
+          JSON.stringify(knowledgeBase),
+          new this.zumoCoreModule.CardCallbackWrapper({
+            onError(error: string) {
+              reject(new ZumoKitError(error));
+            },
+            onSuccess(card: string) {
+              resolve(new Card(JSON.parse(card)));
+            },
+          })
+        );
+      }
+    );
   }
 
   /**
@@ -375,28 +391,31 @@ export class User {
     pan: string | null = null,
     cvv2: string | null = null
   ) {
-    return errorProxy<void>((resolve: any, reject: any) => {
-      const optionalPan = new this.zumoCoreModule.OptionalString();
-      if (pan) optionalPan.set(pan);
+    return errorProxy<void>(
+      this.zumoCoreModule,
+      (resolve: any, reject: any) => {
+        const optionalPan = new this.zumoCoreModule.OptionalString();
+        if (pan) optionalPan.set(pan);
 
-      const optionalCvv2 = new this.zumoCoreModule.OptionalString();
-      if (cvv2) optionalCvv2.set(cvv2);
+        const optionalCvv2 = new this.zumoCoreModule.OptionalString();
+        if (cvv2) optionalCvv2.set(cvv2);
 
-      this.userImpl.setCardStatus(
-        cardId,
-        cardStatus,
-        optionalPan,
-        optionalCvv2,
-        new this.zumoCoreModule.SuccessCallbackWrapper({
-          onError(error: string) {
-            reject(new ZumoKitError(error));
-          },
-          onSuccess() {
-            resolve();
-          },
-        })
-      );
-    });
+        this.userImpl.setCardStatus(
+          cardId,
+          cardStatus,
+          optionalPan,
+          optionalCvv2,
+          new this.zumoCoreModule.SuccessCallbackWrapper({
+            onError(error: string) {
+              reject(new ZumoKitError(error));
+            },
+            onSuccess() {
+              resolve();
+            },
+          })
+        );
+      }
+    );
   }
 
   /**
@@ -404,19 +423,22 @@ export class User {
    * @param  cardId        card identifier
    */
   revealCardDetails(cardId: string) {
-    return errorProxy<void>((resolve: any, reject: any) => {
-      this.userImpl.revealCardDetails(
-        cardId,
-        new this.zumoCoreModule.CardDetailsCallbackWrapper({
-          onError(error: string) {
-            reject(new ZumoKitError(error));
-          },
-          onSuccess(cardDetails: string) {
-            resolve(JSON.parse(cardDetails) as CardDetails);
-          },
-        })
-      );
-    });
+    return errorProxy<void>(
+      this.zumoCoreModule,
+      (resolve: any, reject: any) => {
+        this.userImpl.revealCardDetails(
+          cardId,
+          new this.zumoCoreModule.CardDetailsCallbackWrapper({
+            onError(error: string) {
+              reject(new ZumoKitError(error));
+            },
+            onSuccess(cardDetails: string) {
+              resolve(JSON.parse(cardDetails) as CardDetails);
+            },
+          })
+        );
+      }
+    );
   }
 
   /**
@@ -424,19 +446,22 @@ export class User {
    * @param  cardId        {@link Card card} identifier
    */
   revealPin(cardId: string) {
-    return errorProxy<void>((resolve: any, reject: any) => {
-      this.userImpl.revealPin(
-        cardId,
-        new this.zumoCoreModule.PinCallbackWrapper({
-          onError(error: string) {
-            reject(new ZumoKitError(error));
-          },
-          onSuccess(pin: number) {
-            resolve(pin);
-          },
-        })
-      );
-    });
+    return errorProxy<void>(
+      this.zumoCoreModule,
+      (resolve: any, reject: any) => {
+        this.userImpl.revealPin(
+          cardId,
+          new this.zumoCoreModule.PinCallbackWrapper({
+            onError(error: string) {
+              reject(new ZumoKitError(error));
+            },
+            onSuccess(pin: number) {
+              resolve(pin);
+            },
+          })
+        );
+      }
+    );
   }
 
   /**
@@ -444,19 +469,22 @@ export class User {
    * @param  cardId        {@link Card card} identifier
    */
   unblockPin(cardId: string) {
-    return errorProxy<void>((resolve: any, reject: any) => {
-      this.userImpl.unblockPin(
-        cardId,
-        new this.zumoCoreModule.SuccessCallbackWrapper({
-          onError(error: string) {
-            reject(new ZumoKitError(error));
-          },
-          onSuccess() {
-            resolve();
-          },
-        })
-      );
-    });
+    return errorProxy<void>(
+      this.zumoCoreModule,
+      (resolve: any, reject: any) => {
+        this.userImpl.unblockPin(
+          cardId,
+          new this.zumoCoreModule.SuccessCallbackWrapper({
+            onError(error: string) {
+              reject(new ZumoKitError(error));
+            },
+            onSuccess() {
+              resolve();
+            },
+          })
+        );
+      }
+    );
   }
 
   /**
@@ -473,20 +501,23 @@ export class User {
    * @param  knowledgeBase  list of KBA answers
    */
   setAuthentication(cardId: string, knowledgeBase: Array<KbaAnswer>) {
-    return errorProxy<void>((resolve: any, reject: any) => {
-      this.userImpl.setAuthentication(
-        cardId,
-        JSON.stringify(knowledgeBase),
-        new this.zumoCoreModule.SuccessCallbackWrapper({
-          onError(error: string) {
-            reject(new ZumoKitError(error));
-          },
-          onSuccess() {
-            resolve();
-          },
-        })
-      );
-    });
+    return errorProxy<void>(
+      this.zumoCoreModule,
+      (resolve: any, reject: any) => {
+        this.userImpl.setAuthentication(
+          cardId,
+          JSON.stringify(knowledgeBase),
+          new this.zumoCoreModule.SuccessCallbackWrapper({
+            onError(error: string) {
+              reject(new ZumoKitError(error));
+            },
+            onSuccess() {
+              resolve();
+            },
+          })
+        );
+      }
+    );
   }
 
   /**
@@ -547,26 +578,31 @@ export class User {
     amount: Decimal | null,
     sendMax = false
   ) {
-    return errorProxy<ComposedTransaction>((resolve: any, reject: any) => {
-      const amountOptional = new this.zumoCoreModule.OptionalDecimal();
-      if (amount)
-        amountOptional.set(new this.zumoCoreModule.Decimal(amount.toString()));
+    return errorProxy<ComposedTransaction>(
+      this.zumoCoreModule,
+      (resolve: any, reject: any) => {
+        const amountOptional = new this.zumoCoreModule.OptionalDecimal();
+        if (amount)
+          amountOptional.set(
+            new this.zumoCoreModule.Decimal(amount.toString())
+          );
 
-      this.userImpl.composeTransaction(
-        fromAccountId,
-        toAccountId,
-        amountOptional,
-        sendMax,
-        new this.zumoCoreModule.ComposeTransactionCallbackWrapper({
-          onError(error: string) {
-            reject(new ZumoKitError(error));
-          },
-          onSuccess(composedTransaction: string) {
-            resolve(new ComposedTransaction(JSON.parse(composedTransaction)));
-          },
-        })
-      );
-    });
+        this.userImpl.composeTransaction(
+          fromAccountId,
+          toAccountId,
+          amountOptional,
+          sendMax,
+          new this.zumoCoreModule.ComposeTransactionCallbackWrapper({
+            onError(error: string) {
+              reject(new ZumoKitError(error));
+            },
+            onSuccess(composedTransaction: string) {
+              resolve(new ComposedTransaction(JSON.parse(composedTransaction)));
+            },
+          })
+        );
+      }
+    );
   }
 
   /**
@@ -585,26 +621,31 @@ export class User {
     amount: Decimal | null,
     sendMax = false
   ) {
-    return errorProxy<ComposedTransaction>((resolve: any, reject: any) => {
-      const amountOptional = new this.zumoCoreModule.OptionalDecimal();
-      if (amount)
-        amountOptional.set(new this.zumoCoreModule.Decimal(amount.toString()));
+    return errorProxy<ComposedTransaction>(
+      this.zumoCoreModule,
+      (resolve: any, reject: any) => {
+        const amountOptional = new this.zumoCoreModule.OptionalDecimal();
+        if (amount)
+          amountOptional.set(
+            new this.zumoCoreModule.Decimal(amount.toString())
+          );
 
-      this.userImpl.composeCustodyWithdrawTransaction(
-        fromAccountId,
-        destination,
-        amountOptional,
-        sendMax,
-        new this.zumoCoreModule.ComposeTransactionCallbackWrapper({
-          onError(error: string) {
-            reject(new ZumoKitError(error));
-          },
-          onSuccess(composedTransaction: string) {
-            resolve(new ComposedTransaction(JSON.parse(composedTransaction)));
-          },
-        })
-      );
-    });
+        this.userImpl.composeCustodyWithdrawTransaction(
+          fromAccountId,
+          destination,
+          amountOptional,
+          sendMax,
+          new this.zumoCoreModule.ComposeTransactionCallbackWrapper({
+            onError(error: string) {
+              reject(new ZumoKitError(error));
+            },
+            onSuccess(composedTransaction: string) {
+              resolve(new ComposedTransaction(JSON.parse(composedTransaction)));
+            },
+          })
+        );
+      }
+    );
   }
 
   /**
@@ -621,25 +662,30 @@ export class User {
     amount: Decimal | null,
     sendMax = false
   ) {
-    return errorProxy<ComposedTransaction>((resolve: any, reject: any) => {
-      const amountOptional = new this.zumoCoreModule.OptionalDecimal();
-      if (amount)
-        amountOptional.set(new this.zumoCoreModule.Decimal(amount.toString()));
+    return errorProxy<ComposedTransaction>(
+      this.zumoCoreModule,
+      (resolve: any, reject: any) => {
+        const amountOptional = new this.zumoCoreModule.OptionalDecimal();
+        if (amount)
+          amountOptional.set(
+            new this.zumoCoreModule.Decimal(amount.toString())
+          );
 
-      this.userImpl.composeNominatedTransaction(
-        fromAccountId,
-        amountOptional,
-        sendMax,
-        new this.zumoCoreModule.ComposeTransactionCallbackWrapper({
-          onError(error: string) {
-            reject(new ZumoKitError(error));
-          },
-          onSuccess(composedTransaction: string) {
-            resolve(new ComposedTransaction(JSON.parse(composedTransaction)));
-          },
-        })
-      );
-    });
+        this.userImpl.composeNominatedTransaction(
+          fromAccountId,
+          amountOptional,
+          sendMax,
+          new this.zumoCoreModule.ComposeTransactionCallbackWrapper({
+            onError(error: string) {
+              reject(new ZumoKitError(error));
+            },
+            onSuccess(composedTransaction: string) {
+              resolve(new ComposedTransaction(JSON.parse(composedTransaction)));
+            },
+          })
+        );
+      }
+    );
   }
 
   /**
@@ -661,43 +707,49 @@ export class User {
     const optionalToAccountId = new this.zumoCoreModule.OptionalString();
     if (toAccountId) optionalToAccountId.set(toAccountId);
 
-    return errorProxy<Transaction>((resolve: any, reject: any) => {
-      this.userImpl.submitTransaction(
-        JSON.stringify(composedTransaction.json),
-        optionalToAccountId,
-        JSON.stringify(metadata),
-        new this.zumoCoreModule.SubmitTransactionCallbackWrapper({
-          onError(error: string) {
-            reject(new ZumoKitError(error));
-          },
-          onSuccess(transaction: string) {
-            resolve(new Transaction(JSON.parse(transaction)));
-          },
-        })
-      );
-    });
+    return errorProxy<Transaction>(
+      this.zumoCoreModule,
+      (resolve: any, reject: any) => {
+        this.userImpl.submitTransaction(
+          JSON.stringify(composedTransaction.json),
+          optionalToAccountId,
+          JSON.stringify(metadata),
+          new this.zumoCoreModule.SubmitTransactionCallbackWrapper({
+            onError(error: string) {
+              reject(new ZumoKitError(error));
+            },
+            onSuccess(transaction: string) {
+              resolve(new Transaction(JSON.parse(transaction)));
+            },
+          })
+        );
+      }
+    );
   }
 
   /**
    * Fetch trading pairs that are currently supported.
    */
   fetchTradingPairs() {
-    return errorProxy<void>((resolve: any, reject: any) => {
-      this.userImpl.fetchTradingPairs(
-        new this.zumoCoreModule.StringifiedJsonCallbackWrapper({
-          onError(error: string) {
-            reject(new ZumoKitError(error));
-          },
-          onSuccess(stringifiedJSON: string) {
-            const tradingPairsJSON = JSON.parse(
-              stringifiedJSON
-            ) as TradingPairJSON[];
+    return errorProxy<void>(
+      this.zumoCoreModule,
+      (resolve: any, reject: any) => {
+        this.userImpl.fetchTradingPairs(
+          new this.zumoCoreModule.StringifiedJsonCallbackWrapper({
+            onError(error: string) {
+              reject(new ZumoKitError(error));
+            },
+            onSuccess(stringifiedJSON: string) {
+              const tradingPairsJSON = JSON.parse(
+                stringifiedJSON
+              ) as TradingPairJSON[];
 
-            resolve(tradingPairsJSON.map((json) => new TradingPair(json)));
-          },
-        })
-      );
-    });
+              resolve(tradingPairsJSON.map((json) => new TradingPair(json)));
+            },
+          })
+        );
+      }
+    );
   }
 
   /**
@@ -716,28 +768,31 @@ export class User {
     debitAmount: Decimal | null,
     sendMax = false
   ) {
-    return errorProxy<ComposedExchange>((resolve: any, reject: any) => {
-      const amountOptional = new this.zumoCoreModule.OptionalDecimal();
-      if (debitAmount)
-        amountOptional.set(
-          new this.zumoCoreModule.Decimal(debitAmount.toString())
-        );
+    return errorProxy<ComposedExchange>(
+      this.zumoCoreModule,
+      (resolve: any, reject: any) => {
+        const amountOptional = new this.zumoCoreModule.OptionalDecimal();
+        if (debitAmount)
+          amountOptional.set(
+            new this.zumoCoreModule.Decimal(debitAmount.toString())
+          );
 
-      this.userImpl.composeExchange(
-        debitAccountId,
-        creditAccountId,
-        amountOptional,
-        sendMax,
-        new this.zumoCoreModule.ComposeExchangeCallbackWrapper({
-          onError(error: string) {
-            reject(new ZumoKitError(error));
-          },
-          onSuccess(composedExchange: string) {
-            resolve(new ComposedExchange(JSON.parse(composedExchange)));
-          },
-        })
-      );
-    });
+        this.userImpl.composeExchange(
+          debitAccountId,
+          creditAccountId,
+          amountOptional,
+          sendMax,
+          new this.zumoCoreModule.ComposeExchangeCallbackWrapper({
+            onError(error: string) {
+              reject(new ZumoKitError(error));
+            },
+            onSuccess(composedExchange: string) {
+              resolve(new ComposedExchange(JSON.parse(composedExchange)));
+            },
+          })
+        );
+      }
+    );
   }
 
   /**
@@ -749,18 +804,21 @@ export class User {
    *                          of {@link composeExchange} method
    */
   submitExchange(composedExchange: ComposedExchange) {
-    return errorProxy<Exchange>((resolve: any, reject: any) => {
-      this.userImpl.submitExchange(
-        JSON.stringify(composedExchange.json),
-        new this.zumoCoreModule.SubmitExchangeCallbackWrapper({
-          onError(error: string) {
-            reject(new ZumoKitError(error));
-          },
-          onSuccess(exchange: string) {
-            resolve(new Exchange(JSON.parse(exchange)));
-          },
-        })
-      );
-    });
+    return errorProxy<Exchange>(
+      this.zumoCoreModule,
+      (resolve: any, reject: any) => {
+        this.userImpl.submitExchange(
+          JSON.stringify(composedExchange.json),
+          new this.zumoCoreModule.SubmitExchangeCallbackWrapper({
+            onError(error: string) {
+              reject(new ZumoKitError(error));
+            },
+            onSuccess(exchange: string) {
+              resolve(new Exchange(JSON.parse(exchange)));
+            },
+          })
+        );
+      }
+    );
   }
 }

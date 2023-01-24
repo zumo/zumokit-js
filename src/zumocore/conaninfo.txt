@@ -1,0 +1,70 @@
+[settings]
+    arch=x86
+    build_type=Release
+    compiler=clang
+    compiler.libcxx=None
+    compiler.version=12.0
+    os=Emscripten
+
+[requires]
+    bitcoin_core/0.20.1
+    boost_headers/1.Y.Z
+    http_status_codes/1.Y.Z
+    nlohmann_json/3.Y.Z
+    spdlog/1.Y.Z
+    trezor_crypto/1.Y.Z
+    utf8proc/2.Y.Z
+
+[options]
+    coverage=False
+    enable_example=False
+    enable_tests=False
+    env=None
+
+[full_settings]
+    arch=x86
+    build_type=Release
+    compiler=clang
+    compiler.libcxx=None
+    compiler.version=12.0
+    os=Emscripten
+
+[full_requires]
+    bitcoin_core/0.20.1@zumo/stable:e389209a3688964c2e555059423858ade4b5c341
+    boost_headers/1.76.0@zumo/stable:5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9
+    fmt/8.0.1:881a1ce7a8ba2d16b4b956fa59adc3d4270e446a
+    http_status_codes/1.0@zumo/stable:5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9
+    nlohmann_json/3.8.0:5ab84d6acfe1f23c4fae0ab88f26e3a396351ac9
+    secp256k1/1.1@zumo/stable:aeddbaa6fbced23fd1ef18ded316088c3c14f615
+    spdlog/1.9.2:4f11ffe0b8e940578015c0c4ae29e11efcc4411c
+    trezor_crypto/1.0@zumo/stable:aeddbaa6fbced23fd1ef18ded316088c3c14f615
+    utf8proc/2.6.0:b9d2a9c5530c438000b78bf20f6d9be7f0318acd
+
+[full_options]
+    coverage=False
+    enable_example=False
+    enable_tests=False
+    env=None
+    bitcoin_core:shared=False
+    fmt:fPIC=True
+    fmt:header_only=False
+    fmt:shared=False
+    fmt:with_fmt_alias=False
+    fmt:with_os_api=True
+    nlohmann_json:multiple_headers=False
+    secp256k1:shared=False
+    spdlog:fPIC=True
+    spdlog:header_only=False
+    spdlog:no_exceptions=False
+    spdlog:shared=False
+    spdlog:wchar_filenames=False
+    spdlog:wchar_support=False
+    trezor_crypto:shared=False
+    utf8proc:fPIC=True
+    utf8proc:shared=False
+
+[recipe_hash]
+
+
+[env]
+

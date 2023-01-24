@@ -1,6 +1,6 @@
 import loadZumoCoreModule from '../zumocore/zumocore';
 
-let instance;
+let instance: any;
 let semaphore = false;
 
 export const getZumoCore = async () => {

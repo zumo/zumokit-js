@@ -1,5 +1,5 @@
 import fetch from 'node-fetch';
-import { WebSocket } from 'ws';
+import { WebSocket, MessageEvent, CloseEvent } from 'ws';
 import {
   CurrencyCode,
   TokenSet,
@@ -161,7 +161,7 @@ export class ZumoKit {
       custodyServiceUrl
     );
 
-    this.utils = new Utils(this.zumoCore.getUtils());
+    this.utils = new Utils(this.zumoCoreModule, this.zumoCore.getUtils());
 
     this.addChangeListener(() => {
       this.exchangeRates = ExchangeRates(
@@ -206,20 +206,23 @@ export class ZumoKit {
    * @param tokenSet   user token set
    */
   signIn(userTokenSet: TokenSet) {
-    return errorProxy<User>((resolve: any, reject: any) => {
-      this.zumoCore.signIn(
-        JSON.stringify(userTokenSet),
-        new this.zumoCoreModule.UserCallbackWrapper({
-          onError: (error: string) => {
-            reject(new ZumoKitError(error));
-          },
-          onSuccess: (user: any) => {
-            this.currentUser = new User(this.zumoCoreModule, user);
-            resolve(this.currentUser);
-          },
-        })
-      );
-    });
+    return errorProxy<User>(
+      this.zumoCoreModule,
+      (resolve: any, reject: any) => {
+        this.zumoCore.signIn(
+          JSON.stringify(userTokenSet),
+          new this.zumoCoreModule.UserCallbackWrapper({
+            onError: (error: string) => {
+              reject(new ZumoKitError(error));
+            },
+            onSuccess: (user: any) => {
+              this.currentUser = new User(this.zumoCoreModule, user);
+              resolve(this.currentUser);
+            },
+          })
+        );
+      }
+    );
   }
 
   /** Signs out current user. */
@@ -266,21 +269,24 @@ export class ZumoKit {
    * @return historical exchange rates
    */
   fetchHistoricalExchangeRates() {
-    return errorProxy<HistoricalExchangeRates>((resolve: any, reject: any) => {
-      this.zumoCore.fetchHistoricalExchangeRates(
-        new this.zumoCoreModule.HistoricalExchangeRatesCallbackWrapper({
-          onError(error: string) {
-            reject(new ZumoKitError(error));
-          },
-          onSuccess(json: string) {
-            const historicalExchangeRatesJSON = JSON.parse(
-              json
-            ) as HistoricalExchangeRatesJSON;
-            resolve(HistoricalExchangeRates(historicalExchangeRatesJSON));
-          },
-        })
-      );
-    });
+    return errorProxy<HistoricalExchangeRates>(
+      this.zumoCoreModule,
+      (resolve: any, reject: any) => {
+        this.zumoCore.fetchHistoricalExchangeRates(
+          new this.zumoCoreModule.HistoricalExchangeRatesCallbackWrapper({
+            onError(error: string) {
+              reject(new ZumoKitError(error));
+            },
+            onSuccess(json: string) {
+              const historicalExchangeRatesJSON = JSON.parse(
+                json
+              ) as HistoricalExchangeRatesJSON;
+              resolve(HistoricalExchangeRates(historicalExchangeRatesJSON));
+            },
+          })
+        );
+      }
+    );
   }
 
   /**
