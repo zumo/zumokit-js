@@ -1,7 +1,7 @@
 import { Decimal } from 'decimal.js';
 import { errorProxy } from './utility';
 import { ZumoKitError } from './ZumoKitError';
-import { ComposedTransaction, ComposedExchange } from './models';
+import { ComposedTransaction } from './models';
 
 /**
  * User wallet interface describes methods for transfer and exchange of fiat and cryptocurrency funds.
@@ -13,10 +13,13 @@ import { ComposedTransaction, ComposedExchange } from './models';
  * {@link  ComposedExchange ComposedExchange} can be submitted.
  */
 export class Wallet {
-  walletImpl: any;
+  private zumoCoreModule: any;
+
+  private walletImpl: any;
 
   /** @internal */
-  constructor(walletImpl: any) {
+  constructor(zumoCoreModule: any, walletImpl: any) {
+    this.zumoCoreModule = zumoCoreModule;
     this.walletImpl = walletImpl;
   }
 
@@ -45,32 +48,30 @@ export class Wallet {
     sendMax = false
   ) {
     return errorProxy<ComposedTransaction>((resolve: any, reject: any) => {
-      const destinationAddressOptional = new window.ZumoCoreModule.OptionalString();
+      const destinationAddressOptional = new this.zumoCoreModule.OptionalString();
       if (destinationAddress)
         destinationAddressOptional.set(destinationAddress);
 
-      const amountOptional = new window.ZumoCoreModule.OptionalDecimal();
+      const amountOptional = new this.zumoCoreModule.OptionalDecimal();
       if (amount)
-        amountOptional.set(
-          new window.ZumoCoreModule.Decimal(amount.toString())
-        );
+        amountOptional.set(new this.zumoCoreModule.Decimal(amount.toString()));
 
-      const dataOptional = new window.ZumoCoreModule.OptionalString();
+      const dataOptional = new this.zumoCoreModule.OptionalString();
       if (data) dataOptional.set(data);
 
-      const nonceOptional = new window.ZumoCoreModule.OptionalInteger();
+      const nonceOptional = new this.zumoCoreModule.OptionalInteger();
       if (nonce) nonceOptional.set(nonce);
 
       this.walletImpl.composeEthTransaction(
         fromAccountId,
-        new window.ZumoCoreModule.Decimal(gasPrice.toString()),
+        new this.zumoCoreModule.Decimal(gasPrice.toString()),
         gasLimit,
         destinationAddressOptional,
         amountOptional,
         dataOptional,
         nonceOptional,
         sendMax,
-        new window.ZumoCoreModule.ComposeTransactionCallbackWrapper({
+        new this.zumoCoreModule.ComposeTransactionCallbackWrapper({
           onError(error: string) {
             reject(new ZumoKitError(error));
           },
@@ -103,20 +104,18 @@ export class Wallet {
     sendMax = false
   ) {
     return errorProxy<ComposedTransaction>((resolve: any, reject: any) => {
-      const amountOptional = new window.ZumoCoreModule.OptionalDecimal();
+      const amountOptional = new this.zumoCoreModule.OptionalDecimal();
       if (amount)
-        amountOptional.set(
-          new window.ZumoCoreModule.Decimal(amount.toString())
-        );
+        amountOptional.set(new this.zumoCoreModule.Decimal(amount.toString()));
 
       this.walletImpl.composeTransaction(
         fromAccountId,
         changeAccountId,
         destinationAddress,
         amountOptional,
-        new window.ZumoCoreModule.Decimal(feeRate.toString()),
+        new this.zumoCoreModule.Decimal(feeRate.toString()),
         sendMax,
-        new window.ZumoCoreModule.ComposeTransactionCallbackWrapper({
+        new this.zumoCoreModule.ComposeTransactionCallbackWrapper({
           onError(error: string) {
             reject(new ZumoKitError(error));
           },

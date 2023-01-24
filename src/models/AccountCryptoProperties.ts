@@ -12,6 +12,12 @@ export class AccountCryptoProperties {
   /** Account crypto address. */
   address: string;
 
+  /**
+   * Account direct deposit crypto address, only applicable to custody accounts.
+   * Should only be used to deposit funds from Zumo non-custody accounts.
+   * */
+  directDepositAddress: string | null;
+
   /** Hierarchical Deterministic (HD) account derivation path. */
   path: string;
 
@@ -22,6 +28,7 @@ export class AccountCryptoProperties {
   constructor(json: AccountCryptoPropertiesJSON) {
     this.json = json;
     this.address = json.address;
+    this.directDepositAddress = json.directDepositAddress;
     this.path = json.path;
     this.nonce = json.nonce;
   }

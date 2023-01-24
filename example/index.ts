@@ -1,5 +1,10 @@
-import './style.css';
-import { loadZumoKit, ZumoKit, TransactionFeeRate, TokenSet } from 'zumokit';
+import {
+  loadZumoKit,
+  ZumoKit,
+  TransactionFeeRate,
+  TokenSet,
+  Account,
+} from 'zumokit';
 import Decimal from 'decimal.js';
 
 declare let process: {
@@ -10,6 +15,7 @@ declare let process: {
     CARD_SERVICE_URL: string;
     NOTIFICATION_SERVICE_URL: string;
     EXCHANGE_SERVICE_URL: string;
+    CUSTODY_SERVICE_URL: string;
     USER_TOKEN: string;
     USER_WALLET_PASSWORD: string;
   };
@@ -22,11 +28,12 @@ declare let process: {
     process.env.TRANSACTION_SERVICE_URL,
     process.env.CARD_SERVICE_URL,
     process.env.NOTIFICATION_SERVICE_URL,
-    process.env.EXCHANGE_SERVICE_URL
+    process.env.EXCHANGE_SERVICE_URL,
+    process.env.CUSTODY_SERVICE_URL
   );
 
   // add custom logger
-  zumokit.onLog(console.log, 'debug');
+  // zumokit.onLog(console.log, 'debug');
 
   // log version
   console.log(zumokit.version);
@@ -41,13 +48,12 @@ declare let process: {
   try {
     // use user token set to retrieve ZumoKit user
     const user = await zumokit.signIn(userTokenSet);
-
-    console.log(user.id);
-    console.log(user.hasWallet);
-    console.log(user.accounts);
+    console.log(`Logged in with user with id ${user.id}`);
 
     // use account data listener to retrieve accounts with corresponding transactions
-    user.addAccountDataListener(console.log);
+    user.addAccountDataListener((snapshots) =>
+      console.log('Account data listener fired')
+    );
 
     // compose new custody transaction
     let custodyAccount = user.getAccount(
@@ -60,8 +66,7 @@ declare let process: {
     if (!custodyAccount) {
       custodyAccount = await user.createAccount('ETH');
     }
-
-    console.log(custodyAccount);
+    console.log('Selected custody account:', custodyAccount);
 
     const composedTransaction = await user.composeTransaction(
       custodyAccount.id,
@@ -70,7 +75,9 @@ declare let process: {
     );
     console.log(composedTransaction);
 
+    // unlock wallet - required to compose crypto non-custodial transactions
     const wallet = await user.unlockWallet(process.env.USER_WALLET_PASSWORD);
+    console.log('Wallet unlocked!');
 
     // compose new ETH transaction
     const ethAccount = user.getAccount(
@@ -78,7 +85,7 @@ declare let process: {
       'RINKEBY',
       'STANDARD',
       'NON-CUSTODY'
-    );
+    ) as Account;
     console.log(ethAccount);
 
     const gasPrices = zumokit.transactionFeeRates.BTC as TransactionFeeRate;
@@ -101,18 +108,16 @@ declare let process: {
       'TESTNET',
       'COMPATIBILITY',
       'NON-CUSTODY'
-    );
+    ) as Account;
     const ethAmount = new Decimal('0.1');
-
     const composedExchange = await user.composeExchange(
       ethAccount.id,
       btcAccount.id,
       ethAmount,
       false // sendMax
     );
-    console.log(composedExchange);
 
-    zumokit.signOut();
+    console.log(composedExchange);
   } catch (error) {
     console.error(error);
   }

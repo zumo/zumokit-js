@@ -1,12 +1,25 @@
 {
   "compilerOptions": {
-    "outDir": "./dist/",
+    "strict": true,
     "noImplicitAny": true,
-    "target": "es5",
-    "jsx": "react",
-    "baseUrl": ".",
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "allowJs": true,
+    "target": "ES2018",
+    "moduleResolution": "node",
+    "types": ["node"],
+    "rootDir": "src",
+    "sourceMap": true,
+    "outDir": ".build",
+    "baseUrl": "./",
     "paths": {
-      "decimal.js": ["node_modules/decimal.js"]
-      }
-  }
+      "*": ["node_modules/*", "src/types/*"],
+    }
+  },
+  "ts-node": {
+    "transpileOnly": false,
+    "files": true,
+  },
+  "include": ["./src/**/*"]
 }

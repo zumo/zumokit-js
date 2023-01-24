@@ -1,5 +1,6 @@
 export interface AccountCryptoPropertiesJSON {
   address: string;
+  directDepositAddress: string | null;
   path: string;
   nonce: number | null;
 }
@@ -72,6 +73,7 @@ export interface ComposedTransactionJSON {
   data: string | null;
   fee: string;
   nonce: string;
+  custodyOrderId: string | null;
 }
 
 export interface TradingPairLimitJSON {
@@ -166,12 +168,20 @@ export interface CustodyOrderJSON {
   id: string;
   type: string;
   status: string;
-  from_addresses: Array<string>;
-  from_account_id: string | null;
-  to_address: string | null;
-  to_account_id: string | null;
-  created_at: number;
-  updated_at: number;
+  amount: string | null;
+  feeInAmount: boolean;
+  estimatedFees: string | null;
+  fees: string | null;
+  fromAddresses: Array<string> | null;
+  fromAccountId: string | null;
+  fromUserId: string | null;
+  fromUserIntegratorId: string | null;
+  toAddress: string | null;
+  toAccountId: string | null;
+  toUserId: string | null;
+  toUserIntegratorId: string | null;
+  createdAt: number;
+  updatedAt: number;
 }
 
 export interface TransactionJSON {
@@ -187,7 +197,7 @@ export interface TransactionJSON {
   senders: Array<TransactionAmountJSON>;
   recipients: Array<TransactionAmountJSON>;
   internalTransactions: Array<InternalTransactionJSON>;
-  custodyOrder: string | null;
+  custodyOrder: CustodyOrderJSON | null;
   cryptoProperties: TransactionCryptoPropertiesJSON | null;
   fiatProperties: TransactionFiatPropertiesJSON | null;
   cardProperties: TransactionCardPropertiesJSON | null;

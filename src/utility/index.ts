@@ -1,2 +1,2 @@
 export { errorProxy } from './errorProxy';
-export { loadZumoCore } from './loadZumoCore';
+export { getZumoCore as any } from './getZumoCore';
