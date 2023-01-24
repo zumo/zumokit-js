@@ -1,4 +1,4 @@
-1674565626
+1674570683
 conaninfo.txt: 458900cb8882bf4d305e798ceb2ba0c0
 zumocore.js: 3bf63964119c15a178f0cff1454b94af
-zumocore.wasm: 5438a455c87e84a0716269b88f2e7fe6
+zumocore.wasm: 07ef067ddaaacd46044a873ee3cae9af

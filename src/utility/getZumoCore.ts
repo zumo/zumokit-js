@@ -1,4 +1,4 @@
-import loadZumoCoreModule from '../zumocore/zumocore';
+const loadZumoCoreModule = require('../zumocore/zumocore');
 
 let instance: any;
 let semaphore = false;
