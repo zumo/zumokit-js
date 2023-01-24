@@ -24,6 +24,10 @@ import { ZumoKitError } from './ZumoKitError';
 export class ZumoKit {
   private zumoCoreModule: any;
 
+  private socket: WebSocket | null = null;
+  
+  private wsListener: any = null;
+
   private zumoCore: any;
 
   private changeListeners: Array<() => void> = [];
@@ -32,6 +36,9 @@ export class ZumoKit {
 
   /** ZumoKit SDK semantic version tag if exists, commit hash otherwise. */
   version: string;
+
+  /** Currently selected log level. Defaults to 'info'. */
+  logLevel: LogLevel = 'info';
 
   /** Currently signed-in user or null. */
   currentUser: User | null = null;
@@ -44,6 +51,107 @@ export class ZumoKit {
 
   /** Mapping between cryptocurrencies and available transaction fee rates. */
   transactionFeeRates: TransactionFeeRates = {};
+
+  private async request(
+    url: string,
+    method: string,
+    headers: any,
+    data: string,
+    callback: any
+  ) {
+    const requestHeaders: Record<string, string> = {};
+    const mapKeys = headers.keys();
+    for (let i = 0; i < mapKeys.size(); i++) {
+      const key = mapKeys.get(i);
+      requestHeaders[key] = headers.get(key);
+    }
+
+    console.log('Current log level', this.logLevel);
+    if (['trace', 'debug', 'info'].includes(this.logLevel)) {
+      // eslint-disable-next-line no-console
+      console.log(`Requesting ${url}`);
+    }
+
+    try {
+      const response = await fetch(url, {
+        method,
+        headers: requestHeaders,
+        body: data,
+      });
+
+      const result = await response.text();
+      callback.onSuccess(response.status, result);
+    } catch (exception) {
+      if (typeof exception === 'number') {
+        const error = new ZumoKitError(
+          this.zumoCoreModule.getException(exception)
+        );
+
+        callback.onNetworkError(error.message);
+      } else {
+        const { message } = (exception as unknown) as any;
+        callback.onNetworkError(message);
+      }
+    }
+  }
+
+  private connectWebSocket(url: string) {
+    this.socket = new WebSocket(url);
+    this.socket.on('open', () => {
+      this.wsListener?.onOpen(url);
+    });
+
+    this.socket.on('message', (event: MessageEvent) => {
+      this.wsListener?.onMessage(event.toString());
+    });
+
+    this.socket.on('error', () => {
+      this.wsListener?.onError('WebSocket error observed');
+      this.socket?.close();
+    });
+
+    this.socket.on('close', (event: CloseEvent) => {
+      this.wsListener?.onClose(
+        `WebSocket connection closed with exit code ${event.code}, additional info: ${event.reason}`
+      );
+
+      console.log('Current log level', this.logLevel);
+      if (['trace', 'debug', 'info'].includes(this.logLevel)) {
+        // eslint-disable-next-line no-console
+        console.log('Reconnecting in 5 seconds...');
+      }
+
+      // TODO: Reconnect via fuzzing back off generator
+      setTimeout(() => {
+        this.connectWebSocket(url);
+      }, 5000);
+    });
+  }
+
+  private subscribe(listener: any) {
+    this.wsListener = listener;
+  }
+
+  send(message: string) {
+    this.socket?.send(message);
+  }
+
+  private createWebSocket(url: string) {
+    const boundedConnectWebSocket = this.connectWebSocket.bind(this);
+    const boundedSend = this.send.bind(this);
+    const boundedSubscribe = this.subscribe.bind(this);
+    return new this.zumoCoreModule.WebSocketWrapper({
+      connect() {
+        boundedConnectWebSocket(url);
+      },
+      send(message: string) {
+        boundedSend(message);
+      },
+      subscribe(listener: any) {
+        boundedSubscribe(listener);
+      },
+    });
+  }
 
   /** @internal */
   constructor(
@@ -60,6 +168,7 @@ export class ZumoKit {
 
     this.version = zumoCoreModule.ZumoCore.getVersion();
 
+    const boundedRequest = this.request.bind(this);
     const httpImpl = new zumoCoreModule.HttpProviderWrapper({
       async request(
         url: string,
@@ -68,84 +177,14 @@ export class ZumoKit {
         data: string,
         callback: any
       ) {
-        const requestHeaders: Record<string, string> = {};
-        const mapKeys = headers.keys();
-        for (let i = 0; i < mapKeys.size(); i++) {
-          const key = mapKeys.get(i);
-          requestHeaders[key] = headers.get(key);
-        }
-
-        // eslint-disable-next-line no-console
-        console.log(`Requesting ${url}`);
-        try {
-          const response = await fetch(url, {
-            method,
-            headers: requestHeaders,
-            body: data,
-          });
-
-          const result = await response.text();
-          callback.onSuccess(response.status, result);
-        } catch (exception) {
-          if (typeof exception === 'number') {
-            const error = new ZumoKitError(
-              zumoCoreModule.getException(exception)
-            );
-
-            callback.onNetworkError(error.message);
-          } else {
-            const { message } = (exception as unknown) as any;
-            callback.onNetworkError(message);
-          }
-        }
+        boundedRequest(url, method, headers, data, callback);
       },
     });
 
+    const boundedCreateWebSocket= this.createWebSocket.bind(this);
     const wsFactory = new zumoCoreModule.WebSocketFactoryWrapper({
       createWebSocket(url: string) {
-        let socket: WebSocket | null = null;
-        let wsListener: any = null;
-        function connectWebSocket() {
-          socket = new WebSocket(url);
-
-          socket.on('open', () => {
-            wsListener?.onOpen(url);
-          });
-
-          socket.on('message', (event: MessageEvent) => {
-            wsListener?.onMessage(event.toString());
-          });
-
-          socket.on('error', () => {
-            wsListener?.onError('WebSocket error observed');
-            socket?.close();
-          });
-
-          socket.on('close', (event: CloseEvent) => {
-            wsListener?.onClose(
-              `WebSocket connection closed with exit code ${event.code}, additional info: ${event.reason}`
-            );
-
-            // TODO: Reconnect via fuzzing back off generator
-            // eslint-disable-next-line no-console
-            console.log('Reconnecting in 5 seconds...');
-            setTimeout(() => {
-              connectWebSocket();
-            }, 5000);
-          });
-        }
-
-        return new zumoCoreModule.WebSocketWrapper({
-          connect() {
-            connectWebSocket();
-          },
-          send(message: string) {
-            socket?.send(message);
-          },
-          subscribe(listener: any) {
-            wsListener = listener;
-          },
-        });
+        return boundedCreateWebSocket(url);
       },
     });
 
@@ -180,6 +219,7 @@ export class ZumoKit {
    */
   setLogLevel(logLevel: LogLevel) {
     this.zumoCoreModule.ZumoCore.setLogLevel(logLevel);
+    this.logLevel = logLevel;
   }
 
   /**
@@ -321,5 +361,12 @@ export class ZumoKit {
         this.changeListenersImpl.splice(index, 1)[0]
       );
     }
+  }
+
+  /**
+   * Stops WebSocket connection to Zumo Enterprise services.
+   */
+  disconnect() {
+    this.socket?.terminate();
   }
 }

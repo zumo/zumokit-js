@@ -34,6 +34,7 @@ declare let process: {
 
   // add custom logger
   // zumokit.onLog(console.log, 'debug');
+  zumokit.setLogLevel('error');
 
   // log version
   console.log(zumokit.version);
@@ -118,6 +119,8 @@ declare let process: {
     );
 
     console.log(composedExchange);
+
+    zumokit.disconnect();
   } catch (error) {
     console.error(error);
   }
