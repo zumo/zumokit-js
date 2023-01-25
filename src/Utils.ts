@@ -13,10 +13,14 @@ declare global {
  */
 export class Utils {
   /** @internal */
+  zumoCoreModule: any;
+
+  /** @internal */
   utilsImpl: any;
 
   /** @internal */
-  constructor(utilsImpl: any) {
+  constructor(zumoCoreModule: any, utilsImpl: any) {
+    this.zumoCoreModule = zumoCoreModule;
     this.utilsImpl = utilsImpl;
   }
 
@@ -28,7 +32,7 @@ export class Utils {
     try {
       return this.utilsImpl.generateMnemonic(wordCount);
     } catch (exception) {
-      throw new ZumoKitError(window.ZumoCoreModule.getException(exception));
+      throw new ZumoKitError(this.zumoCoreModule.getException(exception));
     }
   }
 
@@ -38,7 +42,11 @@ export class Utils {
    * @param address      blockchain address
    * @param network      network type
    */
-  isValidAddress(currencyCode: CurrencyCode, address: string, network: Network): boolean {
+  isValidAddress(
+    currencyCode: CurrencyCode,
+    address: string,
+    network: Network
+  ): boolean {
     return this.utilsImpl.isValidAddress(currencyCode, address, network);
   }
 }

@@ -1,3 +1,5 @@
+import fetch from 'node-fetch';
+import { WebSocket, MessageEvent, CloseEvent } from 'ws';
 import {
   CurrencyCode,
   TokenSet,
@@ -20,6 +22,12 @@ import { ZumoKitError } from './ZumoKitError';
  * ZumoKit instance. Refer to <a href="https://developers.zumo.money/docs/guides/initialize-zumokit">documentation</a> for usage details.
  * */
 export class ZumoKit {
+  private zumoCoreModule: any;
+
+  private socket: WebSocket | null = null;
+  
+  private wsListener: any = null;
+
   private zumoCore: any;
 
   private changeListeners: Array<() => void> = [];
@@ -41,8 +49,98 @@ export class ZumoKit {
   /** Mapping between cryptocurrencies and available transaction fee rates. */
   transactionFeeRates: TransactionFeeRates = {};
 
+  private async request(
+    url: string,
+    method: string,
+    headers: any,
+    data: string,
+    callback: any
+  ) {
+    const requestHeaders: Record<string, string> = {};
+    const mapKeys = headers.keys();
+    for (let i = 0; i < mapKeys.size(); i++) {
+      const key = mapKeys.get(i);
+      requestHeaders[key] = headers.get(key);
+    }
+
+    try {
+      const response = await fetch(url, {
+        method,
+        headers: requestHeaders,
+        body: data,
+      });
+
+      const result = await response.text();
+      callback.onSuccess(response.status, result);
+    } catch (exception) {
+      if (typeof exception === 'number') {
+        const error = new ZumoKitError(
+          this.zumoCoreModule.getException(exception)
+        );
+
+        callback.onNetworkError(error.message);
+      } else {
+        const { message } = (exception as unknown) as any;
+        callback.onNetworkError(message);
+      }
+    }
+  }
+
+  private connectWebSocket(url: string) {
+    this.socket = new WebSocket(url);
+    this.socket.on('open', () => {
+      this.wsListener?.onOpen(url);
+    });
+
+    this.socket.on('message', (event: MessageEvent) => {
+      this.wsListener?.onMessage(event.toString());
+    });
+
+    this.socket.on('error', () => {
+      this.wsListener?.onError('WebSocket error observed');
+      this.socket?.close();
+    });
+
+    this.socket.on('close', (event: CloseEvent) => {
+      this.wsListener?.onClose(
+        `WebSocket connection closed with exit code ${event.code}, additional info: ${event.reason}`
+      );
+
+      // TODO: Reconnect via fuzzing back off generator
+      setTimeout(() => {
+        this.connectWebSocket(url);
+      }, 5000);
+    });
+  }
+
+  private subscribe(listener: any) {
+    this.wsListener = listener;
+  }
+
+  send(message: string) {
+    this.socket?.send(message);
+  }
+
+  private createWebSocket(url: string) {
+    const boundedConnectWebSocket = this.connectWebSocket.bind(this);
+    const boundedSend = this.send.bind(this);
+    const boundedSubscribe = this.subscribe.bind(this);
+    return new this.zumoCoreModule.WebSocketWrapper({
+      connect() {
+        boundedConnectWebSocket(url);
+      },
+      send(message: string) {
+        boundedSend(message);
+      },
+      subscribe(listener: any) {
+        boundedSubscribe(listener);
+      },
+    });
+  }
+
   /** @internal */
   constructor(
+    zumoCoreModule: any,
     apiKey: string,
     apiUrl: string,
     transactionServiceUrl: string,
@@ -51,9 +149,12 @@ export class ZumoKit {
     exchangeServiceUrl: string,
     custodyServiceUrl: string
   ) {
-    this.version = window.ZumoCoreModule.ZumoCore.getVersion();
+    this.zumoCoreModule = zumoCoreModule;
 
-    const httpImpl = new window.ZumoCoreModule.HttpProviderWrapper({
+    this.version = zumoCoreModule.ZumoCore.getVersion();
+
+    const boundedRequest = this.request.bind(this);
+    const httpImpl = new zumoCoreModule.HttpProviderWrapper({
       async request(
         url: string,
         method: string,
@@ -61,87 +162,18 @@ export class ZumoKit {
         data: string,
         callback: any
       ) {
-        const requestHeaders: Record<string, string> = {};
-        const mapKeys = headers.keys();
-        for (let i = 0; i < mapKeys.size(); i++) {
-          const key = mapKeys.get(i);
-          requestHeaders[key] = headers.get(key);
-        }
-
-        // eslint-disable-next-line no-console
-        console.log(`Requesting ${url}`);
-        try {
-          const response = await fetch(url, {
-            method,
-            headers: requestHeaders,
-            body: data,
-          });
-
-          const result = await response.text();
-          callback.onSuccess(response.status, result);
-        } catch (exception) {
-          if (typeof exception === 'number') {
-            const error = new ZumoKitError(
-              window.ZumoCoreModule.getException(exception)
-            );
-
-            callback.onNetworkError(error.message);
-          } else {
-            callback.onNetworkError(exception.message);
-          }
-        }
+        boundedRequest(url, method, headers, data, callback);
       },
     });
 
-    const wsFactory = new window.ZumoCoreModule.WebSocketFactoryWrapper({
+    const boundedCreateWebSocket= this.createWebSocket.bind(this);
+    const wsFactory = new zumoCoreModule.WebSocketFactoryWrapper({
       createWebSocket(url: string) {
-        let socket: WebSocket | null = null;
-        let wsListener: any = null;
-        function connectWebSocket() {
-          socket = new WebSocket(url);
-
-          socket.addEventListener('open', () => {
-            wsListener?.onOpen(url);
-          });
-
-          socket.addEventListener('message', (event) => {
-            wsListener?.onMessage(event.data);
-          });
-
-          socket.addEventListener('error', () => {
-            wsListener?.onError('WebSocket error observed');
-            socket?.close();
-          });
-
-          socket.addEventListener('close', (event) => {
-            wsListener?.onClose(
-              `WebSocket connection closed with exit code ${event.code}, additional info: ${event.reason}`
-            );
-
-            // TODO: Reconnect via fuzzing back off generator
-            // eslint-disable-next-line no-console
-            console.log('Reconnecting in 5 seconds...');
-            setTimeout(() => {
-              connectWebSocket();
-            }, 5000);
-          });
-        }
-
-        return new window.ZumoCoreModule.WebSocketWrapper({
-          connect() {
-            connectWebSocket();
-          },
-          send(message: string) {
-            socket?.send(message);
-          },
-          subscribe(listener: any) {
-            wsListener = listener;
-          },
-        });
+        return boundedCreateWebSocket(url);
       },
     });
 
-    this.zumoCore = new window.ZumoCoreModule.ZumoCore(
+    this.zumoCore = new zumoCoreModule.ZumoCore(
       httpImpl,
       wsFactory,
       apiKey,
@@ -153,7 +185,7 @@ export class ZumoKit {
       custodyServiceUrl
     );
 
-    this.utils = new Utils(this.zumoCore.getUtils());
+    this.utils = new Utils(this.zumoCoreModule, this.zumoCore.getUtils());
 
     this.addChangeListener(() => {
       this.exchangeRates = ExchangeRates(
@@ -171,7 +203,7 @@ export class ZumoKit {
    * @param logLevel log level, e.g. 'debug' or 'info'
    */
   setLogLevel(logLevel: LogLevel) {
-    window.ZumoCoreModule.ZumoCore.setLogLevel(logLevel);
+    this.zumoCoreModule.ZumoCore.setLogLevel(logLevel);
   }
 
   /**
@@ -181,8 +213,8 @@ export class ZumoKit {
    * @param logLevel log level, e.g. 'debug' or 'info'
    */
   onLog(listener: (message: string) => void, logLevel: LogLevel) {
-    window.ZumoCoreModule.ZumoCore.onLog(
-      new window.ZumoCoreModule.LogListenerWrapper({
+    this.zumoCoreModule.ZumoCore.onLog(
+      new this.zumoCoreModule.LogListenerWrapper({
         onLog(message: string) {
           listener(message);
         },
@@ -198,20 +230,23 @@ export class ZumoKit {
    * @param tokenSet   user token set
    */
   signIn(userTokenSet: TokenSet) {
-    return errorProxy<User>((resolve: any, reject: any) => {
-      this.zumoCore.signIn(
-        JSON.stringify(userTokenSet),
-        new window.ZumoCoreModule.UserCallbackWrapper({
-          onError: (error: string) => {
-            reject(new ZumoKitError(error));
-          },
-          onSuccess: (user: any) => {
-            this.currentUser = new User(user);
-            resolve(this.currentUser);
-          },
-        })
-      );
-    });
+    return errorProxy<User>(
+      this.zumoCoreModule,
+      (resolve: any, reject: any) => {
+        this.zumoCore.signIn(
+          JSON.stringify(userTokenSet),
+          new this.zumoCoreModule.UserCallbackWrapper({
+            onError: (error: string) => {
+              reject(new ZumoKitError(error));
+            },
+            onSuccess: (user: any) => {
+              this.currentUser = new User(this.zumoCoreModule, user);
+              resolve(this.currentUser);
+            },
+          })
+        );
+      }
+    );
   }
 
   /** Signs out current user. */
@@ -258,21 +293,24 @@ export class ZumoKit {
    * @return historical exchange rates
    */
   fetchHistoricalExchangeRates() {
-    return errorProxy<HistoricalExchangeRates>((resolve: any, reject: any) => {
-      this.zumoCore.fetchHistoricalExchangeRates(
-        new window.ZumoCoreModule.HistoricalExchangeRatesCallbackWrapper({
-          onError(error: string) {
-            reject(new ZumoKitError(error));
-          },
-          onSuccess(json: string) {
-            const historicalExchangeRatesJSON = JSON.parse(
-              json
-            ) as HistoricalExchangeRatesJSON;
-            resolve(HistoricalExchangeRates(historicalExchangeRatesJSON));
-          },
-        })
-      );
-    });
+    return errorProxy<HistoricalExchangeRates>(
+      this.zumoCoreModule,
+      (resolve: any, reject: any) => {
+        this.zumoCore.fetchHistoricalExchangeRates(
+          new this.zumoCoreModule.HistoricalExchangeRatesCallbackWrapper({
+            onError(error: string) {
+              reject(new ZumoKitError(error));
+            },
+            onSuccess(json: string) {
+              const historicalExchangeRatesJSON = JSON.parse(
+                json
+              ) as HistoricalExchangeRatesJSON;
+              resolve(HistoricalExchangeRates(historicalExchangeRatesJSON));
+            },
+          })
+        );
+      }
+    );
   }
 
   /**
@@ -281,7 +319,7 @@ export class ZumoKit {
    * @param listener interface to listen to changes
    */
   addChangeListener(listener: () => void) {
-    const listenerImpl = new window.ZumoCoreModule.ChangeListenerWrapper({
+    const listenerImpl = new this.zumoCoreModule.ChangeListenerWrapper({
       onChange() {
         listener();
       },
@@ -307,5 +345,12 @@ export class ZumoKit {
         this.changeListenersImpl.splice(index, 1)[0]
       );
     }
+  }
+
+  /**
+   * Stops WebSocket connection to Zumo Enterprise services.
+   */
+  disconnect() {
+    this.socket?.terminate();
   }
 }

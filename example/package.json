@@ -1,34 +1,25 @@
 {
   "name": "example",
   "version": "1.0.0",
-  "description": "ZumoKit webpack example",
-  "main": "index.js",
+  "description": "ZumoKit example",
+  "main": "index.ts",
   "scripts": {
-    "dev": "webpack --mode development",
-    "start": "webpack-dev-server --mode development --open",
-    "build": "webpack --mode production"
+    "start": "ts-node -r dotenv/config index.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@babel/runtime": "^7.11.2",
-    "zumokit": "^4.7.0",
-    "decimal.js": "^10.4.3"
+    "decimal.js": "^10.4.3",
+    "node-fetch": "^2.6.2",
+    "ws": "^8.5.4",
+    "zumokit": "^4.8.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.11.6",
-    "@babel/plugin-transform-runtime": "^7.11.5",
-    "@babel/preset-env": "^7.11.5",
-    "babel-loader": "^8.1.0",
-    "css-loader": "^4.2.2",
+    "@typescript-eslint/eslint-plugin": "^5.48.0",
+    "@typescript-eslint/parser": "^5.48.0",
     "dotenv": "^8.2.0",
-    "html-webpack-plugin": "^4.4.1",
-    "style-loader": "^1.2.1",
-    "ts-loader": "^8.0.11",
-    "typescript": "^4.0.5",
-    "webpack": "^4.44.1",
-    "webpack-cli": "^3.3.12",
-    "webpack-dev-server": "^3.11.0"
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.4"
   }
 }

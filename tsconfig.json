@@ -1,23 +1,20 @@
 {
   "compilerOptions": {
-    "lib": [
-      "es2015",
-      "es2016",
-      "es2017",
-      "es6",
-      "dom"
-    ],
-    "outDir": "./dist/module/",
-    "allowJs": false,
+
+    "outDir": "./dist/",
+    "allowJs": true,
+    "allowSyntheticDefaultImports": true,
     "target": "es5",
     "strict": true,
     "strictPropertyInitialization": true,
     "noEmitOnError": true,
     "noImplicitAny": true,
-    "declaration": true
+    "declaration": true,
+    "moduleResolution": "node"
   },
   "include": [
     "./index.ts",
+    "./*.d.ts",
     "./src/**/*"
   ]
 }
