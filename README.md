@@ -10,7 +10,7 @@ Refer to ZumoKit SDK developer [documentation](https://developers.zumo.money/doc
 
 ## Installation
 
-ZumoKit is distributed through NPM repository and it has a peer dependency on [decimal.js](https://github.com/MikeMcl/decimal.js/), which also has to be installed:
+ZumoKit is distributed through NPM repository and it has a couple of peer dependencies that also need to be installed:
 
 ```
 npm install node-fetch@^2.6.2 ws@^8.5.4 decimal.js@^10.2.0 zumokit
@@ -51,3 +51,7 @@ import { CurrencyCode, AccountType, Network } from 'zumokit';
 ## Example
 
 The [example project](https://github.com/zumo/zumokit-js/tree/master/example) demonstrates the expected user flow, including authentication process, wallet creation and transaction submission.
+
+NOTE: You need to install [git-lfs](https://git-lfs.com/) to be able to clone this repository:
+- `brew install git-lfs`
+- `git lfs install`

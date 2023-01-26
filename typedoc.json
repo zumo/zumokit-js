@@ -3,6 +3,7 @@
   "includeVersion": true,
   "exclude": [
     "**/utility/*",
+    "**/zumocore/*",
     "src/interfaces/private/*"
   ],
   "mode": "file",
