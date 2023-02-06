@@ -34,6 +34,8 @@ export class ZumoKit {
 
   private changeListenersImpl: Array<any> = [];
 
+  private disconnected = false;
+
   /** ZumoKit SDK semantic version tag if exists, commit hash otherwise. */
   version: string;
 
@@ -97,11 +99,19 @@ export class ZumoKit {
     });
 
     this.socket.on('error', () => {
+      if (this.disconnected) {
+        return;
+      }
+
       this.wsListener?.onError('WebSocket error observed');
       this.socket?.close();
     });
 
     this.socket.on('close', (event: CloseEvent) => {
+      if (this.disconnected) {
+        return;
+      }
+
       this.wsListener?.onClose(
         `WebSocket connection closed with exit code ${event.code}, additional info: ${event.reason}`
       );
@@ -351,6 +361,7 @@ export class ZumoKit {
    * Stops WebSocket connection to Zumo Enterprise services.
    */
   disconnect() {
+    this.disconnected = true;
     this.socket?.terminate();
   }
 }
