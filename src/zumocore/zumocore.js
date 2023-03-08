@@ -1429,11 +1429,11 @@ function updateGlobalBufferAndViews(buf) {
 }
 
 var STATIC_BASE = 1024,
-    STACK_BASE = 5986256,
+    STACK_BASE = 5986224,
     STACKTOP = STACK_BASE,
-    STACK_MAX = 743376,
-    DYNAMIC_BASE = 5986256,
-    DYNAMICTOP_PTR = 743200;
+    STACK_MAX = 743344,
+    DYNAMIC_BASE = 5986224,
+    DYNAMICTOP_PTR = 743168;
 
 assert(STACK_BASE % 16 === 0, 'stack must start aligned');
 assert(DYNAMIC_BASE % 16 === 0, 'heap must start aligned');
@@ -2003,7 +2003,7 @@ var ASM_CONSTS = {
 
 
 
-// STATICTOP = STATIC_BASE + 742352;
+// STATICTOP = STATIC_BASE + 742320;
 /* global initializers */  __ATINIT__.push({ func: function() { ___wasm_call_ctors() } });
 
 
@@ -2272,7 +2272,7 @@ var ASM_CONSTS = {
       var typeArray = Array.prototype.slice.call(arguments);
   
       // can_catch receives a **, add indirection
-      var thrownBuf = 743360;
+      var thrownBuf = 743328;
       HEAP32[((thrownBuf)>>2)]=thrown;
       // The different catch blocks are denoted by different types.
       // Due to inheritance, those types may not precisely match the
@@ -2312,7 +2312,7 @@ var ASM_CONSTS = {
       var typeArray = Array.prototype.slice.call(arguments);
   
       // can_catch receives a **, add indirection
-      var thrownBuf = 743360;
+      var thrownBuf = 743328;
       HEAP32[((thrownBuf)>>2)]=thrown;
       // The different catch blocks are denoted by different types.
       // Due to inheritance, those types may not precisely match the
@@ -8015,7 +8015,7 @@ var ASM_CONSTS = {
     }
 
   function _emscripten_get_sbrk_ptr() {
-      return 743200;
+      return 743168;
     }
 
   function _emscripten_memcpy_big(dest, src, num) {
@@ -8230,7 +8230,7 @@ var ASM_CONSTS = {
     }
 
   
-  var ___tm_timezone=(stringToUTF8("GMT", 743264, 4), 743264);function _gmtime_r(time, tmPtr) {
+  var ___tm_timezone=(stringToUTF8("GMT", 743232, 4), 743232);function _gmtime_r(time, tmPtr) {
       var date = new Date(HEAP32[((time)>>2)]*1000);
       HEAP32[((tmPtr)>>2)]=date.getUTCSeconds();
       HEAP32[(((tmPtr)+(4))>>2)]=date.getUTCMinutes();
